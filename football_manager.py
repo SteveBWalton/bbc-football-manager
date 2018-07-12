@@ -35,10 +35,10 @@ def Football():
 
 
 def Run():
-	''' Main entry point for the program. '''
-	Football()
+    ''' Main entry point for the program. '''
+    Football()
 
-	
+
 
 if __name__ == '__main__':
     # Process the command line arguments.
@@ -48,11 +48,11 @@ if __name__ == '__main__':
 
     # Welcome message.
     print('{}BBC Football Manager{} by Steve Walton.'.format(modANSI.RED, modANSI.RESET_ALL))
-    print('Original BBC Basic verison developed 1982-1989,2000')
+    print('Developed 2018.  Original BBC Basic verison developed 1982-1989, 2000')
     print('Python Version {}.{}.{} (expecting Python 3).'.format(sys.version_info.major, sys.version_info.minor, sys.version_info.micro))
     print('Operating System is "{}".  Desktop is "{}".'.format(platform.system(), os.environ.get('DESKTOP_SESSION')))
 
     # Main loop.
     Run()
 
-    print('Goodbye from the \033[1;31mBBC Football Manager\033[0;m program.')
+    print('Goodbye from the {}BBC Football Manager{} program.'.format(modANSI.RED, modANSI.RESET_ALL))
