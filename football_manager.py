@@ -20,23 +20,21 @@ import random
 
 # Application Libraries.
 import modANSI
+import modGame
 
-
-def Football():
-    ''' Implementation of DEFPROCfootball().  Display a title. '''
-    print('###             #        # #   ##   ##')
-    print('#            #  #        # #   # # # #' )
-    print('### ### ### ### ### ###  # #   #  #  # ### #### ###  ### ### ###')
-    print('#   # # # #  #  # # # #  # #   #     # # #  # # # #  # # ##  #')
-    print('#   ### ###  #  ### #### # #   #     # #### # # #### ### ### #')
-    print('                                                       #')
-    print('########################################################')
-    print('By Steve Walton BBC BASIC 1982-1989, 2000, Python 2018.')
 
 
 def Run():
     ''' Main entry point for the program. '''
-    Football()
+    # Create a game object.
+    oGame = modGame.CGame()
+    oGame.Football()
+
+    # Get the player settings.
+    print()
+    oGame.player_name = input('Please enter your name: ')
+    print('Hello {}{}{}.'.format(modANSI.RED, oGame.player_name, modANSI.RESET_ALL))
+
 
 
 
