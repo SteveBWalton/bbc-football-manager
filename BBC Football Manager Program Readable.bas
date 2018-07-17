@@ -1,31 +1,50 @@
 This not the actual BBC Basic Code.
 But an attempt to make the code readable.
 
-   20   MODE7
-        VDU23;8202;0;0;0;   30   REM ?&220=&00:?&221=&0C:?&20C=&3D:?&20D=&0C   40   DIMT$(16),PLY%(15),PL$(26),SK%(26),ENG%(26),IT%(26),INJ(2),WK(30),SC%(26,1),D%(4,1),TP$(3)   50   *OPT1,1   70   PROCFOOTBALL   80   *FX14,5  100   ENVELOPE1,10,0,0,0,10,10,10,63,-10,-10,-10,126,100  110   CUP$ = "1st Round      2nd Round      Quarter Final  Semi Final     FINAL          Champions      "  120   INPUT'''''"ÜENTER YOUR NAMEÖ"MAN$  130   PRINT "ÜENTER LEVEL (1-4) ";  140   L% = GET
+   20   MODE 7
+        VDU 23;8202;0;0;0;
+   30   REM ?&220=&00:?&221=&0C:?&20C=&3D:?&20D=&0C
+   40   DIMT$(16), PLY%(15), PL$(26), SK%(26), ENG%(26), IT%(26), INJ(2), WK(30), SC%(26, 1), D%(4, 1), TP$(3)
+   50   *OPT 1, 1
+   70   PROCFOOTBALL
+   80   *FX 14, 5
+  100   ENVELOPE1,10,0,0,0,10,10,10,63,-10,-10,-10,126,100
+  110   CUP$ = "1st Round      2nd Round      Quarter Final  Semi Final     FINAL          Champions      "
+  120   INPUT '''''"ÜENTER YOUR NAMEÖ"MAN$
+  130   PRINT "ÜENTER LEVEL (1-4) ";
+  140   L% = GET
         L% = L%-49
         IF L% < 0 OR L% > 3 THEN
             VDU 7
-            GOTO 140  150   PRINT"Ö";L%+1  160   PRINT"ÜDO YOU WANT SOUND ?";  170   IF FNYES THEN
-            PRINT"ÖYes"
+            GOTO 140
+  150   PRINT "Ö";L%+1
+  160   PRINT "ÜDO YOU WANT SOUND ?";
+  170   IF FNYES THEN
+            PRINT "ÖYes"
             S% = -15
         ELSE
             PRINT"ÖNo"
-            S%=0  180   PRINT"ÜDO YOU WANT TO LOAD A 'GAME'";  190   IF  FNYES THEN
-            PRINT"ÖYes"
+            S%=0
+  180   PRINT "ÜDO YOU WANT TO LOAD A 'GAME'";
+  190   IF  FNYES THEN
+            PRINT "ÖYes"
             PROCLOAD
             GOTO 450
         ELSE
-            PRINT"ÖNo"  200   *FX13,5  210   PROCPICKTEAM  320   X% = OPENIN("L.PLAY")
+            PRINT "ÖNo"
+  200   *FX 13, 5
+  210   PROCPICKTEAM
+  320   X% = OPENIN("L.PLAY")
         FOR F% = 1 TO 26
             INPUT #X%, PL$(F%)
             SK%(F%) = RND(5)
             ENG%(F%) = RND(10)+10
             NEXT
         FOR F% = 1 TO 4
-            SK%(RND(26))=5
+            SK%(RND(26)) = 5
             NEXT
-        CLOSE #X%  330   R$ = ""
+        CLOSE #X%
+  330   R$ = ""
         E$ = ""
         e$ = ""
         AA% = 0
@@ -36,82 +55,146 @@ But an attempt to make the code readable.
         PK = 0
         IT% = 12
         IJ% = 0
-        NJ% = 0  340   FOR F% = 1 TO 12  350       REPEAT
+        NJ% = 0
+  340   FOR F% = 1 TO 12
+  350       REPEAT
                 A = RND(26)
-                UNTIL IT%(A) <> 1  360       IT%(A) = 1  370       NEXT  380   divison = 4
+                UNTIL IT%(A) <> 1
+  360       IT%(A) = 1
+  370       NEXT
+  380   divison = 4
         T$(7) = STRING$(10, " ") + YT$
         L=7
-        PROCDIVISON  390   M%=0
+        PROCDIVISON
+  390   M%=0
         FOR F = 1 TO 3
             TP$(F) = ""
             NEXT
-        match = 0  400   PROCSORT  410   F% = 0
+        match = 0
+  400   PROCSORT
+  410   F% = 0
         REPEAT
             F% = F%+1
             PROCIN(F%)
-            UNTIL PK = 11 OR F% = 26  420   ML$ = MID$(T$(8), 12)  430   FOR F = 0 TO 15
+            UNTIL PK = 11 OR F% = 26
+  420   ML$ = MID$(T$(8), 12)
+  430   FOR F = 0 TO 15
             PLY%(F) = 0
             NEXT
-        PLY%(L) = 32  440   FOR F = 0 TO 1
+        PLY%(L) = 32
+  440   FOR F = 0 TO 1
             FOR D = 0 TO 4
                 D%(D, F) = 0
                 NEXT
-            NEXT  450   REPEAT  460       PSEL = 0
+            NEXT
+  450   REPEAT
+  460       PSEL = 0
             PBUY = 0
             CUPB = 0
-            rnd = 4000-RND(8000)  470       REM *FX 14, 6  480       REM ON ERROR GOTO 6090  490       CLS  500       PRINT "ÉMANAGER:";MAN$  510       IF N% THEN
-                PRINTSPC(8)"Öis the manager of the year"  520       PRINT "ÉLEVEL ";L%+1  530       PRINT TAB(5);YT$;"'s titles"  540       IF (AA% AND 1) THEN
-                PRINT TAB(7);"Ö";R$  550       IF (AA% AND 2) THEN
-                PRINT TAB(7);"ÉF.A. Cup"  560       IF  (AA% AND 4) THEN
-                PRINTTAB(7);"ÇLeague Cup"  570       IF (AA% AND 8) THEN
-                PRINTTAB(7);"Ü"e$  580       *TYPE T.MENU  650       *FX 15, 1  660       A = GET  670       IF A = 49 THEN
+            rnd = 4000-RND(8000)
+  470       REM *FX 14, 6
+  480       REM ON ERROR GOTO 6090
+  490       CLS
+  500       PRINT "ÉMANAGER:";MAN$
+  510       IF N% THEN
+                PRINTSPC(8)"Öis the manager of the year"
+  520       PRINT "ÉLEVEL ";L%+1
+  530       PRINT TAB(5);YT$;"'s titles"
+  540       IF (AA% AND 1) THEN
+                PRINT TAB(7);"Ö";R$
+  550       IF (AA% AND 2) THEN
+                PRINT TAB(7);"ÉF.A. Cup"
+  560       IF  (AA% AND 4) THEN
+                PRINTTAB(7);"ÇLeague Cup"
+  570       IF (AA% AND 8) THEN
+                PRINTTAB(7);"Ü"e$
+  580       *TYPE T.MENU
+  650       *FX 15, 1
+  660       A = GET
+  670       IF A = 49 THEN
                 PROCSELL
-                GOTO490  680       IF A = 50 THEN
+                GOTO490
+  680       IF A = 50 THEN
                 PROCLEND
-                GOTO490  690       IF A = 51 THEN
+                GOTO490
+  690       IF A = 51 THEN
                 PROCRENAME
-                GOTO490  700       IF A = 53 THEN
-                PROCSAVE  710       IF A = 54 THEN
-                PROCRESTART  720       IF A = 55 THEN
+                GOTO490
+  700       IF A = 53 THEN
+                PROCSAVE
+  710       IF A = 54 THEN
+                PROCRESTART
+  720       IF A = 55 THEN
                 PROCLEAGUE
-                PROCWAIT  730       IF A <> 52 THEN
-                GOTO 490  740       match = match+1  750       IF match MOD 6 = 4 AND (CP% AND 2) THEN
-                PROCCUPMATCH("F.A. Cup",1)  760       IF match MOD 6 = 2 AND (CP% AND 4) THEN
-                PROCCUPMATCH("Littlewoods Cup",2)  770       IF match MOD 6 = 0 AND (CP% AND 8) THEN
-                PROCCUPMATCH(E$,3)  780       IF match = 16 THEN
+                PROCWAIT
+  730       IF A <> 52 THEN
+                GOTO 490
+  740       match = match+1
+  750       IF match MOD 6 = 4 AND (CP% AND 2) THEN
+                PROCCUPMATCH("F.A. Cup",1)
+  760       IF match MOD 6 = 2 AND (CP% AND 4) THEN
+                PROCCUPMATCH("Littlewoods Cup",2)
+  770       IF match MOD 6 = 0 AND (CP% AND 8) THEN
+                PROCCUPMATCH(E$,3)
+  780       IF match = 16 THEN
                 FOR F% = 0 TO 15
                     PLY%(F%) = PLY%(F%) AND -64
                     NEXT
-                PLY%(L) = PLY%(L) OR 32  790       CLS  800       F = 0  810       REPEAT  820           REPEAT  830               P = RND(16)-1  840               V% = -((MID$(T$(P), 12) < ML$) EOR (match > 15))  850               UNTIL (PLY%(P) AND 32) = 0  860           F = F+1  870           UNTIL V% = ((match+1) AND 1) OR F > 4  880       PROCCLEAR
+                PLY%(L) = PLY%(L) OR 32
+  790       CLS
+  800       F = 0
+  810       REPEAT
+  820           REPEAT
+  830               P = RND(16)-1
+  840               V% = -((MID$(T$(P), 12) < ML$) EOR (match > 15))
+  850               UNTIL (PLY%(P) AND 32) = 0
+  860           F = F+1
+  870           UNTIL V% = ((match+1) AND 1) OR F > 4
+  880       PROCCLEAR
             PLY%(P) = PLY%(P) OR 48
-            PLY%(L) = PLY%(L) OR 48  890       IF V% = 0 THEN
+            PLY%(L) = PLY%(L) OR 48
+  890       IF V% = 0 THEN
                 PLY%(P) = PLY%(P)+72
             ELSE
-                PLY%(L) = PLY%(L)+72  900       CLS
-            PROCDISPLAY(L, P)  910       PRINT TAB(15, VPOS-4);
+                PLY%(L) = PLY%(L)+72
+  900       CLS
+            PROCDISPLAY(L, P)
+  910       PRINT TAB(15, VPOS-4);
             IF V% = 0 THEN
                 PRINT FNDH("ÇHome")
             ELSE
-                PRINTFNDH("ÅAway")  920       *FX 15, 1  930       A = GET  940       IF A = 67 THEN
-                PROCPICK  950       IF A <> 9 THEN
-                GOTO 900  960       PRINTSPC(79)
-            VDU 11, 11  970       PROCPLAYMATCH(L, P, (1-V%)/2, V%/2, V%, TRUE)  980       T$(L) = FNADD(T$(L), 2, LEGOS-ATGOS)
-            T$(P) = FNADD(T$(P), 2, ATGOS-LEGOS)  990       IF ATGOS = LEGOS THEN
+                PRINTFNDH("ÅAway")
+  920       *FX 15, 1
+  930       A = GET
+  940       IF A = 67 THEN
+                PROCPICK
+  950       IF A <> 9 THEN
+                GOTO 900
+  960       PRINTSPC(79)
+            VDU 11, 11
+  970       PROCPLAYMATCH(L, P, (1-V%)/2, V%/2, V%, TRUE)
+  980       T$(L) = FNADD(T$(L), 2, LEGOS-ATGOS)
+            T$(P) = FNADD(T$(P), 2, ATGOS-LEGOS)
+  990       IF ATGOS = LEGOS THEN
                 T$(L) = FNADD(T$(L), 1, 1)
                 T$(L) = FNADD(T$(L), 4, 1)
                 T$(P) = FNADD(T$(P), 1, 1)
                 T$(P) = FNADD(T$(P), 4, 1)
-                WK(match) = 64 1000       IF ATGOS < LEGOS THEN
+                WK(match) = 64
+ 1000       IF ATGOS < LEGOS THEN
                 T$(L) = FNADD(T$(L), 1, 3)
                 T$(L) = FNADD(T$(L), 3, 1)
                 T$(P) = FNADD(T$(P), 5, 1)
-                WK(match) = 128 1010       IF ATGOS > LEGOS THEN
+                WK(match) = 128
+ 1010       IF ATGOS > LEGOS THEN
                 T$(P) = FNADD(T$(P), 1, 3)
                 T$(P) = FNADD(T$(P), 3, 1)
                 T$(L) = FNADD(T$(L), 5, 1)
-                WK(match) = 0 1020       D%(1-SGN(LEGOS-ATGOS), V%) = D%(1-SGN(LEGOS-ATGOS), V%) + 1
+                WK(match) = 0
+ 1020       D%(1-SGN(LEGOS-ATGOS), V%) = D%(1-SGN(LEGOS-ATGOS), V%) + 1
             D%(3, V%) = D%(3, V%) + LEGOS
-            D%(4, V%) = D%(4, V%) + ATGOS 1030       WK(match) = WK(match) + 256 * V%
+            D%(4, V%) = D%(4, V%) + ATGOS
+ 1030       WK(match) = WK(match) + 256 * V%
  1040       PRICE = (1-V%) * ((9000+(15-L-P)*500)*(5-divison)+RND(1000))
             IF ABS(FNV(T$(L), 1) - FNV(T$(A), 1)) < 4 THEN
                 PRICE = PRICE + (1-V%) * (5-divison) * 3000
@@ -172,7 +255,8 @@ But an attempt to make the code readable.
         NJ% = 0
  1240   F% = 5 - divison
         M% = M% + (15-L)*F%
-        F = (F%*40000) - (F%*(L*2000)) 1250   PRINT '"ÇSeason bonus :`";F
+        F = (F%*40000) - (F%*(L*2000))
+ 1250   PRINT '"ÇSeason bonus :`";F
  1260   MON% = MON% + F
  1270   PK = 0
         E$ = ""
@@ -187,17 +271,23 @@ But an attempt to make the code readable.
             PRINT "ÇYou qualify for the"'FNDH(E$)
  1330   N% = FALSE
  1340   PROCWAIT
- 1350   *FX 13, 5 1360   IF M% > 60 THEN
+ 1350   *FX 13, 5
+ 1360   IF M% > 60 THEN
             PRINT"ÇYou are in the Manager of the Year     ÇCompetition"
             FOR F = 1 TO 2000
                 NEXT
             IF M% > 70 THEN
                 PROCCUP("Manager of the Year", MAN$)
-                N% = TRUE 1370   PRINT '" LEVEL ";L%+1'"ÉENTER NEW LEVEL "
+                N% = TRUE
+ 1370   PRINT '" LEVEL ";L%+1'"ÉENTER NEW LEVEL "
  1380   L% = GET-49
         IF L% < 0 OR L% > 3 THEN
-            GOTO 1380 1390   GOTO 390
- 1410   DEFFN @(@%, V)
+            GOTO 1380
+ 1390   GOTO 390
+
+
+
+ 1410   DEFFN @(@%, V)
             LOCAL A$, Q%, P%
  1420       Q% = @% AND 128
             P% = @% AND 64
@@ -216,23 +306,41 @@ But an attempt to make the code readable.
             IF LEN(A$) > @% THEN
                 @% = LEN(A$)
  1480       = STRING$(@%-LEN(A$), " ") + A$
- 1490   DEFFN MIN(A, B)
+
+
+
+ 1490   DEFFN MIN(A, B)
             IF A < B THEN
                 = A
             ELSE
                 = B
- 1500   DEFFN MAX(A, B)
+
+
+
+ 1500   DEFFN MAX(A, B)
             IF A > B THEN
                 = A
             ELSE
                 = B
- 1510   DEFFN V(A$, C%)
+
+
+
+ 1510   DEFFN V(A$, C%)
             = ASC(MID$(A$, C%)) - 32
- 1520   DEFFN SET(A$, C%, V%)
+
+
+
+ 1520   DEFFN SET(A$, C%, V%)
             =LEFT$(A$, C%-1) + CHR$(32 + FNMIN(223, FNMAX(V%, 0))) + MID$(A$, C%+1)
- 1530   DEFFN ADD(A$, C%, V%)
+
+
+
+ 1530   DEFFN ADD(A$, C%, V%)
             =FNSET(A$, C%, V%+FNV(A$, C%))
- 1540   DEFFNYES
+
+
+
+ 1540   DEFFNYES
             LOCAL A%
  1550       REPEAT
                 A% = GET AND -33
@@ -241,12 +349,18 @@ But an attempt to make the code readable.
                 =TRUE
             ELSE
                 =FALSE
- 1570   DEFFN IF(T$, C%)
+
+
+
+ 1570   DEFFN IF(T$, C%)
             IF C% THEN
                 = T$
             ELSE
                 = ""
- 1580   DEFPROC IN(A%)
+
+
+
+ 1580   DEFPROC IN(A%)
  1590       IF IT%(A%) <> 1 THEN
                 ENDPROC
  1600       T$(L) = FNADD(T$(L), INT((A%-1)/10)+8, SK%(A%))
@@ -254,7 +368,10 @@ But an attempt to make the code readable.
             IT%(A%) = 3
  1610       PK = PK + 1
  1620       ENDPROC
- 1630   DEFPROCDROP(A%)
+
+
+
+ 1630   DEFPROCDROP(A%)
  1640       IF IT%(A%) <> 3 THEN
                 ENDPROC
  1650       T$(L) = FNADD(T$(L), INT((A%-1)/10)+8, -SK%(A%))
@@ -262,7 +379,10 @@ But an attempt to make the code readable.
             IT%(A%) = 1
  1660       PK = PK-1
  1670       ENDPROC
- 1680   DEFPROCPLAYMATCH(L, P, LB, PB, V%, L%)
+
+
+
+ 1680   DEFPROCPLAYMATCH(L, P, LB, PB, V%, L%)
  1690       Y% = VPOS
             PROCMATCH(L, P, LB, PB)
  1700       HT% = FNNEXTGOAL(HG, 0)
@@ -306,19 +426,30 @@ But an attempt to make the code readable.
                     UNTIL TIME > T%+15
  1820           NEXT
  1830       ENDPROC
- 1840   DEFPROCDISPLAY(L,P) 1850       PRINT TAB(15-LEN(T$(L))/2)MID$(T$(L), 11)TAB(35-LEN(T$(P))/2)MID$(T$(P), 11)
+
+
+
+ 1840   DEFPROCDISPLAY(L,P)
+ 1850       PRINT TAB(15-LEN(T$(L))/2)MID$(T$(L), 11)TAB(35-LEN(T$(P))/2)MID$(T$(P), 11)
  1860       IF P <> 16 THEN
                 PRINT "POS"TAB(10)FN@(2, L+1)TAB(30)FN@(2, P+1)
  1870       PRINT "ENG"TAB(10)FN@(2, INT(FNV(T$(L), 6)/10))TAB(30)FN@(2, INT(FNV(T$(P), 6)/10))'"MOR"TAB(10)FN@(2, FNV(T$(L), 7))TAB(30)FN@(2, FNV(T$(P),7))'"DEF"TAB(10)FN@(2, FNV(T$(L), 8))TAB(30)FN@(2, FNV(T$(P), 8))
- 1880       PRINT "MID"TAB(10)FN@(2, FNV(T$(L), 9))TAB(30)FN@(2, FNV(T$(P), 9))'"ATT"TAB(10)FN@(2, FNV(T$(L), 10))TAB(30)FN@(2, FNV(T$(P), 10))
+
+ 1880       PRINT "MID"TAB(10)FN@(2, FNV(T$(L), 9))TAB(30)FN@(2, FNV(T$(P), 9))'"ATT"TAB(10)FN@(2, FNV(T$(L), 10))TAB(30)FN@(2, FNV(T$(P), 10))
  1890       PRINT 'FNDH("  ÑùÉPicked:"+FN@(2, PK)+"  Squad:"+FN@(2, IT%)+"  Injured:"+FN@(1, IJ%)+"  ú")'''TAB(4)"ÇùáPressàCâto change team       ú"TAB(5);"Çùá Pressà<TAB>âto continune  ú"
  1900       ENDPROC
- 1910   DEFFNDH(A$)
+
+
+
+ 1910   DEFFNDH(A$)
  1920       X%=POS
             Y%=VPOS
  1930       PRINT TAB(X%, Y%+1)CHR$141A$TAB(X%, Y%)CHR$141A$
  1940       =""
- 1950   DEFPROCSELL
+
+
+
+ 1950   DEFPROCSELL
  1960       CLS
  1970       PROCPTEAM
  1980       PRINT " Enter <RETURN> to return to menu"
@@ -346,7 +477,10 @@ But an attempt to make the code readable.
             PSEL = PSEL + P
             rnd = 4000-RND(8000)
  2120       ENDPROC
- 2130   DEFPROCPTEAM
+
+
+
+ 2130   DEFPROCPTEAM
  2140       PRINT"ÜùÅNAME           SKILL ENERGY PRICE"
  2150       FOR F = 0 TO 26
  2160           IF (IT%(F) AND 1) = 0 THEN
@@ -365,7 +499,10 @@ But an attempt to make the code readable.
  2230           PRINT
  2240           NEXT
  2250       ENDPROC
- 2260   DEFPROCPICK
+
+
+
+ 2260   DEFPROCPICK
  2270       CLS
             PROCPTEAM
  2280       IF PK < 12 THEN
@@ -398,14 +535,20 @@ But an attempt to make the code readable.
                 GOTO 2390
  2420       PROCDROP(A)
  2430       GOTO 2270
- 2440   DEFFNTE(P%)
+
+
+
+ 2440   DEFFNTE(P%)
             LOCAL F%
  2450       F% = -1
             REPEAT
                 F% = F%+1
                 UNTIL (PLY%(F%) AND 15) = P%
  2460       =F%
- 2470   DEFPROCFIXTURES
+
+
+
+ 2470   DEFPROCFIXTURES
             LOCAL F%, H%, A%, T%
  2480       FOR F% = 1 TO 7
  2490           REPEAT
@@ -431,7 +574,10 @@ But an attempt to make the code readable.
  2630           PROCC(F%, T%)
  2640           NEXT
  2650       ENDPROC
- 2660   DEFPROCC(A%, B%)
+
+
+
+ 2660   DEFPROCC(A%, B%)
             IF A% = B% THEN
                 ENDPROC
  2670       LOCAL H1%, H2%, A1%, A2%, PLY%
@@ -444,7 +590,10 @@ But an attempt to make the code readable.
  2690       PLY%(H2%) = (PLY%(H2%) AND -8) OR A%
             PLY%(A2%) = (PLY%(A2%) AND -8) OR A%
  2700       ENDPROC
- 2710   DEFPROCREST
+
+
+
+ 2710   DEFPROCREST
             LOCAL F%, H%, A%
  2720       FOR F% = 0 TO 7
  2730           H% = FNTE(F%)
@@ -476,13 +625,19 @@ But an attempt to make the code readable.
  2840           PLY%(A%) = PLY%(A%)+64
  2850           NEXT
  2860       ENDPROC
- 2870   DEFPROCCLEAR
+
+
+
+ 2870   DEFPROCCLEAR
             LOCAL F%
  2880       FOR F% = 0 TO 15
  2890           PLY%(F%) = PLY%(F%) AND -32
  2900           NEXT
  2910       ENDPROC
- 2920   DEFPROCSORT
+
+
+
+ 2920   DEFPROCSORT
             LOCAL F,V%
  2930       F = 0
  2940       REPEAT
@@ -500,7 +655,8 @@ But an attempt to make the code readable.
  3030           NEXT
  3040       WK(match) = WK(match) + 16-L
  3050       ENDPROC
- 3060   DEFPROCLEAGUE
+
+ 3060   DEFPROCLEAGUE
  3070       CLS
  3080       PRINT FNDH("Ç*************ÖDIVISON:"+STR$(divison)+"Ç*************")
  3090       PRINT FNDH("ÑùÉ  TEAM              W  D  L PTS DIF")
@@ -514,7 +670,10 @@ But an attempt to make the code readable.
  3140       PRINT 'TAB(5);LEFT$(YT$,1);"Matches played:";match
  3150       PRINT TAB(5);YT$"'s position:";L+1
  3160       ENDPROC
- 3170   DEFPROCSWAP
+
+
+
+ 3170   DEFPROCSWAP
             LOCAL A$, PLY%
  3180       A$ = T$(D)
             PLY% = PLY%(D)
@@ -523,7 +682,10 @@ But an attempt to make the code readable.
             T$(D-1) = A$
             PLY%(D-1) = PLY%
  3190       ENDPROC
- 3200   DEFPROCRESET
+
+
+
+ 3200   DEFPROCRESET
  3210       FOR F = 1 TO 26
  3220           IF (IT%(F) AND 1) = 0 THEN
                     GOTO 3250
@@ -543,7 +705,10 @@ But an attempt to make the code readable.
  3300           NEXT
  3310       T$(L) = FNSET(T$(L), 6, TENG)
  3320       ENDPROC
- 3330   DEFPROCMARKET
+
+
+
+ 3330   DEFPROCMARKET
  3340       IF IT% >= 18 THEN
                 CLS
                 PRINT "ÇF.A. rules state that one team may not Çhave more that 18 players. You already Çhave 18 players  therefore you may not Çbuy another."
@@ -577,7 +742,10 @@ But an attempt to make the code readable.
                 IJ% = IJ%+1
  3500       PROCWAIT
  3510       ENDPROC
- 3520   DEFPROCDIVISON
+
+
+
+ 3520   DEFPROCDIVISON
             LOCAL F%, B%, A$
  3530       IF divison = 1 AND L < 13 THEN
                 FOR F% = 13 TO 15
@@ -628,7 +796,10 @@ But an attempt to make the code readable.
                 T$(F%) = FNSET(T$(F%), 2, 100)
  3730           NEXT
  3740       ENDPROC
- 3750   DEFFNTEAM(A$, DI%, BS%)
+
+
+
+ 3750   DEFFNTEAM(A$, DI%, BS%)
  3760       LOCAL D%, M%, A%, B%, R%, F%
             A$ = STRING$(10, " ") + A$
  3770       D% = 3+RND(2)
@@ -642,7 +813,10 @@ But an attempt to make the code readable.
  3820       A$ = FNSET(A$, 9, M%*B%+FNRND(R%, M%))
  3830       A$ = FNSET(A$, 10, A%*B%+FNRND(R%, A%))
  3840       =A$
- 3850   DEFPROCRENAME
+
+
+
+ 3850   DEFPROCRENAME
  3860       B% = 1
  3870       CLS
             PRINT 0;"àMore Players"
@@ -662,7 +836,10 @@ But an attempt to make the code readable.
  3940       INPUT "ÜEnter new name   :"PL$(A)
  3950       PL$(A) = FNCASE(PL$(A))
  3960       ENDPROC
- 3970   DEFPROCREPORT
+
+
+
+ 3970   DEFPROCREPORT
  3980       CLS
  3990       IF PRICE > 0 THEN
                 PRINT "ÇGate";STRING$(22-POS, ".");"`"FN@(137, PRICE)
@@ -697,7 +874,8 @@ But an attempt to make the code readable.
                 MON% = MON%+J%
                 SOUND 0, S%, 3, 0.2
                 VDU 11, 11, 13
-                GOTO 4110 4140       IF OWE > 1E6 AND MON% <> 0 THEN
+                GOTO 4110
+ 4140       IF OWE > 1E6 AND MON% <> 0 THEN
                 PRINT "The bank want's some money back"
                 A% = -MON%*((OWE-MON%) > 1E6) - (OWE-1E6) * ((OWE-MON%) <= 1E6)
                 OWE = OWE-A%
@@ -705,7 +883,10 @@ But an attempt to make the code readable.
                 GOTO 4110
  4150       PROCWAIT
  4160       ENDPROC
- 4170   DEFPROCLEND
+
+
+
+ 4170   DEFPROCLEND
  4180       CLS
  4190       PRINT TAB(16)FNDH("ÉBank")'
  4200       PRINT "ÇYou have `"FN@(137, MON%)
@@ -740,7 +921,10 @@ But an attempt to make the code readable.
                 PRINT "ÇIn Bank  `"FN@(137, -OWE)
  4310       PROCWAIT
  4320       ENDPROC
- 4330   DEFPROCCUPMATCH(a$, C%)
+
+
+
+ 4330   DEFPROCCUPMATCH(a$, C%)
  4340       x = (match-2) DIV 6
             div = RND(4-x)
  4350       IF div < 1 THEN
@@ -792,7 +976,8 @@ But an attempt to make the code readable.
                 CP% = CP% AND NOT(2^C%)
                 AA% = AA% AND NOT(2^C%)
                 T$(L) = FNADD(T$(L), 7, -3)
-                TP$(C%) = MID$(CUP$, 1+15*x, 14) 4580       IF ATGOS < LEGOS AND x = 4 THEN
+                TP$(C%) = MID$(CUP$, 1+15*x, 14)
+ 4580       IF ATGOS < LEGOS AND x = 4 THEN
                 GOTO 4630
  4590       IF ATGOS < LEGOS THEN
                 PRINT "ÇYou are in the ";MID$(CUP$, 1+(x+1)*15, 14)'"Çof the ";a$
@@ -802,240 +987,466 @@ But an attempt to make the code readable.
             CUPB = 55000-div*5000
  4610       PROCWAIT
  4620       ENDPROC
- 4630       IF C% = 3 THEN
+
+ 4630       IF C% = 3 THEN
                 e$ = E$
  4640       AA% = AA% OR (2^C%)
  4650       CUPB = 200000
             M% = M%+10
  4660       IF C% = 1 THEN
                 CP% = CP% OR 32
- 4670IFC%=2 THENCP%=CP% OR16
- 4680IFC%=3 AND a$="European Champions Cup"THENCP%=CP% OR64
- 4690IFC%=3 AND a$="European Cup Winners Cup"THENCP%=CP% OR32
- 4700IFC%=3 AND a$="U.E.F.A. Cup"THENCP%=CP% OR16
- 4710T$(L)=FNSET(T$(L),7,25)
- 4720PROCWAIT
- 4730PROCCUP(a$,YT$)
- 4740ENDPROC
- 4750DEFPROCCUP(A$,B$)
- 4760CLS
- 4770E%=.5+LEN(A$)/2:W%=15-E%
- 4780PRINTTAB(W%)FNDH("àÉ"+A$)
- 4790PRINTTAB(14);"ÖWON BY"
- 4800E%=.5+LEN(B$)/2:W%=15-E%
- 4810PRINTTAB(W%)FNDH("àÅ"+B$)
- 4820*TYPE"T.CUP"
- 4970RESTORE5070:FORF=5TO15
- 4980PRINTTAB(0,F);"ï"
- 4990PRINTTAB(0,F+1);"í"
- 5000IFS%=0 FORt=1TO50:NEXT:GOTO5040
- 5010READP,D
- 5020IFP=999 G=0 ELSE G=1
- 5030SOUND&0201,G,P,D:SOUND&0202,G,P,D:SOUND&0203,G,P,D
- 5040PRINTTAB(0,F);"ó"
- 5050PRINTTAB(0,F+1);"ó"
- 5060NEXT
- 5070DATA 97,15,97,5,101,5,999,5,101,5,97,5,101,10,97,2,89,5,81,5,77,10
- 5080PROCWAIT
- 5090ENDPROC
- 5100DEFPROCINJ
- 5110REPEAT:I=RND(26):UNTIL(IT%(I)AND4)=0
- 5120PROCDROP(I)
- 5130IF(IT%(I)AND1)=1THENIJ%=IJ%+1:PRINT"Å"PL$(I)" has been injured"
- 5140IT%(I)=(IT%(I)AND1)OR4
- 5150NJ%=NJ%+1
- 5160ENDPROC
- 5170DEFPROCPICKTEAM
- 5180G=1:@%=10
- 5190CLS
- 5210VDU30:PRINT0;"àMore Teams"',1;"àOwn Team"
- 5220FORF=2TO17
- 5230A$=FNGETTEAM(G-1,F-1)
- 5240PRINTF;A$;SPC(10)
- 5250NEXT
- 5260PRINT" Enter Team Number"
- 5270INPUT" >"A
- 5280IFA=0 THENG=1+(G AND3):GOTO5210
- 5290IFA=1 THENINPUT"Enter team name ";A$:YT$="Ü"+FNCASE(LEFT$(A$,14)):GOTO5330
- 5300IFA<2ORA>17THEN5260
- 5320YT$=FNGETTEAM(G-1,A-1)
- 5330PRINT"ÉYou manage";YT$
- 5340ENDPROC
- 5350DEFFNCASE(A$):LOCALF,B$,A%
- 5360FORF=1TOLEN(A$)
- 5370A%=ASC(MID$(A$,F,1)):IFA%=32 ANDNOT(B$=""ORRIGHT$(B$,1)=" ") THENB$=B$+" ":GOTO5400
- 5380A%=A%OR32:IFA%<97 ORA%>122THEN5400
- 5390IFB$=""ORRIGHT$(B$,1)=" "THENB$=B$+CHR$(A% AND223) ELSEB$=B$+CHR$(A%)
- 5400NEXT
- 5410=B$
- 5420DEFPROCSAVE
- 5425PRINT"SAVING"
- 5430VDU28,0,24,39,22:MON%=MON%+PSEL:PSEL=0
- 5440X=OPENOUT("S."+MID$(YT$,2,10))
- 5450PRINT#X,match,MON%,OWE,PK,L,divison,CP%,IT%,IJ%,NJ%,TP$(1),TP$(2),TP$(3),E$,e$,ML$
- 5460FORF=1TO26:PRINT#X,PL$(F),SK%(F),ENG%(F),IT%(F),SC%(F,0),SC%(F,1):NEXT
- 5470FORF=0TO15:PRINT#X,PLY%(F),T$(F):NEXT
- 5480PRINT#X,M%,N%,R$,AA%
- 5490PRINT#X,D%(3,0),D%(4,0),D%(3,1),D%(4,1)
- 5500FORF=1TO30:PRINT#X,WK(F):NEXT
- 5510CLOSE#X
- 5520VDU26:ENDPROC
- 5530DEFPROCLOAD
- 5540*FX13,5
- 5550PROCPICKTEAM
- 5560VDU28,0,24,39,22
- 5570X=OPENIN("S."+MID$(YT$,2,10))
- 5580INPUT#X,match,MON%,OWE,PK,L,divison,CP%,IT%,IJ%,NJ%,TP$(1),TP$(2),TP$(3),E$,e$,ML$
- 5590FORF=1TO26:INPUT#X,PL$(F),SK%(F),ENG%(F),IT%(F),SC%(F,0),SC%(F,1):NEXT
- 5600FORF=0TO15:INPUT#X,PLY%(F),T$(F):NEXT
- 5610INPUT#X,M%,N%,R$,AA%
- 5620INPUT#X,D%(3,0),D%(4,0),D%(3,1),D%(4,1)
- 5630FORF=1TO30
- 5640INPUT#X,WK(F)
- 5650IFF>match THEN5670
- 5660D%(2-(WK(F)AND255)DIV64,WK(F)DIV256)=D%(2-(WK(F)AND255)DIV64,WK(F)DIV256)+1
- 5670NEXT
- 5680CLOSE#X
- 5690YT$=MID$(T$(L),11)
- 5700VDU26
- 5710ENDPROC
- 5720DEFPROCRESTART
- 5730CLS
- 5740PRINTFNDH("ÜAre you sure you want to restart")
- 5750A$=GET$
- 5760IFA$="N" ENDPROC
- 5770IFA$="Y" RUN
- 5780GOTO5750
- 5790DEFPROCPROGRESS
- 5800CLS:PRINTFNDH(YT$+"'s Progress in Divison:"+STR$(divison))
- 5810PRINT"F.A. Cup";:IF(CP% AND2)THENX=(match+2)DIV6:PRINT"ÇIN ";MID$(CUP$,1+X*15,15):ELSEPRINT"ÅOUT in ";TP$(1)
- 5820PRINT"League Cup";:IF(CP% AND4)THENX=(match+4)DIV6:PRINT"ÇIN ";MID$(CUP$,1+X*15,15):ELSEPRINT"ÅOUT in ";TP$(2)
- 5830IFE$=""THEN5850
- 5840PRINTE$;:IF(CP% AND8)THENX=match DIV6:PRINT"ÇIN ";MID$(CUP$,1+X*15,15):ELSEPRINT"ÅOUT in ";TP$(3)
- 5850PRINT'"   [---Home----]   [---Away----]"
- 5860PRINT"   W  D  L  F  A   W  D  L  F  A  PTS"
- 5870FORF=0TO1
- 5880PRINTCHR$141;
- 5890FORV=0TO1
- 5900FORD=0TO4
- 5910PRINTFN@(3,D%(D,V));
- 5920NEXT
- 5930PRINT" ";
- 5940NEXT
- 5950PRINTFN@(4,FNV(T$(L),1))
- 5960NEXT
- 5970Y%=VPOS+1
- 5980PRINTTAB(0,24)"ÜPress <SHIFT> for next page"TAB(0,23)
- 5990VDU28,0,22,39,Y%,14
- 6000FORD=1TOmatch
- 6010IF(WK(D)AND256)=0 THENPRINT"ÜHome ";:ELSEPRINT"ÖAway ";
- 6020IF(WK(D)AND192)=0 THENPRINT"ÅLost ";
- 6030IF(WK(D)AND192)=128 THENPRINT"ÇWon  ";
- 6040IF(WK(D)AND192)=64 THENPRINT"ÉDrawn";
- 6050PRINT"Å";
- 6060FORF=1TO(WK(D)AND63)
- 6070IFF=4 VDU8,132
- 6080IFF=9 VDU8,130
- 6090IFF=14 VDU8,131
- 6100IFF=16 VDU8,133
- 6110VDU157
- 6120NEXT
- 6130VDU156
- 6140PRINTTAB(36,VPOS);17-(WK(D)AND63)
- 6150NEXT
- 6160VDU15,26
- 6170*FX15,1
- 6180PROCWAIT
- 6190CLS:A$=MID$(T$(L),11,1):A$=CHR$(ASC(A$)+16):PRINTA$"h"STRING$(36,",")"4"'A$"já   Player       Goals Games  Ratio"A$"5":P%=1
- 6200T%=1:FORF%=2TO26
- 6210IFSC%(F%,0)>SC%(T%,0)OR(SC%(F%,0)=SC%(T%,0) ANDSC%(F%,1)<SC%(T%,1)) THENT%=F%
- 6220NEXT:IFSC%(T%,0)=0THEN6240
- 6230PRINTA$"já"FN@(2,P%)FNCOL(T%)PL$(T%)"á"STRING$(19-POS,".")FN@(5,SC%(T%,0))FN@(5,SC%(T%,1))FN@(&20208,SC%(T%,0)/SC%(T%,1))A$"5":SC%(T%,0)=-SC%(T%,0):P%=P%+1:IFP%<6THEN6200
- 6240PRINTA$"j"STRING$(36,",")"5"'A$"já   Player       Games Goals"TAB(37)A$"5":P%=1
- 6250T%=1:FORF%=2TO26
- 6260IFSC%(F%,1)>SC%(T%,1)THENT%=F%
- 6270NEXT
- 6280PRINTA$"já"FN@(2,P%)FNCOL(T%)PL$(T%)"á"STRING$(19-POS,".")FN@(5,SC%(T%,1));FN@(5,ABS(SC%(T%,0)))"  ";
- 6290IFT%<11THENPRINT"Def";:ELSEIFT%<21THENPRINT"Mid";:ELSEPRINT"Att";
- 6300PRINTTAB(37)A$"5":SC%(T%,1)=-SC%(T%,1):P%=P%+1:IFP%<12THEN6250
- 6310PRINTA$"j"STRING$(36,",")"5"
- 6320FORF=1TO26:SC%(F,0)=ABS(SC%(F,0)):SC%(F,1)=ABS(SC%(F,1)):NEXT
- 6330IFNJ%<3THEN6390
- 6340FORF%=3TONJ%
- 6350REPEAT:I=RND(26):UNTIL(IT%(I)AND4)=4
- 6360IT%(I)=IT%(I)AND3:IFIT%(I)=1THENIJ%=IJ%-1:PRINTA$"jÇ"PL$(I)" is fit"TAB(37)A$"5"
- 6370NJ%=NJ%-1
- 6380NEXT
- 6390PRINTA$"*"STRING$(36,",")"%"
- 6400PROCWAIT:ENDPROC
- 6410DEFFNCOL(T%)
- 6420IFIT%(T%)AND2THEN="Ç"
- 6430IFIT%(T%)AND4THEN="Å"
- 6440="á"
- 6450DEFPROCWAIT
- 6460VDU26
- 6470*FX15,1
- 6480PRINTTAB(0,24)"Ñùì,,,,,,,,,,ÉPRESS RETURNì,,,,,,,,,,";
- 6490REPEATUNTILGET=13
- 6500CLS
- 6510ENDPROC
- 6520REPORT:PRINT" at line ";ERL
- 6530FORZ%=1TO7000:NEXT
- 6540match=match-1:GOTO450
- 6550DEFPROCFOOTBALL
- 6560*TYPE"T.FMAN"
- 6630ENDPROC
- 6640DEFFNRND(X%,N%)
- 6650LOCALT,F%
- 6660FORF%=1TON%
- 6670T=T+RND(X%)
- 6680NEXT
- 6690=T
- 6700DEFFNNEXTGOAL(A%,T%)
- 6710IFA%=0 THEN=100
- 6720LOCALB%,C%:B%=90:FORF=1TOA%
- 6730C%=T%+RND(90-T%):IFC%<B% THENB%=C%
- 6740NEXT
- 6750=B%
- 6760DEFPROCPLAYERS
- 6770FORF%=1TO26
- 6780IF(IT%(F%)AND2)SC%(F%,1)=SC%(F%,1)+1
- 6790NEXT
- 6800ENDPROC
- 6810DEFPROCSCORERS
- 6820A=RND(4)+RND(2)+6:IFA>10THENA=10
- 6830GOAL=RND(FNV(T$(L),A))-1:F%=0-10*(A=9)-20*(A=10)
- 6840IFFNV(T$(L),A)=0THEN6820
- 6850REPEAT
- 6860F%=F%+1
- 6870IF(IT%(F%)AND2)=0THENF%=F%+1:GOTO6870
- 6880GOAL=GOAL-SK%(F%)
- 6890UNTILGOAL<1
- 6900PRINTPL$(F%);" ";time:SC%(F%,0)=SC%(F%,0)+1
- 6910ENDPROC
- 6920DEFPROCMATCH(H,A,B1,B2)
- 6930LOCALX%,Y%:HAT=FNV(T$(H),10):HMI=FNV(T$(H),9):HDF=FNV(T$(H),8):AAT=FNV(T$(A),10):AMI=FNV(T$(A),9):ADF=FNV(T$(A),8)
- 6940HAV=B1+4*(HAT/ADF)*(HMI/(HMI+AMI))+(FNV(T$(H),7)-10)/40-(FNV(T$(A),6)-100)/400
- 6950AAV=B2+4*(AAT/HDF)*(AMI/(AMI+HMI))+(FNV(T$(A),7)-10)/40-(FNV(T$(H),6)-100)/400
- 6960X%=POS:Y%=VPOS:PRINTTAB(0,24)FN@(&20205,HAV)TAB(30,24)FN@(&20205,AAV)CHR$13TAB(X%,Y%);
- 6970HG=FNPOIS(HAV,FNRND(1,2)/2):AG=FNPOIS(AAV,FNRND(1,2)/2)
- 6980IFHG=AG THENT$(H)=FNSET(T$(H),7,10):T$(A)=FNSET(T$(A),7,10)
- 6990IFHG>AG THENT$(H)=FNSET(T$(H),7,FNMAX(FNV(T$(H),7),10)):T$(A)=FNSET(T$(A),7,FNMIN(FNV(T$(A),7),10))
- 7000IFHG<AG THENT$(H)=FNSET(T$(H),7,FNMIN(FNV(T$(H),7),10)):T$(A)=FNSET(T$(A),7,FNMAX(FNV(T$(A),7),10))
- 7010T$(H)=FNADD(T$(H),7,HG-AG):T$(A)=FNADD(T$(A),7,AG-HG)
- 7020T$(H)=FNSET(T$(H),7,FNMIN(FNV(T$(H),7),20)):T$(A)=FNSET(T$(A),7,FNMIN(FNV(T$(A),7),20))
- 7030ENDPROC
- 7040DEFFNPOIS(U,C):LOCALP,T%
- 7050T%=0:P=EXP(-U):IFC<P THEN=0
- 7060S=P:REPEAT
- 7070T%=T%+1:P=P*U/T%:S=S+P
- 7080UNTILC<S
- 7090=T%
- 7100   DEFPROC TEST 7110       CLEAR
+ 4670       IF C% = 2 THEN
+                CP% = CP% OR 16
+ 4680       IF C% = 3 AND a$ = "European Champions Cup" THEN
+                CP% = CP% OR 64
+ 4690       IF C% = 3 AND a$ = "European Cup Winners Cup" THEN
+                CP% = CP% OR 32
+ 4700       IF C% = 3 AND a$ = "U.E.F.A. Cup" THEN
+                CP% = CP% OR 16
+ 4710       T$(L) = FNSET(T$(L), 7, 25)
+ 4720       PROCWAIT
+ 4730       PROCCUP(a$, YT$)
+ 4740       ENDPROC
+
+
+
+ 4750   DEFPROCCUP(A$,B$)
+ 4760       CLS
+ 4770       E% = 0.5 + LEN(A$) / 2
+            W% = 15 - E%
+ 4780       PRINT TAB(W%)FNDH("àÉ"+A$)
+ 4790       PRINT TAB(14);"ÖWON BY"
+ 4800       E% = 0.5 + LEN(B$)/2
+            W% = 15 - E%
+ 4810       PRINT TAB(W%)FNDH("àÅ"+B$)
+ 4820       *TYPE "T.CUP"
+ 4970       RESTORE 5070
+            FOR F = 5 TO 15
+ 4980           PRINT TAB(0, F);"ï"
+ 4990           PRINT TAB(0, F+1);"í"
+ 5000           IF S% = 0 THEN
+                    FOR t = 1 TO 50
+                        NEXT
+                    GOTO 5040
+ 5010           READ P, D
+ 5020           IF P = 999 THEN
+                    G = 0
+                ELSE
+                    G = 1
+ 5030           SOUND &0201, G, P, D
+                SOUND &0202, G, P, D
+                SOUND &0203, G, P, D
+ 5040           PRINT TAB(0, F);"ó"
+ 5050           PRINT TAB(0, F+1);"ó"
+ 5060           NEXT
+ 5070       DATA 97, 15, 97, 5, 101, 5, 999, 5, 101, 5, 97, 5, 101, 10, 97, 2, 89, 5, 81, 5, 77, 10
+ 5080       PROCWAIT
+ 5090       ENDPROC
+
+
+
+ 5100   DEFPROCINJ
+ 5110       REPEAT
+                I = RND(26)
+                UNTIL (IT%(I) AND 4) = 0
+ 5120       PROCDROP(I)
+ 5130       IF (IT%(I) AND 1) = 1 THEN
+                IJ% = IJ% + 1
+                PRINT "Å"PL$(I)" has been injured"
+ 5140       IT%(I) = (IT%(I) AND 1) OR 4
+ 5150       NJ% = NJ% + 1
+ 5160       ENDPROC
+
+
+
+ 5170   DEFPROCPICKTEAM
+ 5180       G=1
+            @%=10
+ 5190       CLS
+ 5210       VDU 30
+            PRINT 0;"àMore Teams"',1;"àOwn Team"
+ 5220       FORF = 2 TO 17
+ 5230           A$ = FNGETTEAM(G-1, F-1)
+ 5240           PRINT F;A$;SPC(10)
+ 5250           NEXT
+ 5260       PRINT " Enter Team Number"
+ 5270       INPUT " >"A
+ 5280       IF A = 0 THEN
+                G = 1 + (G AND 3)
+                GOTO 5210
+ 5290       IF A = 1 THEN
+                INPUT"Enter team name ";A$
+                YT$ = "Ü" + FNCASE(LEFT$(A$, 14))
+                GOTO 5330
+ 5300       IF A < 2 OR A > 17 THEN
+                GOTO 5260
+ 5320       YT$ = FNGETTEAM(G-1, A-1)
+ 5330       PRINT "ÉYou manage";YT$
+ 5340       ENDPROC
+
+
+
+ 5350   DEFFNCASE(A$)
+            LOCAL F, B$, A%
+ 5360       FOR F = 1 TO LEN(A$)
+ 5370           A% = ASC(MID$(A$, F, 1))
+                IF A% = 32 AND NOT(B$ = "" OR RIGHT$(B$, 1) = " ") THEN
+                    B$ = B$ + " "
+                    GOTO 5400
+ 5380           A% = A% OR 32
+                IF A% < 97 OR A% > 122 THEN
+                    GOTO 5400
+ 5390           IF B$ = "" OR RIGHT$(B$, 1) = " " THEN
+                    B$ = B$ + CHR$(A% AND 223)
+                ELSE
+                    B$ = B$ + CHR$(A%)
+ 5400           NEXT
+ 5410       =B$
+
+
+
+ 5420   DEFPROCSAVE
+ 5425       PRINT "SAVING"
+ 5430       VDU 28, 0, 24, 39, 22
+            MON% = MON% + PSEL
+            PSEL = 0
+ 5440       X = OPENOUT("S." + MID$(YT$, 2, 10))
+ 5450       PRINT #X, match, MON%, OWE, PK, L, divison, CP%, IT%, IJ%, NJ%, TP$(1), TP$(2), TP$(3), E$, e$, ML$
+ 5460       FOR F = 1 TO 26
+                PRINT #X, PL$(F), SK%(F), ENG%(F), IT%(F), SC%(F, 0), SC%(F, 1)
+                NEXT
+ 5470       FOR F = 0 TO 15
+                PRINT #X, PLY%(F), T$(F)
+                NEXT
+ 5480       PRINT #X, M%, N%, R$, AA%
+ 5490       PRINT #X, D%(3, 0), D%(4, 0), D%(3, 1), D%(4, 1)
+ 5500       FOR F = 1 TO 30
+                PRINT #X, WK(F)
+                NEXT
+ 5510       CLOSE #X
+ 5520       VDU 26
+            ENDPROC
+
+
+
+ 5530DEFPROCLOAD
+
+ 5540*FX13,5
+
+ 5550PROCPICKTEAM
+
+ 5560VDU28,0,24,39,22
+
+ 5570X=OPENIN("S."+MID$(YT$,2,10))
+
+ 5580INPUT#X,match,MON%,OWE,PK,L,divison,CP%,IT%,IJ%,NJ%,TP$(1),TP$(2),TP$(3),E$,e$,ML$
+
+ 5590FORF=1TO26:INPUT#X,PL$(F),SK%(F),ENG%(F),IT%(F),SC%(F,0),SC%(F,1):NEXT
+
+ 5600FORF=0TO15:INPUT#X,PLY%(F),T$(F):NEXT
+
+ 5610INPUT#X,M%,N%,R$,AA%
+
+ 5620INPUT#X,D%(3,0),D%(4,0),D%(3,1),D%(4,1)
+
+ 5630FORF=1TO30
+
+ 5640INPUT#X,WK(F)
+
+ 5650IFF>match THEN5670
+
+ 5660D%(2-(WK(F)AND255)DIV64,WK(F)DIV256)=D%(2-(WK(F)AND255)DIV64,WK(F)DIV256)+1
+
+ 5670NEXT
+
+ 5680CLOSE#X
+
+ 5690YT$=MID$(T$(L),11)
+
+ 5700VDU26
+
+ 5710ENDPROC
+
+ 5720DEFPROCRESTART
+
+ 5730CLS
+
+ 5740PRINTFNDH("ÜAre you sure you want to restart")
+
+ 5750A$=GET$
+
+ 5760IFA$="N" ENDPROC
+
+ 5770IFA$="Y" RUN
+
+ 5780GOTO5750
+
+ 5790DEFPROCPROGRESS
+
+ 5800CLS:PRINTFNDH(YT$+"'s Progress in Divison:"+STR$(divison))
+
+ 5810PRINT"F.A. Cup";:IF(CP% AND2)THENX=(match+2)DIV6:PRINT"ÇIN ";MID$(CUP$,1+X*15,15):ELSEPRINT"ÅOUT in ";TP$(1)
+
+ 5820PRINT"League Cup";:IF(CP% AND4)THENX=(match+4)DIV6:PRINT"ÇIN ";MID$(CUP$,1+X*15,15):ELSEPRINT"ÅOUT in ";TP$(2)
+
+ 5830IFE$=""THEN5850
+
+ 5840PRINTE$;:IF(CP% AND8)THENX=match DIV6:PRINT"ÇIN ";MID$(CUP$,1+X*15,15):ELSEPRINT"ÅOUT in ";TP$(3)
+
+ 5850PRINT'"   [---Home----]   [---Away----]"
+
+ 5860PRINT"   W  D  L  F  A   W  D  L  F  A  PTS"
+
+ 5870FORF=0TO1
+
+ 5880PRINTCHR$141;
+
+ 5890FORV=0TO1
+
+ 5900FORD=0TO4
+
+ 5910PRINTFN@(3,D%(D,V));
+
+ 5920NEXT
+
+ 5930PRINT" ";
+
+ 5940NEXT
+
+ 5950PRINTFN@(4,FNV(T$(L),1))
+
+ 5960NEXT
+
+ 5970Y%=VPOS+1
+
+ 5980PRINTTAB(0,24)"ÜPress <SHIFT> for next page"TAB(0,23)
+
+ 5990VDU28,0,22,39,Y%,14
+
+ 6000FORD=1TOmatch
+
+ 6010IF(WK(D)AND256)=0 THENPRINT"ÜHome ";:ELSEPRINT"ÖAway ";
+
+ 6020IF(WK(D)AND192)=0 THENPRINT"ÅLost ";
+
+ 6030IF(WK(D)AND192)=128 THENPRINT"ÇWon  ";
+
+ 6040IF(WK(D)AND192)=64 THENPRINT"ÉDrawn";
+
+ 6050PRINT"Å";
+
+ 6060FORF=1TO(WK(D)AND63)
+
+ 6070IFF=4 VDU8,132
+
+ 6080IFF=9 VDU8,130
+
+ 6090IFF=14 VDU8,131
+
+ 6100IFF=16 VDU8,133
+
+ 6110VDU157
+
+ 6120NEXT
+
+ 6130VDU156
+
+ 6140PRINTTAB(36,VPOS);17-(WK(D)AND63)
+
+ 6150NEXT
+
+ 6160VDU15,26
+
+ 6170*FX15,1
+
+ 6180PROCWAIT
+
+ 6190CLS:A$=MID$(T$(L),11,1):A$=CHR$(ASC(A$)+16):PRINTA$"h"STRING$(36,",")"4"'A$"já   Player       Goals Games  Ratio"A$"5":P%=1
+
+ 6200T%=1:FORF%=2TO26
+
+ 6210IFSC%(F%,0)>SC%(T%,0)OR(SC%(F%,0)=SC%(T%,0) ANDSC%(F%,1)<SC%(T%,1)) THENT%=F%
+
+ 6220NEXT:IFSC%(T%,0)=0THEN6240
+
+ 6230PRINTA$"já"FN@(2,P%)FNCOL(T%)PL$(T%)"á"STRING$(19-POS,".")FN@(5,SC%(T%,0))FN@(5,SC%(T%,1))FN@(&20208,SC%(T%,0)/SC%(T%,1))A$"5":SC%(T%,0)=-SC%(T%,0):P%=P%+1:IFP%<6THEN6200
+
+ 6240PRINTA$"j"STRING$(36,",")"5"'A$"já   Player       Games Goals"TAB(37)A$"5":P%=1
+
+ 6250T%=1:FORF%=2TO26
+
+ 6260IFSC%(F%,1)>SC%(T%,1)THENT%=F%
+
+ 6270NEXT
+
+ 6280PRINTA$"já"FN@(2,P%)FNCOL(T%)PL$(T%)"á"STRING$(19-POS,".")FN@(5,SC%(T%,1));FN@(5,ABS(SC%(T%,0)))"  ";
+
+ 6290IFT%<11THENPRINT"Def";:ELSEIFT%<21THENPRINT"Mid";:ELSEPRINT"Att";
+
+ 6300PRINTTAB(37)A$"5":SC%(T%,1)=-SC%(T%,1):P%=P%+1:IFP%<12THEN6250
+
+ 6310PRINTA$"j"STRING$(36,",")"5"
+
+ 6320FORF=1TO26:SC%(F,0)=ABS(SC%(F,0)):SC%(F,1)=ABS(SC%(F,1)):NEXT
+
+ 6330IFNJ%<3THEN6390
+
+ 6340FORF%=3TONJ%
+
+ 6350REPEAT:I=RND(26):UNTIL(IT%(I)AND4)=4
+
+ 6360IT%(I)=IT%(I)AND3:IFIT%(I)=1THENIJ%=IJ%-1:PRINTA$"jÇ"PL$(I)" is fit"TAB(37)A$"5"
+
+ 6370NJ%=NJ%-1
+
+ 6380NEXT
+
+ 6390PRINTA$"*"STRING$(36,",")"%"
+
+ 6400PROCWAIT:ENDPROC
+
+
+
+ 6410   DEFFNCOL(T%)
+ 6420       IF IT%(T%) AND 2 THEN
+                ="Ç"
+ 6430       IF IT%(T% )AND 4 THEN
+                ="Å"
+ 6440       ="á"
+
+ 
+ 6450   DEFPROCWAIT
+ 6460       VDU 26
+ 6470       *FX 15, 1
+ 6480       PRINT TAB(0, 24)"Ñùì,,,,,,,,,,ÉPRESS RETURNì,,,,,,,,,,";
+ 6490       REPEAT
+                UNTIL GET = 13
+ 6500       CLS
+ 6510       ENDPROC
+
+
+
+ 6520   REPORT
+        PRINT" at line ";ERL
+ 6530   FOR Z% = 1 TO 7000
+            NEXT
+ 6540   match = match-1
+        GOTO 450
+
+ 
+ 6550   DEFPROCFOOTBALL
+ 6560       *TYPE"T.FMAN"
+ 6630       ENDPROC
+
+ 
+ 6640   DEFFNRND(X%, N%)
+ 6650       LOCAL T, F%
+ 6660       FOR F% = 1 TO N%
+ 6670           T = T + RND(X%)
+ 6680           NEXT
+ 6690       =T
+
+
+
+ 6700   DEFFNNEXTGOAL(A%, T%)
+ 6710       IF A% = 0 THEN
+                =100
+ 6720       LOCAL B%, C%
+            B% = 90
+            FOR F = 1 TO A%
+ 6730           C% = T% + RND(90-T%)
+                IF C% < B% THEN
+                    B% = C%
+ 6740           NEXT
+ 6750       =B%
+
+
+
+ 6760   DEFPROCPLAYERS
+ 6770       FOR F% = 1 TO 26
+ 6780           IF (IT%(F%) AND 2) THEN
+                    SC%(F%, 1) = SC%(F%, 1) + 1
+ 6790           NEXT
+ 6800       ENDPROC
+
+
+
+ 6810   DEFPROCSCORERS
+ 6820       A = RND(4) + RND(2) + 6
+            IF A > 10 THEN
+                A = 10
+ 6830       GOAL = RND(FNV(T$(L), A)) - 1
+            F% = 0 - 10*(A = 9) -20 * (A=10)
+ 6840       IF FNV(T$(L), A) = 0 THEN
+                GOTO 6820
+ 6850       REPEAT
+ 6860           F% = F% + 1
+ 6870           IF (IT%(F%) AND 2) = 0 THEN
+                    F% = F% + 1
+                    GOTO 6870
+ 6880           GOAL = GOAL - SK%(F%)
+ 6890           UNTIL GOAL < 1
+ 6900       PRINT PL$(F%);" ";time
+            SC%(F%, 0) = SC%(F%, 0) + 1
+ 6910       ENDPROC
+
+
+
+ 6920   DEFPROCMATCH(H, A, B1, B2)
+ 6930       LOCAL X%, Y%
+            HAT = FNV(T$(H), 10)
+            HMI = FNV(T$(H), 9)
+            HDF = FNV(T$(H), 8)
+            AAT = FNV(T$(A), 10)
+            AMI = FNV(T$(A), 9)
+            ADF = FNV(T$(A), 8)
+ 6940       HAV = B1 + 4*(HAT/ADF)*(HMI/(HMI+AMI)) + (FNV(T$(H), 7)-10) / 40 - (FNV(T$(A), 6)-100) / 400
+ 6950       AAV = B2 + 4*(AAT/HDF)*(AMI/(AMI+HMI)) + (FNV(T$(A), 7)-10) / 40 - (FNV(T$(H),6)-100) / 400
+ 6960       X% = POS
+            Y% = VPOS
+            PRINT TAB(0, 24)FN@(&20205, HAV)TAB(30, 24)FN@(&20205, AAV)CHR$13TAB(X%, Y%);
+ 6970       HG = FNPOIS(HAV, FNRND(1, 2) / 2)
+            AG = FNPOIS(AAV, FNRND(1, 2) / 2)
+ 6980       IF HG = AG THEN
+                T$(H) = FNSET(T$(H), 7, 10)
+                T$(A) = FNSET(T$(A), 7, 10)
+ 6990       IF HG > AG THEN
+                T$(H) = FNSET(T$(H), 7, FNMAX(FNV(T$(H), 7), 10))
+                T$(A) = FNSET(T$(A), 7, FNMIN(FNV(T$(A), 7), 10))
+ 7000       IF HG < AG THEN
+                T$(H) = FNSET(T$(H), 7, FNMIN(FNV(T$(H), 7), 10))
+                T$(A) = FNSET(T$(A), 7, FNMAX(FNV(T$(A), 7), 10))
+ 7010       T$(H) = FNADD(T$(H), 7, HG-AG)
+            T$(A) = FNADD(T$(A), 7, AG-HG)
+ 7020       T$(H) = FNSET(T$(H), 7, FNMIN(FNV(T$(H), 7), 20))
+            T$(A) = FNSET(T$(A), 7, FNMIN(FNV(T$(A), 7), 20))
+ 7030       ENDPROC
+
+
+
+ 7040   DEFFNPOIS(U, C)
+            LOCAL P, T%
+ 7050       T%=0
+            P = EXP(-U)
+            IF C < P THEN
+                =0
+ 7060       S = P
+            REPEAT
+ 7070           T% = T% + 1
+                P = P * U / T%
+                S = S + P
+ 7080           UNTIL C < S
+ 7090       =T%
+
+
+
+ 7100   DEFPROC TEST
+ 7110       CLEAR
             DIM T$(2)
             PK = 0
             IJ% = 0
-            IT% = 0 7120       T$(1) = "     Ñ*882ÉTEAM ONE"
+            IT% = 0
+ 7120       T$(1) = "     Ñ*882ÉTEAM ONE"
             T$(2) = "     Ñ*882ÉTEAM TWO"
  7130       CLS
             PROCDISPLAY(1, 2)
@@ -1045,6 +1456,14 @@ But an attempt to make the code readable.
  7160       INPUT "TEAM TWO ", MR, EN, DE, MI, AT
             T$(2) = "     " + CHR$(32+MR*10) + CHR$(32+EN) + CHR$(32+DE) + CHR$(32+MI) + CHR$(32+AT) + "ÉTEAM TWO"
  7170       GOTO 7130
- 7180   DEFFN GETTEAM(D%, T%) 7190       LOCAL F%, X%, A$ 7200       X% = OPENIN("L.TEAMS") 7210       FOR F% = 1 TO T%+D%*16
+
+
+
+ 7180   DEFFN GETTEAM(D%, T%)
+ 7190       LOCAL F%, X%, A$
+ 7200       X% = OPENIN("L.TEAMS")
+ 7210       FOR F% = 1 TO T%+D%*16
                 INPUT #X%, A$
-                NEXT 7220       CLOSE#X% 7230       = A$
+                NEXT
+ 7220       CLOSE#X%
+ 7230       = A$
