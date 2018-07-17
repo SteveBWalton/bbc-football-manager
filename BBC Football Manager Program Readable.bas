@@ -2,18 +2,18 @@ This not the actual BBC Basic Code.
 But an attempt to make the code readable.
 
    20   MODE 7
-        VDU 23;8202;0;0;0;
+        VDU 23; 8202; 0; 0; 0;
    30   REM ?&220=&00:?&221=&0C:?&20C=&3D:?&20D=&0C
-   40   DIMT$(16), PLY%(15), PL$(26), SK%(26), ENG%(26), IT%(26), INJ(2), WK(30), SC%(26, 1), D%(4, 1), TP$(3)
+   40   DIM T$(16), PLY%(15), PL$(26), SK%(26), ENG%(26), IT%(26), INJ(2), WK(30), SC%(26, 1), D%(4, 1), TP$(3)
    50   *OPT 1, 1
    70   PROCFOOTBALL
    80   *FX 14, 5
-  100   ENVELOPE1,10,0,0,0,10,10,10,63,-10,-10,-10,126,100
+  100   ENVELOPE 1, 10, 0, 0, 0, 10, 10, 10, 63, -10, -10, -10, 126, 100
   110   CUP$ = "1st Round      2nd Round      Quarter Final  Semi Final     FINAL          Champions      "
   120   INPUT '''''"ÜENTER YOUR NAMEÖ"MAN$
   130   PRINT "ÜENTER LEVEL (1-4) ";
   140   L% = GET
-        L% = L%-49
+        L% = L% - 49
         IF L% < 0 OR L% > 3 THEN
             VDU 7
             GOTO 140
@@ -24,7 +24,7 @@ But an attempt to make the code readable.
             S% = -15
         ELSE
             PRINT"ÖNo"
-            S%=0
+            S% = 0
   180   PRINT "ÜDO YOU WANT TO LOAD A 'GAME'";
   190   IF  FNYES THEN
             PRINT "ÖYes"
@@ -64,9 +64,9 @@ But an attempt to make the code readable.
   370       NEXT
   380   divison = 4
         T$(7) = STRING$(10, " ") + YT$
-        L=7
+        L = 7
         PROCDIVISON
-  390   M%=0
+  390   M% = 0
         FOR F = 1 TO 3
             TP$(F) = ""
             NEXT
@@ -91,7 +91,7 @@ But an attempt to make the code readable.
   460       PSEL = 0
             PBUY = 0
             CUPB = 0
-            rnd = 4000-RND(8000)
+            rnd = 4000 - RND(8000)
   470       REM *FX 14, 6
   480       REM ON ERROR GOTO 6090
   490       CLS
@@ -131,11 +131,11 @@ But an attempt to make the code readable.
                 GOTO 490
   740       match = match+1
   750       IF match MOD 6 = 4 AND (CP% AND 2) THEN
-                PROCCUPMATCH("F.A. Cup",1)
+                PROCCUPMATCH("F.A. Cup", 1)
   760       IF match MOD 6 = 2 AND (CP% AND 4) THEN
-                PROCCUPMATCH("Littlewoods Cup",2)
+                PROCCUPMATCH("Littlewoods Cup", 2)
   770       IF match MOD 6 = 0 AND (CP% AND 8) THEN
-                PROCCUPMATCH(E$,3)
+                PROCCUPMATCH(E$, 3)
   780       IF match = 16 THEN
                 FOR F% = 0 TO 15
                     PLY%(F%) = PLY%(F%) AND -64
@@ -145,7 +145,7 @@ But an attempt to make the code readable.
   800       F = 0
   810       REPEAT
   820           REPEAT
-  830               P = RND(16)-1
+  830               P = RND(16) - 1
   840               V% = -((MID$(T$(P), 12) < ML$) EOR (match > 15))
   850               UNTIL (PLY%(P) AND 32) = 0
   860           F = F+1
@@ -170,7 +170,7 @@ But an attempt to make the code readable.
                 PROCPICK
   950       IF A <> 9 THEN
                 GOTO 900
-  960       PRINTSPC(79)
+  960       PRINT SPC(79)
             VDU 11, 11
   970       PROCPLAYMATCH(L, P, (1-V%)/2, V%/2, V%, TRUE)
   980       T$(L) = FNADD(T$(L), 2, LEGOS-ATGOS)
@@ -1129,181 +1129,168 @@ But an attempt to make the code readable.
 
 
 
- 5530DEFPROCLOAD
-
- 5540*FX13,5
-
- 5550PROCPICKTEAM
-
- 5560VDU28,0,24,39,22
-
- 5570X=OPENIN("S."+MID$(YT$,2,10))
-
- 5580INPUT#X,match,MON%,OWE,PK,L,divison,CP%,IT%,IJ%,NJ%,TP$(1),TP$(2),TP$(3),E$,e$,ML$
-
- 5590FORF=1TO26:INPUT#X,PL$(F),SK%(F),ENG%(F),IT%(F),SC%(F,0),SC%(F,1):NEXT
-
- 5600FORF=0TO15:INPUT#X,PLY%(F),T$(F):NEXT
-
- 5610INPUT#X,M%,N%,R$,AA%
-
- 5620INPUT#X,D%(3,0),D%(4,0),D%(3,1),D%(4,1)
-
- 5630FORF=1TO30
-
- 5640INPUT#X,WK(F)
-
- 5650IFF>match THEN5670
-
- 5660D%(2-(WK(F)AND255)DIV64,WK(F)DIV256)=D%(2-(WK(F)AND255)DIV64,WK(F)DIV256)+1
-
- 5670NEXT
-
- 5680CLOSE#X
-
- 5690YT$=MID$(T$(L),11)
-
- 5700VDU26
-
- 5710ENDPROC
-
- 5720DEFPROCRESTART
-
- 5730CLS
-
- 5740PRINTFNDH("ÜAre you sure you want to restart")
-
- 5750A$=GET$
-
- 5760IFA$="N" ENDPROC
-
- 5770IFA$="Y" RUN
-
- 5780GOTO5750
-
- 5790DEFPROCPROGRESS
-
- 5800CLS:PRINTFNDH(YT$+"'s Progress in Divison:"+STR$(divison))
-
- 5810PRINT"F.A. Cup";:IF(CP% AND2)THENX=(match+2)DIV6:PRINT"ÇIN ";MID$(CUP$,1+X*15,15):ELSEPRINT"ÅOUT in ";TP$(1)
-
- 5820PRINT"League Cup";:IF(CP% AND4)THENX=(match+4)DIV6:PRINT"ÇIN ";MID$(CUP$,1+X*15,15):ELSEPRINT"ÅOUT in ";TP$(2)
-
- 5830IFE$=""THEN5850
-
- 5840PRINTE$;:IF(CP% AND8)THENX=match DIV6:PRINT"ÇIN ";MID$(CUP$,1+X*15,15):ELSEPRINT"ÅOUT in ";TP$(3)
-
- 5850PRINT'"   [---Home----]   [---Away----]"
-
- 5860PRINT"   W  D  L  F  A   W  D  L  F  A  PTS"
-
- 5870FORF=0TO1
-
- 5880PRINTCHR$141;
-
- 5890FORV=0TO1
-
- 5900FORD=0TO4
-
- 5910PRINTFN@(3,D%(D,V));
-
- 5920NEXT
-
- 5930PRINT" ";
-
- 5940NEXT
-
- 5950PRINTFN@(4,FNV(T$(L),1))
-
- 5960NEXT
-
- 5970Y%=VPOS+1
-
- 5980PRINTTAB(0,24)"ÜPress <SHIFT> for next page"TAB(0,23)
-
- 5990VDU28,0,22,39,Y%,14
-
- 6000FORD=1TOmatch
-
- 6010IF(WK(D)AND256)=0 THENPRINT"ÜHome ";:ELSEPRINT"ÖAway ";
-
- 6020IF(WK(D)AND192)=0 THENPRINT"ÅLost ";
-
- 6030IF(WK(D)AND192)=128 THENPRINT"ÇWon  ";
-
- 6040IF(WK(D)AND192)=64 THENPRINT"ÉDrawn";
-
- 6050PRINT"Å";
-
- 6060FORF=1TO(WK(D)AND63)
-
- 6070IFF=4 VDU8,132
-
- 6080IFF=9 VDU8,130
-
- 6090IFF=14 VDU8,131
-
- 6100IFF=16 VDU8,133
-
- 6110VDU157
-
- 6120NEXT
-
- 6130VDU156
-
- 6140PRINTTAB(36,VPOS);17-(WK(D)AND63)
-
- 6150NEXT
-
- 6160VDU15,26
-
- 6170*FX15,1
-
- 6180PROCWAIT
-
- 6190CLS:A$=MID$(T$(L),11,1):A$=CHR$(ASC(A$)+16):PRINTA$"h"STRING$(36,",")"4"'A$"já   Player       Goals Games  Ratio"A$"5":P%=1
-
- 6200T%=1:FORF%=2TO26
-
- 6210IFSC%(F%,0)>SC%(T%,0)OR(SC%(F%,0)=SC%(T%,0) ANDSC%(F%,1)<SC%(T%,1)) THENT%=F%
-
- 6220NEXT:IFSC%(T%,0)=0THEN6240
-
- 6230PRINTA$"já"FN@(2,P%)FNCOL(T%)PL$(T%)"á"STRING$(19-POS,".")FN@(5,SC%(T%,0))FN@(5,SC%(T%,1))FN@(&20208,SC%(T%,0)/SC%(T%,1))A$"5":SC%(T%,0)=-SC%(T%,0):P%=P%+1:IFP%<6THEN6200
-
- 6240PRINTA$"j"STRING$(36,",")"5"'A$"já   Player       Games Goals"TAB(37)A$"5":P%=1
-
- 6250T%=1:FORF%=2TO26
-
- 6260IFSC%(F%,1)>SC%(T%,1)THENT%=F%
-
- 6270NEXT
-
- 6280PRINTA$"já"FN@(2,P%)FNCOL(T%)PL$(T%)"á"STRING$(19-POS,".")FN@(5,SC%(T%,1));FN@(5,ABS(SC%(T%,0)))"  ";
-
- 6290IFT%<11THENPRINT"Def";:ELSEIFT%<21THENPRINT"Mid";:ELSEPRINT"Att";
-
- 6300PRINTTAB(37)A$"5":SC%(T%,1)=-SC%(T%,1):P%=P%+1:IFP%<12THEN6250
-
- 6310PRINTA$"j"STRING$(36,",")"5"
-
- 6320FORF=1TO26:SC%(F,0)=ABS(SC%(F,0)):SC%(F,1)=ABS(SC%(F,1)):NEXT
-
- 6330IFNJ%<3THEN6390
-
- 6340FORF%=3TONJ%
-
- 6350REPEAT:I=RND(26):UNTIL(IT%(I)AND4)=4
-
- 6360IT%(I)=IT%(I)AND3:IFIT%(I)=1THENIJ%=IJ%-1:PRINTA$"jÇ"PL$(I)" is fit"TAB(37)A$"5"
-
- 6370NJ%=NJ%-1
-
- 6380NEXT
-
- 6390PRINTA$"*"STRING$(36,",")"%"
-
- 6400PROCWAIT:ENDPROC
+ 5530   DEFPROCLOAD
+ 5540       *FX 13, 5
+ 5550       PROCPICKTEAM
+ 5560       VDU 28, 0, 24, 39, 22
+ 5570       X = OPENIN("S."+MID$(YT$,2,10))
+ 5580       INPUT #X, match, MON%, OWE, PK, L, divison, CP%, IT%, IJ%, NJ%, TP$(1), TP$(2), TP$(3), E$, e$, ML$
+ 5590       FOR F = 1 TO 26
+                INPUT #X, PL$(F), SK%(F), ENG%(F), IT%(F), SC%(F, 0), SC%(F, 1)
+                NEXT
+ 5600       FOR F = 0 TO 15
+                INPUT #X, PLY%(F), T$(F)
+                NEXT
+ 5610       INPUT #X, M%, N%, R$, AA%
+ 5620       INPUT #X, D%(3, 0), D%(4, 0), D%(3, 1), D%(4, 1)
+ 5630       FOR F = 1 TO 30
+ 5640           INPUT #X, WK(F)
+ 5650           IF F > match THEN
+                    GOTO 5670
+ 5660           D%(2-(WK(F) AND 255) DIV 64, WK(F) DIV 256) = D%(2-(WK(F) AND 255) DIV 64, WK(F) DIV 256)+1
+ 5670           NEXT
+ 5680       CLOSE #X
+ 5690       YT$ = MID$(T$(L), 11)
+ 5700       VDU 26
+ 5710       ENDPROC
+
+
+
+ 5720   DEFPROCRESTART
+ 5730       CLS
+ 5740       PRINT FNDH("ÜAre you sure you want to restart")
+ 5750       A$ = GET$
+ 5760       IF A$ = "N" THEN
+                ENDPROC
+ 5770       IF A$ = "Y" THEN
+                RUN
+ 5780       GOTO 5750
+
+
+
+ 5790   DEFPROCPROGRESS
+ 5800       CLS
+            PRINT FNDH(YT$+"'s Progress in Divison:"+STR$(divison))
+ 5810       PRIN T"F.A. Cup";
+            IF (CP% AND 2) THEN
+                X = (match+2) DIV 6
+                PRINT "ÇIN ";MID$(CUP$, 1+X*15, 15)
+            ELSE
+                PRINT "ÅOUT in ";TP$(1)
+ 5820       PRINT"League Cup";:IF(CP% AND 4) THEN
+                X = (match+4) DIV 6
+                PRINT "ÇIN ";MID$(CUP$,1+X*15,15)
+            ELSE
+                PRINT"ÅOUT in ";TP$(2)
+ 5830       IF E$ = "" THEN
+                GOTO 5850
+ 5840       PRINTE$;
+            IF( CP% AND 8) THEN
+                X = match DIV6
+                PRINT "ÇIN ";MID$(CUP$, 1+X*15, 15)
+            ELSE
+                PRINT "ÅOUT in ";TP$(3)
+ 5850       PRINT '"   [---Home----]   [---Away----]"
+ 5860       PRINT "   W  D  L  F  A   W  D  L  F  A  PTS"
+ 5870       FOR F = 0 TO 1
+ 5880           PRINT CHR$141;
+ 5890           FOR V = 0 TO 1
+ 5900               FOR D = 0 TO 4
+ 5910                   PRINTFN@(3, D%(D, V));
+ 5920                   NEXT
+
+ 5930               PRINT" ";
+ 5940               NEXT
+ 5950           PRINT FN@(4, FNV(T$(L), 1))
+ 5960           NEXT
+ 5970       Y% = VPOS+1
+ 5980       PRINT TAB(0, 24)"ÜPress <SHIFT> for next page"TAB(0 ,23)
+ 5990       VDU 28, 0, 22, 39,  Y%, 14
+ 6000       FOR D = 1 TO match
+ 6010           IF (WK(D) AND 256) = 0 THEN
+                    PRINT "ÜHome ";
+                ELSE
+                    PRINT "ÖAway ";
+ 6020           IF (WK(D) AND 192) = 0 THEN
+                    PRINT "ÅLost ";
+ 6030           IF (WK(D) AND 192) = 128 THEN
+                    PRINT "ÇWon  ";
+ 6040           IF (WK(D) AND 192) = 64 THEN
+                    PRINT "ÉDrawn";
+ 6050           PRINT "Å";
+ 6060           FOR F = 1 TO (WK(D)AND63)
+ 6070               IF F = 4 THEN
+                        VDU 8, 132
+ 6080               IF F = 9 THEN
+                        VDU8, 130
+ 6090               IF F = 14 THEN
+                        VDU 8, 131
+ 6100               IF F = 16 THEN
+                        VDU 8, 133
+ 6110               VDU 157
+ 6120               NEXT
+ 6130           VDU156
+ 6140           PRINT TAB(36, VPOS);17-(WK(D)AND63)
+ 6150           NEXT
+ 6160       VDU 15, 26
+ 6170       *FX 15, 1
+ 6180       PROCWAIT
+ 6190       CLS
+            A$ = MID$(T$(L), 11, 1)
+            A$ = CHR$(ASC(A$)+16)
+            PRINT A$"h"STRING$(36, ",")"4"'A$"já   Player       Goals Games  Ratio"A$"5"
+            P% = 1
+ 6200       T% = 1
+            FOR F% = 2 TO 26
+ 6210           IF SC%(F%, 0) > SC%(T%, 0) OR (SC%(F%, 0) = SC%(T%, 0) AND SC%(F%, 1) < SC%(T%,1)) THEN
+                    T% = F%
+ 6220           NEXT
+            IF SC%(T%, 0) = 0 THEN
+                GOTO 6240
+ 6230       PRINT A$"já"FN@(2, P%)FNCOL(T%)PL$(T%)"á"STRING$(19-POS, ".")FN@(5, SC%(T%, 0))FN@(5, SC%(T%, 1))FN@(&20208, SC%(T%, 0) / SC%(T%, 1))A$"5"
+            SC%(T%, 0) = -SC%(T%, 0)
+            P% = P% + 1
+            IF P% < 6 THEN
+                GOTO 6200
+ 6240       PRINT A$"j"STRING$(36, ",")"5"'A$"já   Player       Games Goals"TAB(37)A$"5"
+            P% = 1
+ 6250       T% = 1
+            FOR F% = 2 TO 26
+ 6260           IF SC%(F%, 1) > SC%(T%, 1) THEN
+                    T% = F%
+ 6270           NEXT
+ 6280       PRINT A$"já"FN@(2, P%)FNCOL(T%)PL$(T%)"á"STRING$(19-POS, ".")FN@(5, SC%(T%,1));FN@(5, ABS(SC%(T%, 0)))"  ";
+ 6290       IF T% < 11 THEN
+                PRINT "Def";
+            ELSE IF T% < 21 THEN
+                PRINT"Mid";
+            ELSE
+                PRINT"Att";
+ 6300       PRINT TAB(37)A$"5"
+            SC%(T%,1) = -SC%(T%, 1)
+            P% = P%+1
+            IF P% < 12 THEN
+                GOTO 6250
+ 6310       PRINT A$"j"STRING$(36, ",")"5"
+ 6320       FOR F = 1 TO 26
+                SC%(F, 0) = ABS(SC%(F, 0))
+                SC%(F, 1) = ABS(SC%(F, 1))
+                NEXT
+ 6330       IF NJ% < 3 THEN
+                GOTO 6390
+ 6340       FOR F% = 3 TO NJ%
+ 6350           REPEAT
+                    I = RND(26)
+                    UNTIL(IT%(I) AND 4) = 4
+ 6360           IT%(I) = IT%(I) AND 3
+                IF IT%(I) = 1 THEN
+                    IJ% = IJ% - 1
+                    PRINT A$"jÇ"PL$(I)" is fit"TAB(37)A$"5"
+ 6370           NJ% = NJ% - 1
+ 6380           NEXT
+ 6390       PRINT A$"*"STRING$(36, ",")"%"
+ 6400       PROCWAIT
+            ENDPROC
 
 
 
@@ -1314,7 +1301,7 @@ But an attempt to make the code readable.
                 ="Å"
  6440       ="á"
 
- 
+
  6450   DEFPROCWAIT
  6460       VDU 26
  6470       *FX 15, 1
@@ -1333,12 +1320,12 @@ But an attempt to make the code readable.
  6540   match = match-1
         GOTO 450
 
- 
+
  6550   DEFPROCFOOTBALL
  6560       *TYPE"T.FMAN"
  6630       ENDPROC
 
- 
+
  6640   DEFFNRND(X%, N%)
  6650       LOCAL T, F%
  6660       FOR F% = 1 TO N%
