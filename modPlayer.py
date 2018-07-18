@@ -44,13 +44,57 @@ class CPlayer:
             self.position = ATTACK
 
         if nIndex == 1:
-            self.name = 'Peter Shilton'
+            self.name = 'C Woods'
         elif nIndex == 2:
-            self.name = 'Gary Bailey'
+            self.name = 'P Shilton'
+        elif nIndex == 3:
+            self.name = 'A Hansen'
+        elif nIndex == 4:
+            self.name = 'P Neal'
+        elif nIndex == 5:
+            self.name = 'T Butcher'
+        elif nIndex == 6:
+            self.name = 'K Moran'
+        elif nIndex == 7:
+            self.name = 'M Lawrenson'
+        elif nIndex == 8:
+            self.name = 'T Adams'
+        elif nIndex == 9:
+            self.name = 'M Duxbury'
+        elif nIndex == 10:
+            self.name = 'G Stevens'
+        elif nIndex == 11:
+            self.name = 'B Robson'
+        elif nIndex == 12:
+            self.name = 'G Hoddle'
+        elif nIndex == 13:
+            self.name = 'S Hodge'
+        elif nIndex == 14:
+            self.name = 'T Morley'
+        elif nIndex == 15:
+            self.name = 'R Wilkins'
+        elif nIndex == 16:
+            self.name = 'T Morley'
+        elif nIndex == 17:
+            self.name = 'J Barnes'
+        elif nIndex == 18:
+            self.name = 'G Souness'
+        elif nIndex == 19:
+            self.name = 'N Webb'
+        elif nIndex == 20:
+            self.name = 'T Morley'
+        elif nIndex == 21:
+            self.name = 'M Hughes'
+        elif nIndex == 22:
+            self.name = 'M Hateley'
+        elif nIndex == 23:
+            self.name = 'P Beardsley'
+        elif nIndex == 24:
+            self.name = 'I Rush'
         elif nIndex == 25:
-            self.name = 'Mark Hughes'
+            self.name = 'G Lineker'
         elif nIndex == 26:
-            self.name = 'Gary Lineker'
+            self.name = 'N Whiteside'
 
 
 
