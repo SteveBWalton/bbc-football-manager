@@ -28,13 +28,7 @@ def Run():
     ''' Main entry point for the program. '''
     # Create a game object.
     oGame = modGame.CGame()
-    oGame.Football()
-
-    # Get the player settings.
-    print()
-    oGame.player_name = input('Please enter your name: ')
-    print('Hello {}{}{}.'.format(modANSI.RED, oGame.player_name, modANSI.RESET_ALL))
-
+    oGame.Run()
 
 
 

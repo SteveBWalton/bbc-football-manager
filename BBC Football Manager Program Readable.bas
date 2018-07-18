@@ -1060,12 +1060,12 @@ But an attempt to make the code readable.
 
 
  5170   DEFPROCPICKTEAM
- 5180       G=1
-            @%=10
+ 5180       G = 1
+            @% = 10
  5190       CLS
  5210       VDU 30
             PRINT 0;"ˆMore Teams"',1;"ˆOwn Team"
- 5220       FORF = 2 TO 17
+ 5220       FOR F = 2 TO 17
  5230           A$ = FNGETTEAM(G-1, F-1)
  5240           PRINT F;A$;SPC(10)
  5250           NEXT

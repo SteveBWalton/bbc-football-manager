@@ -28,10 +28,6 @@ except ImportError:
     import tty
     import termios
     def getwch():
-        fd = sys.stdin.fileno()
-        global old_settings
-        old_settings = termios.tcgetattr(fd)
-        # print('tcgetattr({}) = {}'.format(fd, old_settings))
         try:
             # This does not work !
             # print('SetRaw')
@@ -39,26 +35,16 @@ except ImportError:
 
             # print('\nSetCBreak\n')
             tty.setcbreak(sys.stdin.fileno())
-
             ch = sys.stdin.read(1)
+        except:
+            pass
         finally:
-            # This use to work without the | termios.ECHO.
-            # This does not work in the sport_of_life program for some reason.
-
-            #print('tcgetattr({}) = {}'.format(fd, old_settings))
-            # print('tcgetattr({}) = {}'.format(fd, termios.tcgetattr(fd)))
-            # print('\nRestore termios\n')
-            old_settings[3] = old_settings[3] | termios.ECHO
-            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-            # print('tcgetattr({}) = {}'.format(fd, termios.tcgetattr(fd)))
-
-            # Use 'stty --all' to see all terminal settings.
-            # Use 'stty echo' to turn echo back on (for example).
+            pass
         return ch
 
 
 
-class CInKey:
+class CInkey:
     ''' Class to provide a keyboard scan function like BBC Basic InKey(). '''
 
 
@@ -67,27 +53,35 @@ class CInKey:
         ''' Class constructor. '''
         # print('CInKey class constructor.')
         self.sLastKey = None
-        # print('_thread.start_new_thread.')
-        _thread.start_new_thread(self._keypress, ())
+        if UseLinux:
+            fd = sys.stdin.fileno()
+            self.old_settings = termios.tcgetattr(fd)
         # print('CInKey class constructor finished.')
-
 
 
     def __del__(self):
         ''' Class destructor. '''
         # print('CInKey class destructor.')
-        self.Close()
+        self.Stop()
 
 
 
-    def Close(self):
+    def Start(self):
+        ''' Start the keyboard monitoring.  This was in the class constructor initially. '''
+        # print('_thread.start_new_thread.')
+        _thread.start_new_thread(self._keypress, ())
+
+
+
+    def Stop(self):
         ''' Restore the terminal. Sometimes there is an extra setcbreak() call.  So call here at the end to restore the ECHO after this setcbreak() call.'''
         # print('Close')
         if UseLinux:
-            global old_settings
-            old_settings[3] = old_settings[3] | termios.ECHO
+            self.old_settings[3] = self.old_settings[3] | termios.ECHO
             fd = sys.stdin.fileno()
-            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+            termios.tcsetattr(fd, termios.TCSADRAIN, self.old_settings)
+            # Use 'stty --all' to see all terminal settings.
+            # Use 'stty echo' to turn echo back on (for example).
 
 
 
@@ -103,7 +97,7 @@ class CInKey:
 
 
 
-    def InKey(self):
+    def InKey(self, bContinue=True):
         ''' Return the last (current) keypress or None for no keypress. '''
         if self.sLastKey == None:
             sReturn = None
@@ -112,7 +106,11 @@ class CInKey:
             sReturn = self.sLastKey
             # print('"{}" key pressed.'.format(sReturn))
             self.sLastKey = None
-            _thread.start_new_thread(self._keypress, ())
+            if bContinue:
+                # Scan for the next key.
+                _thread.start_new_thread(self._keypress, ())
+            else:
+                self.Stop()
         return sReturn
 
 
