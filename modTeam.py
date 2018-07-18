@@ -12,18 +12,24 @@ import modANSI
 import modInkey
 
 class CTeam:
-    ''' Class to represent the BBC Football Manager game. '''
+    ''' Class to represent a team in the BBC Football Manager game. '''
 
 
 
     def __init__(self):
-        ''' Class constructor for the BBC Football manager game. '''
+        ''' Class constructor. '''
         self.name = 'Error'
         self.colour = modANSI.WHITE
         self.defense = 1
         self.midfield = 1
         self.attack = 1
+        self.position = 1
 
+
+
+    def WriteTableRow(self):
+        ''' Write this team into the league table. '''
+        print('{:>2} {}{:<15}{:>3}{:>3}{:>3}{:>3}{:>3}{}'.format(self.position, self.colour, self.name, 0, 0, 0, 0, 0, modANSI.RESET_ALL))
 
 
     def GetColouredName(self):
@@ -50,6 +56,9 @@ class CTeam:
             elif nIndex == 5:
                 self.name = 'Spurs'
                 self.colour = modANSI.WHITE
+            elif nIndex == 5:
+                self.name = 'Newcastle'
+                self.colour = modANSI.WHITE
         elif nDivision == 2:
             if nIndex == 1:
                 self.name = 'Man City'
@@ -65,5 +74,25 @@ class CTeam:
                 self.colour = modANSI.RED
             elif nIndex == 5:
                 self.name = 'Sheffield United'
+                self.colour = modANSI.RED
+        elif nDivision == 3:
+            if nIndex == 1:
+                self.name = 'Sheffield United'
+                self.colour = modANSI.RED
+        else:
+            if nIndex == 1:
+                self.name = 'Wigan'
+                self.colour = modANSI.RED
+            elif nIndex == 2:
+                self.name = 'Bradford City'
+                self.colour = modANSI.LIGHT_BLUE
+            elif nIndex == 3:
+                self.name = 'Wimbledon'
+                self.colour = modANSI.MAGENTA
+            elif nIndex == 4:
+                self.name = 'York City'
+                self.colour = modANSI.RED
+            elif nIndex == 5:
+                self.name = 'Peterbrough'
                 self.colour = modANSI.RED
 

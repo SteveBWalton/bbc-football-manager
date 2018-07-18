@@ -6,11 +6,13 @@ Module to implement the CGame class for the the BBC Football Manager program.
 '''
 
 # System libraries.
+import random
 
 # Application Libraries.
 import modANSI
 import modInkey
 import modTeam
+import modPlayer
 
 
 
@@ -27,9 +29,11 @@ class CGame:
         self.team_colour = modANSI.WHITE
 
 
+
     def Run(self):
         ''' Execute the football manager game. '''
         self.keyboard = modInkey.CInkey()
+        random.seed()
 
         modANSI.CLS()
         self.Football()
@@ -57,6 +61,56 @@ class CGame:
         ''' Initialise a new game. '''
         self.PickTeam()
 
+        # Initialise the players.
+        self.players = []
+        for nIndex in range(1, 27):
+            oPlayer = modPlayer.CPlayer()
+            oPlayer.GetPlayer(nIndex)
+            oPlayer.skill = random.randint(1, 5)
+            oPlayer.energy = random.randint(1, 20)
+            self.players.append(oPlayer)
+        for nIndex in range(4):
+            nPlayer = random.randint(0, 25)
+            self.players[nPlayer].skill = 5
+
+        # Pick 12 players.
+        for nIndex in range(12):
+            nPlayer = random.randint(0, 25)
+            while self.players[nPlayer].in_squad:
+                nPlayer = random.randint(0, 25)
+            self.players[nPlayer].in_squad = True
+        for oPlayer in self.players:
+            if oPlayer.in_squad:
+                oPlayer.WriteRow()
+
+        # Initialise the teams.
+        self.teams = None
+        self.division = 4
+        self.SetTeamsForDivision()
+        for oTeam in self.teams:
+            oTeam.WriteTableRow()
+
+
+
+    def SetTeamsForDivision(self):
+        ''' Replacement for PROCDIVISON in the BBC Basic version. '''
+        if self.teams == None:
+            self.teams = []
+            for nTeam in range(16):
+                oTeam = modTeam.CTeam()
+                oTeam.name = ''
+                self.teams.append(oTeam)
+            self.teams[0].name = self.team_name
+            self.teams[0].colour = self.team_colour
+            self.teams[0].position = 1
+        nDivision = self.division
+        nNewTeam = 1
+        for oTeam in self.teams:
+            if oTeam.name == '':
+                oTeam.GetTeam(nDivision, nNewTeam)
+                # Check that this team is unique.
+                nNewTeam = nNewTeam+1
+                oTeam.position = nNewTeam
 
 
     def PickTeam(self):
