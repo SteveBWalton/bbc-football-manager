@@ -55,6 +55,50 @@ class CGame:
             print('No')
             self.NewGame()
 
+        # Play the game.
+        self.match = 0
+        while self.match < 30:
+            modANSI.CLS()
+            print('MANAGER: {}'.format(self.player_name))
+            print('LEVEL: {}'.format(self.level))
+            print()
+            print('1 .. Sell Players / View Squad')
+            print('4 .. Continue')
+            sKey = self.GetKeyboardCharacter(['1', '2', '3', '4', '5', '6'])
+            if sKey == '1':
+                # PROCSELL
+                pass
+            elif sKey == '2':
+                # PROCLEND
+                pass
+            elif sKey == '3'
+                # PROCRENAME
+                pass
+            elif sKey == '4'
+                # Continue.
+                self.PlayWeek()
+            elif sKey == '5'
+                # PROCSAVE
+                pass
+            elif sKey == '6'
+                # PROCRESTART
+                pass
+            elif sKey == '7'
+                # PROCLEAGUE
+                # PROCWAIT
+                pass
+
+        # Season has finished.
+
+
+    def SortDivison(self):
+        ''' Replacement for PROCSORT in the BBC Basic version. '''
+        self.teams = sorted(self.teams, key=lambda CTeam: CTeam.pts, reverse=True)
+        nPosition = 1
+        for oTeam in self.teams:
+            oTeam.position = nPosition
+            nPosition = nPosition + 1
+
 
 
     def NewGame(self):
@@ -87,6 +131,7 @@ class CGame:
         self.teams = None
         self.division = 4
         self.SetTeamsForDivision()
+        self.SortDivison()
         for oTeam in self.teams:
             oTeam.WriteTableRow()
 

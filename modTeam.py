@@ -24,6 +24,7 @@ class CTeam:
         self.midfield = 1
         self.attack = 1
         self.position = 1
+        self.pts = 0
 
 
 
