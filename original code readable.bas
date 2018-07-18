@@ -113,13 +113,13 @@ But an attempt to make the code readable.
   660       A = GET
   670       IF A = 49 THEN
                 PROCSELL
-                GOTO490
+                GOTO 490
   680       IF A = 50 THEN
                 PROCLEND
-                GOTO490
+                GOTO 490
   690       IF A = 51 THEN
                 PROCRENAME
-                GOTO490
+                GOTO 490
   700       IF A = 53 THEN
                 PROCSAVE
   710       IF A = 54 THEN
@@ -1452,5 +1452,5 @@ But an attempt to make the code readable.
  7210       FOR F% = 1 TO T%+D%*16
                 INPUT #X%, A$
                 NEXT
- 7220       CLOSE#X%
+ 7220       CLOSE #X%
  7230       = A$

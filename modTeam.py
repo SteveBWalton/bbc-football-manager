@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-Module to implement the CGame class for the the BBC Football Manager program.
+Module to implement the CTeam class for the the BBC Football Manager program.
 '''
 
 # System libraries.
@@ -11,69 +11,59 @@ Module to implement the CGame class for the the BBC Football Manager program.
 import modANSI
 import modInkey
 
-class CGame:
+class CTeam:
     ''' Class to represent the BBC Football Manager game. '''
 
 
 
     def __init__(self):
         ''' Class constructor for the BBC Football manager game. '''
-        self.player_name = ''
-        self.level = 1
+        self.name = 'Error'
+        self.colour = modANSI.WHITE
+        self.defense = 1
+        self.midfield = 1
+        self.attack = 1
 
 
 
-    def Run(self):
-        ''' Execute the football manager game. '''
-        self.keyboard = modInkey.CInkey()
-        self.Football()
-
-        # Get the player settings.
-        print()
-        self.player_name = input('Please enter your name: ')
-        print('Hello {}{}{}.'.format(modANSI.RED, self.player_name, modANSI.RESET_ALL))
-
-        # Select the level.
-        print('Enter level [1-4]')
-        self.level = int(self.GetKeyboardCharacter(['1', '2', '3', '4']))
-        print('Level {} was selected'.format(self.level))
-
-        # Load a game.
-        print('Do you want to load a game?')
-        if self.YesNo():
-            print('Yes')
-        else:
-            print('No')
+    def GetColouredName(self):
+        ''' Returns the team name wrapped in the colour code. '''
+        return '{}{}{}'.format(self.colour, self.name, modANSI.RESET_ALL)
 
 
 
-    def YesNo(self):
-        ''' Replacement for FNYES in the BBC Basic version.  Returns True if 'Y' is pressed or False if 'N' is pressed. '''
-        sCharacter = self.GetKeyboardCharacter(['y', 'n'])
-        if sCharacter == 'y':
-            return True
-        return False
-
-
-
-    def GetKeyboardCharacter(self, allowed):
-        ''' Return a keyboard character from the allowed characters. '''
-        sCharacter = modInkey.getwch()
-        while not (sCharacter in allowed):
-            sCharacter = modInkey.getwch()
-        return sCharacter
-
-
-
-    def Football(self):
-        ''' Implementation of DEFPROCfootball().  Display a title. '''
-        print('┏━━             ┃       ┃ ┃   ┏━┳━┓')
-        print('┃            ┃  ┃       ┃ ┃   ┃ ┃ ┃' )
-        print('┣━━ ┏━┓ ┏━┓ ━#━ ┣━┓ ━━┓ ┃ ┃   ┃   ┃ ━━┓ ━┳━┓ ━━┓ ┏━┓ ┏━┓ ┏━')
-        print('┃   ┃ ┃ ┃ ┃  ┃  ┃ ┃ ┏━┫ ┃ ┃   ┃   ┃ ┏━┃  ┃ ┃ ┏━┫ ┃ ┃ ┣━┛ ┃')
-        print('┃   ┗━┛ ┗━┛  ┃  ┗#┛ ┗━┛ ┃ ┃   ┃   ┃ ┗━┛  ┃ ┃ ┗━┛ ┗━┫ ┗━━ ┃')
-        print('                                                   ┃')
-        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛')
-        print('By Steve Walton BBC BASIC 1982-1989, 2000, Python 2018.')
-
+    def GetTeam(self, nDivision, nIndex):
+        ''' This is the replacement for FNGETTEAM(). Populate the object with a prebuilt team. '''
+        if nDivision == 1:
+            if nIndex == 1:
+                self.name = 'Leeds United'
+                self.colour = modANSI.YELLOW
+            elif nIndex == 2:
+                self.name = 'Man United'
+                self.colour = modANSI.RED
+            elif nIndex == 3:
+                self.name = 'Liverpool'
+                self.colour = modANSI.RED
+            elif nIndex == 4:
+                self.name = 'Arsenal'
+                self.colour = modANSI.RED
+            elif nIndex == 5:
+                self.name = 'Spurs'
+                self.colour = modANSI.WHITE
+        elif nDivision == 2:
+            if nIndex == 1:
+                self.name = 'Man City'
+                self.colour = modANSI.CYAN
+            elif nIndex == 2:
+                self.name = 'Chelsea'
+                self.colour = modANSI.LIGHT_BLUE
+            elif nIndex == 3:
+                self.name = 'West Ham'
+                self.colour = modANSI.MAGENTA
+            elif nIndex == 4:
+                self.name = 'Southampton'
+                self.colour = modANSI.RED
+            elif nIndex == 5:
+                self.name = 'Sheffield United'
+                self.colour = modANSI.RED
 

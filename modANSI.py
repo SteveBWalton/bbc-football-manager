@@ -61,3 +61,6 @@ BOLD_MAGENTA = '\033[1;35m'
 BOLD_CYAN = '\033[1;36m'
 
 
+def CLS():
+    ''' Clear the console window. '''
+    print('\033[2J\033[;H', end = '')
