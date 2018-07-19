@@ -20,17 +20,23 @@ class CTeam:
         ''' Class constructor. '''
         self.name = 'Error'
         self.colour = modANSI.WHITE
+        self.energy = 1
+        self.moral = 1
         self.defense = 1
         self.midfield = 1
         self.attack = 1
         self.position = 1
         self.pts = 0
+        self.difference = 0
+        self.played_home = False
+        self.played_away = False
+        self.sort = 0
 
 
 
     def WriteTableRow(self):
         ''' Write this team into the league table. '''
-        print('{:>2} {}{:<15}{:>3}{:>3}{:>3}{:>3}{:>3}{}'.format(self.position, self.colour, self.name, 0, 0, 0, 0, 0, modANSI.RESET_ALL))
+        print('{:>2} {}{:<15}{:>3}{:>3}{:>3}{:>4}{:>4} {} {} {}'.format(self.position, self.colour, self.name, 0, 0, 0, self.pts, self.difference, 'Y' if self.played_home else 'N', 'Y' if self.played_away else 'N', modANSI.RESET_ALL))
 
 
     def GetColouredName(self):

@@ -27,6 +27,7 @@ class CGame:
         self.level = 1
         self.team_name = ''
         self.team_colour = modANSI.WHITE
+        self.team_index = None
 
 
 
@@ -69,7 +70,8 @@ class CGame:
             print('5 .. Save Game')
             print('6 .. Restart')
             print('7 .. League Table')
-            sKey = self.GetKeyboardCharacter(['1', '2', '3', '4', '5', '6'])
+            print('8 .. Quit')
+            sKey = self.GetKeyboardCharacter(['1', '2', '3', '4', '5', '6', '7', '8'])
             if sKey == '1':
                 # PROCSELL
                 pass
@@ -89,26 +91,107 @@ class CGame:
                 # PROCRESTART
                 pass
             elif sKey == '7':
-                # PROCLEAGUE
-                # PROCWAIT
-                pass
+                self.ShowLeague()
+                self.Wait()
+            elif sKey == '8':
+                # Confirm with the user.
+                print('As you sure you want to exit the program (Y/N) ?')
+                if self.YesNo():
+                    return
 
         # Season has finished.
+        print('Season has finished.')
 
 
 
     def PlayWeek(self):
-        ''' This is the block of code that was after the menu in the week loop of the BBC Basic version. '''
-        pass
+        ''' This is the block of code that was after the menu in the week loop of the BBC Basic version. Line 740 onward.'''
+        self.match = self.match+1
+
+        # Decide and play any cup matches.
+
+        # Choose an opponent for the league match.
+        self.team.played_home = True
+        self.team.played_away = True
+        while True:
+            nOpponent = random.randint(0, 15)
+            bHome = (self.match & 1) == 1
+            if bHome:
+                if self.teams[nOpponent].played_home == False:
+                    self.teams[nOpponent].played_home = True
+                    break;
+            else:
+                if self.teams[nOpponent].played_away == False:
+                    self.teams[nOpponent].played_away = True
+                    break;
+
+        while True:
+            modANSI.CLS()
+            if bHome:
+                self.DisplayMatch(self.team_index, nOpponent)
+            else:
+                self.DisplayMatch(nOpponent, self.team_index)
+            sKey = self.GetKeyboardCharacter(['c', '\t'])
+            if sKey == '\t':
+                break;
+            # Pick the team.
+        if bHome:
+            self.teams[nOpponent].pts = self.teams[nOpponent].pts + 1
+        else:
+            self.teams[nOpponent].pts = self.teams[nOpponent].pts + 2
+        self.teams[nOpponent].difference = self.teams[nOpponent].difference + random.randint(0, 5) - random.randint(0, 5)
+
+        self.SortDivison()
+        self.ShowLeague()
+        self.Wait()
+
+
+
+    def DisplayMatch(self, nHome, nAway):
+        ''' Replacement for PROCDISPLAY in the BBC Basic version. '''
+        print('{}{}'.format(self.teams[nHome].GetColouredName(), self.teams[nAway].GetColouredName()))
+        if True:
+            print('Pos {} {}'.format(self.teams[nHome].position, self.teams[nAway].position))
+            print('Eng {} {}'.format(self.teams[nHome].energy, self.teams[nAway].energy))
+            print('Mor {} {}'.format(self.teams[nHome].moral, self.teams[nAway].moral))
+            print('Def {} {}'.format(self.teams[nHome].defense, self.teams[nAway].defense))
+            print('Mid {} {}'.format(self.teams[nHome].midfield, self.teams[nAway].midfield))
+            print('Att {} {}'.format(self.teams[nHome].attack, self.teams[nAway].attack))
+            print()
+            print('{} Picked, {} Squad, {} Injured.'.format(0,12,0))
+            print('Press C to change team')
+            print('Press TAB to play match.')
+
+
+
+    def Wait(self):
+        ''' Replacement for PROCWAIT in the BBC Basic version. '''
+        print('----- Press SPACE to continue -----')
+        self.GetKeyboardCharacter([' '])
+
+
+
+    def ShowLeague(self):
+        ''' Replacement for PROCLEAGUE in the BBC Basic version. '''
+        modANSI.CLS()
+        print('Division {}'.format(self.division))
+        print('   Team             W  D  L Pts Dif')
+        for oTeam in self.teams:
+            oTeam.WriteTableRow()
+        print('Matches Played: {}'.format(self.match))
+        print('{} position: {}'.format(self.team.GetColouredName(), self.team_index+1))
 
 
 
     def SortDivison(self):
         ''' Replacement for PROCSORT in the BBC Basic version. '''
-        self.teams = sorted(self.teams, key=lambda CTeam: CTeam.pts, reverse=True)
+        self.teams = sorted(self.teams, key=lambda CTeam: (CTeam.pts, CTeam.difference), reverse=True)
         nPosition = 1
         for oTeam in self.teams:
             oTeam.position = nPosition
+            if oTeam.name == self.team_name:
+                self.team_index = nPosition-1
+                self.team = oTeam
             nPosition = nPosition + 1
 
 
@@ -144,8 +227,6 @@ class CGame:
         self.division = 4
         self.SetTeamsForDivision()
         self.SortDivison()
-        for oTeam in self.teams:
-            oTeam.WriteTableRow()
 
 
 

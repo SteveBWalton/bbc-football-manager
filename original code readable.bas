@@ -287,7 +287,7 @@ But an attempt to make the code readable.
 
 
 
- 1410   DEFFN @(@%, V)
+ 1410   DEFFN@(@%, V)
             LOCAL A$, Q%, P%
  1420       Q% = @% AND 128
             P% = @% AND 64
@@ -309,7 +309,7 @@ But an attempt to make the code readable.
 
 
 
- 1490   DEFFN MIN(A, B)
+ 1490   DEFFNMIN(A, B)
             IF A < B THEN
                 = A
             ELSE
@@ -317,7 +317,7 @@ But an attempt to make the code readable.
 
 
 
- 1500   DEFFN MAX(A, B)
+ 1500   DEFFNMAX(A, B)
             IF A > B THEN
                 = A
             ELSE
@@ -325,17 +325,17 @@ But an attempt to make the code readable.
 
 
 
- 1510   DEFFN V(A$, C%)
+ 1510   DEFFNV(A$, C%)
             = ASC(MID$(A$, C%)) - 32
 
 
 
- 1520   DEFFN SET(A$, C%, V%)
+ 1520   DEFFNSET(A$, C%, V%)
             =LEFT$(A$, C%-1) + CHR$(32 + FNMIN(223, FNMAX(V%, 0))) + MID$(A$, C%+1)
 
 
 
- 1530   DEFFN ADD(A$, C%, V%)
+ 1530   DEFFNADD(A$, C%, V%)
             =FNSET(A$, C%, V%+FNV(A$, C%))
 
 
@@ -352,7 +352,7 @@ But an attempt to make the code readable.
 
 
 
- 1570   DEFFN IF(T$, C%)
+ 1570   DEFFNIF(T$, C%)
             IF C% THEN
                 = T$
             ELSE
@@ -360,7 +360,7 @@ But an attempt to make the code readable.
 
 
 
- 1580   DEFPROC IN(A%)
+ 1580   DEFPROCIN(A%)
  1590       IF IT%(A%) <> 1 THEN
                 ENDPROC
  1600       T$(L) = FNADD(T$(L), INT((A%-1)/10)+8, SK%(A%))
@@ -655,6 +655,8 @@ But an attempt to make the code readable.
  3030           NEXT
  3040       WK(match) = WK(match) + 16-L
  3050       ENDPROC
+
+
 
  3060   DEFPROCLEAGUE
  3070       CLS
@@ -1010,7 +1012,7 @@ But an attempt to make the code readable.
 
 
 
- 4750   DEFPROCCUP(A$,B$)
+ 4750   DEFPROCCUP(A$, B$)
  4760       CLS
  4770       E% = 0.5 + LEN(A$) / 2
             W% = 15 - E%
@@ -1184,7 +1186,7 @@ But an attempt to make the code readable.
                 PRINT"ÅOUT in ";TP$(2)
  5830       IF E$ = "" THEN
                 GOTO 5850
- 5840       PRINTE$;
+ 5840       PRINT E$;
             IF( CP% AND 8) THEN
                 X = match DIV6
                 PRINT "ÇIN ";MID$(CUP$, 1+X*15, 15)
