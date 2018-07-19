@@ -63,7 +63,12 @@ class CGame:
             print('LEVEL: {}'.format(self.level))
             print()
             print('1 .. Sell Players / View Squad')
+            print('2 .. Bank')
+            print('3 .. Rename Player')
             print('4 .. Continue')
+            print('5 .. Save Game')
+            print('6 .. Restart')
+            print('7 .. League Table')
             sKey = self.GetKeyboardCharacter(['1', '2', '3', '4', '5', '6'])
             if sKey == '1':
                 # PROCSELL
@@ -71,24 +76,31 @@ class CGame:
             elif sKey == '2':
                 # PROCLEND
                 pass
-            elif sKey == '3'
+            elif sKey == '3':
                 # PROCRENAME
                 pass
-            elif sKey == '4'
+            elif sKey == '4':
                 # Continue.
                 self.PlayWeek()
-            elif sKey == '5'
+            elif sKey == '5':
                 # PROCSAVE
                 pass
-            elif sKey == '6'
+            elif sKey == '6':
                 # PROCRESTART
                 pass
-            elif sKey == '7'
+            elif sKey == '7':
                 # PROCLEAGUE
                 # PROCWAIT
                 pass
 
         # Season has finished.
+
+
+
+    def PlayWeek(self):
+        ''' This is the block of code that was after the menu in the week loop of the BBC Basic version. '''
+        pass
+
 
 
     def SortDivison(self):
