@@ -6,10 +6,12 @@ Module to implement the CTeam class for the the BBC Football Manager program.
 '''
 
 # System libraries.
+import random
 
 # Application Libraries.
 import modANSI
 import modInkey
+import modGame
 
 class CTeam:
     ''' Class to represent a team in the BBC Football Manager game. '''
@@ -22,7 +24,7 @@ class CTeam:
         self.colour = modANSI.WHITE
         self.energy = 1
         self.moral = 1
-        self.defense = 1
+        self.defence = 1
         self.midfield = 1
         self.attack = 1
         self.position = 1
@@ -31,12 +33,41 @@ class CTeam:
         self.played_home = False
         self.played_away = False
         self.sort = 0
+        self.formation = '4-4-2'
+
+
+
+    def Initialise(self, nDivision):
+        ''' Replacement for FNTEAM (Line 3750) in the BBC Basic version. '''
+        nNumDefence = 3 + random.randint(1, 2)
+        nNumMidfield = 2 + random.randint(1, 3)
+        nNumAttack = 11 - nNumMidfield - nNumDefence
+        nBonus = 1 + (1 if nDivision < 4 else 0) + (1 if nDivision == 1 else 0)
+        nSkill = 4 - (nDivision & 1)
+        self.energy = self.MultiRandomInt(20, 11)
+        self.moral = 9 + random.randint(1, 11)
+        self.defence = nNumDefence * nBonus + self.MultiRandomInt(nSkill, nNumDefence)
+        self.midfield = nNumMidfield * nBonus + self.MultiRandomInt(nSkill, nNumMidfield)
+        self.attack = nNumAttack * nBonus + self.MultiRandomInt(nSkill, nNumAttack)
+        self.formation = '{}-{}-{}'.format(nNumDefence-1, nNumMidfield, nNumAttack)
+
+
+
+    def Zero(self):
+        ''' Initialise the team properties to zero. '''
+        self.energy = 0
+        self.moral = 10
+        self.defence = 0
+        self.midfield = 0
+        self.attack = 0
+        self.formation = '0-0-0'
 
 
 
     def WriteTableRow(self):
         ''' Write this team into the league table. '''
         print('{:>2} {}{:<15}{:>3}{:>3}{:>3}{:>4}{:>4} {} {} {}'.format(self.position, self.colour, self.name, 0, 0, 0, self.pts, self.difference, 'Y' if self.played_home else 'N', 'Y' if self.played_away else 'N', modANSI.RESET_ALL))
+
 
 
     def GetColouredName(self):
@@ -243,3 +274,12 @@ class CTeam:
             elif nIndex == 16:
                 self.name = 'Exeter'
                 self.colour = modANSI.RED
+
+
+
+    def MultiRandomInt(self, nRange, nNumber):
+        ''' Replacement for FNRND() (Line 6640) in the BBC Basic version. '''
+        nTotal = 0
+        for nCount in range(nNumber):
+            nTotal = nTotal + random.randint(1, nRange)
+        return nTotal

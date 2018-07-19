@@ -11,9 +11,9 @@ Module to implement the CPlayer class for the the BBC Football Manager program.
 import modANSI
 
 
-DEFENSE = 1
-MIDFIELD = 2
-ATTACK = 3
+DEFENSE = 0
+MIDFIELD = 1
+ATTACK = 2
 
 
 class CPlayer:
@@ -30,6 +30,7 @@ class CPlayer:
         self.index = 0
         self.in_squad = False
         self.in_team = False
+        self.injured = False
 
 
 
@@ -109,7 +110,13 @@ class CPlayer:
         else:
             print(modANSI.BACKGROUND_WHITE, end = '')
             print(modANSI.BLUE, end = '')
-        print('{:2} {:<20}{:>2}{:>3}'.format(self.index, self.name, self.skill, self.energy), end = '')
+        print('{:2} {:<20}{:>2}{:>3} '.format(self.index, self.name, self.skill, self.energy), end = '')
+        if self.in_team:
+            print(modANSI.BACKGROUND_GREEN, end = '')
+            print(' P ', end = '')
+        if self.injured:
+            print(modANSI.BACKGROUND_RED, end = '')
+            print(' I ', end = '')
         print(modANSI.RESET_ALL)
 
 
