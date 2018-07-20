@@ -109,7 +109,7 @@ class CGame:
 
     def PlayWeek(self):
         ''' This is the block of code that was after the menu in the week loop of the BBC Basic version. Line 740 onward.'''
-        self.match = self.match+1
+        self.match = self.match + 1
 
         # Decide and play any cup matches.
 
@@ -150,7 +150,7 @@ class CGame:
             self.ApplyPoints(nOpponent, self.team_index, nOpponentGoals, nPlayerGoals)
 
         # PROCPLAYERS
-        # PROCINJ
+        self.PlayerInjured()
         # Decided the fixtures for the league was at half time of the playmatch.
         self.Fixtures(nOpponent)
 
@@ -167,7 +167,8 @@ class CGame:
         self.Market()
         # PROCREPORT
         # PROCPROGRESS
-
+        self.PlayerFit()
+        self.Wait()
 
 
     def ApplyPoints(self, nHome, nAway, nHomeGoals, nAwayGoals):
@@ -205,6 +206,34 @@ class CGame:
                     oPlayer.energy = oPlayer.energy + 9
                     if oPlayer.energy > 20:
                         oPlayer.energy = 20
+
+
+
+    def PlayerInjured(self):
+        '''
+        Replacement for PROCINJ (line 5100) in the BBC Basic version.
+        This gives players an injury.
+        '''
+        nPlayer = random.randint(0, 25)
+        if self.players[nPlayer].injured:
+            return
+        self.DropPlayer(nPlayer)
+        self.players[nPlayer].injured = True
+        if self.players[nPlayer].in_squad:
+            print('{}{} has been injured.{}'.format(modANSI.RED, self.players[nPlayer].name, modANSI.RESET_ALL))
+            self.num_injured = self.num_injured + 1
+
+
+
+    def PlayerFit(self):
+        ''' This was part of PROCPROGRESS in the BBC Basic version. '''
+        for oPlayer in self.players:
+            if oPlayer.injured:
+                if random.randint(1, 3) == 1:
+                    oPlayer.injured = False
+                    if oPlayer.in_squad:
+                        print('{}{} is fit.{}'.format(modANSI.GREEN, oPlayer.name, modANSI.RESET_ALL))
+                        self.num_injured = self.num_injured - 1
 
 
 
@@ -457,6 +486,14 @@ class CGame:
         self.division = 4
         self.SetTeamsForDivision()
         self.SortDivison()
+
+        # Pick a default selection of players.
+        self.num_team = 0
+        self.num_injured = 0
+        for nIndex in range(26):
+            if self.players[nIndex].in_squad:
+                if self.num_team < 11:
+                    self.AddPlayer(nIndex)
 
 
 
