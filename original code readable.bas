@@ -1390,7 +1390,7 @@ But an attempt to make the code readable.
             AMI = FNV(T$(A), 9)
             ADF = FNV(T$(A), 8)
  6940       HAV = B1 + 4*(HAT/ADF)*(HMI/(HMI+AMI)) + (FNV(T$(H), 7)-10) / 40 - (FNV(T$(A), 6)-100) / 400
- 6950       AAV = B2 + 4*(AAT/HDF)*(AMI/(AMI+HMI)) + (FNV(T$(A), 7)-10) / 40 - (FNV(T$(H),6)-100) / 400
+ 6950       AAV = B2 + 4*(AAT/HDF)*(AMI/(AMI+HMI)) + (FNV(T$(A), 7)-10) / 40 - (FNV(T$(H), 6)-100) / 400
  6960       X% = POS
             Y% = VPOS
             PRINT TAB(0, 24)FN@(&20205, HAV)TAB(30, 24)FN@(&20205, AAV)CHR$13TAB(X%, Y%);

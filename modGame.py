@@ -128,6 +128,7 @@ class CGame:
                     self.teams[nOpponent].played_away = True
                     break;
 
+        # Let the player select the players for the team.
         while True:
             modANSI.CLS()
             if bHome:
@@ -139,6 +140,12 @@ class CGame:
                 break;
             # Pick the player.
             self.PickPlayers()
+
+        # Play the match.
+            if bHome:
+                self.PlayMatch(self.team_index, nOpponent, 1, 0)
+            else:
+                self.PlayMatch(nOpponent, self.team_index, 1, 0)
 
         if bHome:
             self.teams[nOpponent].pts = self.teams[nOpponent].pts + 1
@@ -328,11 +335,20 @@ class CGame:
 
 
     def MultiRandomInt(self, nRange, nNumber):
-        ''' Replacement for FNRND() (Line 6640) in the BBC Basic version. '''
+        ''' Replacement for FNRND() (Line 6640) in the BBC Basic version. This gives an integer result. '''
         nTotal = 0
         for nCount in range(nNumber):
             nTotal = nTotal + random.randint(1, nRange)
         return nTotal
+
+
+
+    def MultiRandom(self, dRange, nNumber):
+        ''' Replacement of FNRND (Line 6640) in the BBC Basic version. This gives a floating point result.  It is usually expected that dRange will be 1.'''
+        dTotal = 0
+        for nCount in range(nNumber):
+            dTotal = dTotal + random.uniform(0, dRange)
+        return dTotal
 
 
 
@@ -405,3 +421,55 @@ class CGame:
         print('By Steve Walton BBC BASIC 1982-1989, 2000, Python 2018.')
 
 
+
+    def PlayMatch(self, nHomeTeam, nAwayTeam, dHomeBonus, dAwayBonus):
+        ''' Replacement for DEFPROCPLAYMATCH (Line 1680) in the BBC Basic version. '''
+        nHomeGoals, nAwayGoals = self.Match(nHomeTeam, nAwayTeam, dHomeBonus, dAwayBonus)
+        # Not implemented yet.
+
+        print('{} {} - {} {}'.format(self.teams[nHomeTeam].GetColourName(),nHomeGoals, nAwayGoals, self.teams[nAwayTeam].GetColourName()))
+
+
+
+    def Pois(self, U, C):
+        ''' Replacement for DEFNPOIS (Line 7040) in the BBC Basic version. '''
+        nT = 0
+        P = math.exp(-U)
+        if C < dP:
+            return 0
+        S = P
+        while True:
+            nT = nT + 1
+            P = P * U / nT
+            S = S + P
+            if C < S:
+                break;
+        return nT
+
+
+
+    def Match(self, nHomeTeam, nAwayTeam, dHomeBonus, dAwayBonus):
+        ''' Replacement for DEFPROCMATCH (Line 6920) in the BBC Basic version. '''
+        oHome = self.Teams[nHomeTeam]
+        oAway = self.Teams[nAwayTeam]
+        dHomeAverageGoals = dHomeBonus + (4.0 * oHome.attack / oAway.defence) * (oHome.Midfield / (oHome.midfield + oAway.midfield) + (oHome.moral - 10.0) / 40.0 - (oAway.energy - 100.0) / 400.0
+        dAwayAverageGoals = dAwayBonus + (4.0 * oAway.attack / oHome.defence) * (oAway.midfield / (oAway.midfield + oHome.midfield) + (oAway.moral - 10.0) / 40.0 - (oHome.energy - 100.0) / 400.0
+        nHomeGoals = Pois(dHomeAverageGoals, self.MultiRandom(1, 2) / 2)
+        hAwayGoals = Pois(dAwayAverageGoals, self.MultiRandom(1, 2) / 2)
+
+        # Set the moral for the teams.
+        if nHomeGoals == nAwayGoals:
+            oHome.moral = 10
+            oAway.moral = 10
+        else:
+            if nHomeGoals > nAwayGoals:
+                oHome.moral = max(oHome.moral, 10)
+                oAway.moral = min(oAway.moral, 10)
+                oHome.moral = min(oHome.moral + nHomeGoals - nAwayGoals, 20)
+                oAway.moral = max(oAway.moral + nAwayGoals - nHomeGoals, 1)
+            else:
+                oHome.moral = min(oHome.moral, 10)
+                oAway.moral = max(oAway.moral, 10)
+                oHome.moral = max(oHome.moral + nHomeGoals - nAwayGoals, 1)
+                oAway.moral = min(oAway.moral + nAwayGoals - nHomeGoals, 20)
+        return nHomeGoals, nAwayGoals
