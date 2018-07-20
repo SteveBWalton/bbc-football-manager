@@ -7,6 +7,7 @@ Module to implement the CGame class for the the BBC Football Manager program.
 
 # System libraries.
 import random
+import math
 
 # Application Libraries.
 import modANSI
@@ -32,6 +33,7 @@ class CGame:
         self.num_team = 0
         self.num_injured = 0
         self.formation = [0, 0, 0]
+
 
 
     def Run(self):
@@ -142,20 +144,48 @@ class CGame:
             self.PickPlayers()
 
         # Play the match.
-            if bHome:
-                self.PlayMatch(self.team_index, nOpponent, 1, 0)
-            else:
-                self.PlayMatch(nOpponent, self.team_index, 1, 0)
-
         if bHome:
-            self.teams[nOpponent].pts = self.teams[nOpponent].pts + 1
+            nPlayerGoals, nOpponentGoals = self.PlayMatch(self.team_index, nOpponent, 0.5, 0)
+            self.ApplyPoints(self.team_index, nOpponent, nPlayerGoals, nOpponentGoals)
         else:
-            self.teams[nOpponent].pts = self.teams[nOpponent].pts + 2
-        self.teams[nOpponent].difference = self.teams[nOpponent].difference + random.randint(0, 5) - random.randint(0, 5)
+            nOpponentGoals, nPlayerGoals = self.PlayMatch(nOpponent, self.team_index, 0.5, 0)
+            self.ApplyPoints(nOpponent, self.team_index, nOpponentGoals, nPlayerGoals)
 
+        # PROCPLAYERS
+        # PROCINJ
+        # Decided the fixtures for the league was at half time of the playmatch.
+        self.Fixtures(nOpponent)
+
+        self.Wait()
+
+        self.Rest()
+        # PROCRESET
         self.SortDivison()
+        self.Wait()
+
         self.ShowLeague()
         self.Wait()
+
+
+
+    def ApplyPoints(self, nHome, nAway, nHomeGoals, nAwayGoals):
+        ''' Apply the points to the league. '''
+        if nHomeGoals == nAwayGoals:
+            self.teams[nHome].pts = self.teams[nHome].pts + 1
+            self.teams[nAway].pts = self.teams[nAway].pts + 1
+            self.teams[nHome].draw = self.teams[nHome].draw + 1
+            self.teams[nAway].draw = self.teams[nAway].draw + 1
+        else:
+            if nHomeGoals > nAwayGoals:
+                self.teams[nHome].pts = self.teams[nHome].pts + 3
+                self.teams[nHome].win  = self.teams[nHome].win  + 1
+                self.teams[nAway].lost = self.teams[nAway].lost + 1
+            else:
+                self.teams[nAway].pts = self.teams[nAway].pts + 3
+                self.teams[nHome].lost = self.teams[nHome].lost + 1
+                self.teams[nAway].win  = self.teams[nAway].win + 1
+            self.teams[nHome].difference = self.teams[nHome].difference + nHomeGoals - nAwayGoals
+            self.teams[nAway].difference = self.teams[nAway].difference + nAwayGoals - nHomeGoals
 
 
 
@@ -422,12 +452,58 @@ class CGame:
 
 
 
+    def Fixtures(self, nOpponent):
+        ''' Replacement for PROCFIXTURES (line 247) in the BBC Basic version. '''
+        for oTeam in self.teams:
+            oTeam.fixture = 0
+
+        self.teams[self.team_index].fixture = -1
+        self.teams[nOpponent].fixture = -1
+        for nMatch in range(1, 8):
+            while True:
+                nHome = random.randint(0, 15)
+                if self.teams[nHome].fixture == 0:
+                    break;
+            self.teams[nHome].fixture = nMatch * 2 - 1
+            while True:
+                nAway = random.randint(0, 15)
+                if self.teams[nAway].fixture == 0:
+                    break;
+            self.teams[nAway].fixture = nMatch * 2
+
+            # Swap if the away team has fewer month matches.
+
+
+
+    def Rest(self):
+        '''
+        Replacement for DEFPROCREST (line 2710) in the BBC Basic version.
+        This is play and display the rest of the matches in the league.
+        '''
+        for nMatch in range(1, 8):
+            for nIndex in range(16):
+                if self.teams[nIndex].fixture == 2 * nMatch -1:
+                    nHome = nIndex
+                if self.teams[nIndex].fixture == 2 * nMatch:
+                    nAway = nIndex
+
+            nHomeGoals, nAwayGoals = self.Match(nHome, nAway, 0.5, 0)
+            print('{} {} - {} {}'.format(self.teams[nHome].GetColouredName(), nHomeGoals, nAwayGoals, self.teams[nAway].GetColouredName()))
+            self.ApplyPoints(nHome, nAway, nHomeGoals, nAwayGoals)
+
+
+
     def PlayMatch(self, nHomeTeam, nAwayTeam, dHomeBonus, dAwayBonus):
         ''' Replacement for DEFPROCPLAYMATCH (Line 1680) in the BBC Basic version. '''
         nHomeGoals, nAwayGoals = self.Match(nHomeTeam, nAwayTeam, dHomeBonus, dAwayBonus)
         # Not implemented yet.
 
-        print('{} {} - {} {}'.format(self.teams[nHomeTeam].GetColourName(),nHomeGoals, nAwayGoals, self.teams[nAwayTeam].GetColourName()))
+        print('{} {} - {} {}'.format(self.teams[nHomeTeam].GetColouredName(), nHomeGoals, nAwayGoals, self.teams[nAwayTeam].GetColouredName()))
+
+        # Decided the fixtures for the league at half time.
+        # PROCFIXTURES
+
+        return nHomeGoals, nAwayGoals
 
 
 
@@ -435,7 +511,7 @@ class CGame:
         ''' Replacement for DEFNPOIS (Line 7040) in the BBC Basic version. '''
         nT = 0
         P = math.exp(-U)
-        if C < dP:
+        if C < P:
             return 0
         S = P
         while True:
@@ -450,12 +526,12 @@ class CGame:
 
     def Match(self, nHomeTeam, nAwayTeam, dHomeBonus, dAwayBonus):
         ''' Replacement for DEFPROCMATCH (Line 6920) in the BBC Basic version. '''
-        oHome = self.Teams[nHomeTeam]
-        oAway = self.Teams[nAwayTeam]
-        dHomeAverageGoals = dHomeBonus + (4.0 * oHome.attack / oAway.defence) * (oHome.Midfield / (oHome.midfield + oAway.midfield) + (oHome.moral - 10.0) / 40.0 - (oAway.energy - 100.0) / 400.0
-        dAwayAverageGoals = dAwayBonus + (4.0 * oAway.attack / oHome.defence) * (oAway.midfield / (oAway.midfield + oHome.midfield) + (oAway.moral - 10.0) / 40.0 - (oHome.energy - 100.0) / 400.0
-        nHomeGoals = Pois(dHomeAverageGoals, self.MultiRandom(1, 2) / 2)
-        hAwayGoals = Pois(dAwayAverageGoals, self.MultiRandom(1, 2) / 2)
+        oHome = self.teams[nHomeTeam]
+        oAway = self.teams[nAwayTeam]
+        dHomeAverageGoals = dHomeBonus + (4.0 * oHome.attack / oAway.defence) * oHome.midfield / (oHome.midfield + oAway.midfield) + (oHome.moral - 10.0) / 40.0 - (oAway.energy - 100.0) / 400.0
+        dAwayAverageGoals = dAwayBonus + (4.0 * oAway.attack / oHome.defence) * oAway.midfield / (oAway.midfield + oHome.midfield) + (oAway.moral - 10.0) / 40.0 - (oHome.energy - 100.0) / 400.0
+        nHomeGoals = self.Pois(dHomeAverageGoals, self.MultiRandom(1, 2) / 2)
+        nAwayGoals = self.Pois(dAwayAverageGoals, self.MultiRandom(1, 2) / 2)
 
         # Set the moral for the teams.
         if nHomeGoals == nAwayGoals:

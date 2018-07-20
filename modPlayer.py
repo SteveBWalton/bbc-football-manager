@@ -113,6 +113,7 @@ class CPlayer:
         print('{:2} {:<20}{:>2}{:>3} '.format(self.index, self.name, self.skill, self.energy), end = '')
         if self.in_team:
             print(modANSI.BACKGROUND_GREEN, end = '')
+            print(modANSI.LIGHT_YELLOW, end = '')
             print(' P ', end = '')
         if self.injured:
             print(modANSI.BACKGROUND_RED, end = '')

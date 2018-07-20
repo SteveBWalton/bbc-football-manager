@@ -34,6 +34,10 @@ class CTeam:
         self.played_away = False
         self.sort = 0
         self.formation = '4-4-2'
+        self.fixture = 0
+        self.win = 0
+        self.draw = 0
+        self.lost = 0
 
 
 
@@ -66,7 +70,8 @@ class CTeam:
 
     def WriteTableRow(self):
         ''' Write this team into the league table. '''
-        print('{:>2} {}{:<15}{:>3}{:>3}{:>3}{:>4}{:>4} {} {} {}'.format(self.position, self.colour, self.name, 0, 0, 0, self.pts, self.difference, 'Y' if self.played_home else 'N', 'Y' if self.played_away else 'N', modANSI.RESET_ALL))
+        # print('{:>2} {}{:<15}{:>3}{:>3}{:>3}{:>4}{:>4} {} {} {}'.format(self.position, self.colour, self.name, self.win, self.draw, self.lost, self.pts, self.difference, 'Y' if self.played_home else 'N', 'Y' if self.played_away else 'N', modANSI.RESET_ALL))
+        print('{:>2} {}{:<15}{:>3}{:>3}{:>3}{:>4}{:>4}{}'.format(self.position, self.colour, self.name, self.win, self.draw, self.lost, self.pts, self.difference, modANSI.RESET_ALL))
 
 
 
