@@ -157,7 +157,7 @@ class CGame:
         self.Wait()
 
         self.Rest()
-        # PROCRESET
+        self.PlayerEngergy()
         self.SortDivison()
         self.Wait()
 
@@ -188,6 +188,23 @@ class CGame:
                 self.teams[nAway].win  = self.teams[nAway].win + 1
             self.teams[nHome].difference = self.teams[nHome].difference + nHomeGoals - nAwayGoals
             self.teams[nAway].difference = self.teams[nAway].difference + nAwayGoals - nHomeGoals
+
+
+
+    def PlayerEngergy(self):
+        ''' Replacement for PROCRESET (line 3200) in the BBC Basic version. '''
+        self.teams[self.team_index].energy = 0
+        for oPlayer in self.players:
+            if oPlayer.in_squad:
+                if oPlayer.in_team:
+                    oPlayer.energy = oPlayer.energy - random.randint(1, 2)
+                    if oPlayer.energy < 1:
+                        oPlayer.energy = 1
+                    self.teams[self.team_index].energy = self.teams[self.team_index].energy + oPlayer.energy
+                else:
+                    oPlayer.energy = oPlayer.energy + 9
+                    if oPlayer.energy > 20:
+                        oPlayer.energy = 20
 
 
 
@@ -302,6 +319,8 @@ class CGame:
             self.players[nPlayer].WriteRow(5000 * (5 - self.division))
             print('You have £{:,.2f}'.format(self.money))
             nBid = self.EnterNumber('Enter your bid: ')
+            if nBid <= 0:
+                return
             nPrice = self.players[nPlayer].skill * (5000 * (5 - self.division)) + random.randint(1, 10000) - 5000
             if nBid > self.money:
                 print('{}You do not have enough money{}'.format(modANSI.RED, modANSI.RESET_ALL))
