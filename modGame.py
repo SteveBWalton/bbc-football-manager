@@ -78,8 +78,7 @@ class CGame:
             print('8 .. Quit')
             sKey = self.GetKeyboardCharacter(['1', '2', '3', '4', '5', '6', '7', '8'])
             if sKey == '1':
-                # PROCSELL
-                pass
+                self.SellPlayer()
             elif sKey == '2':
                 # PROCLEND
                 pass
@@ -166,6 +165,10 @@ class CGame:
         self.ShowLeague()
         self.Wait()
 
+        self.Market()
+        # PROCREPORT
+        # PROCPROGRESS
+
 
 
     def ApplyPoints(self, nHome, nAway, nHomeGoals, nAwayGoals):
@@ -218,6 +221,7 @@ class CGame:
 
 
     def DropPlayer(self, nIndex):
+        ''' Replacement for PROCDROP (line ????) in the BBC Basic version. '''
         oPlayer = self.players[nIndex]
         if oPlayer.in_team == False:
             return
@@ -251,6 +255,63 @@ class CGame:
         self.num_team = self.num_team + 1
         self.formation[oPlayer.position] = self.formation[oPlayer.position] + 1
         self.team.formation = '{}-{}-{}'.format(self.formation[modPlayer.DEFENSE]-1, self.formation[modPlayer.MIDFIELD], self.formation[modPlayer.ATTACK])
+
+
+
+    def SellPlayer(self):
+        ''' Replacement for PROCSELL (line 1950) in the BBC Basic version. '''
+        modANSI.CLS()
+        self.DisplaySquad()
+        print('Enter <RETURN> to return to menu.')
+        print('Else enter player number to be sold')
+        nPlayerNumber = self.EnterNumber('>')
+        if nPlayerNumber >= 1 and nPlayerNumber <= 26:
+            nPlayerNumber = nPlayerNumber - 1
+            if self.players[nPlayerNumber].in_squad:
+                nPrice = int((self.players[nPlayerNumber].skill + random.uniform(0, 1)) * 5000 * (5 - self.division))
+                print('You are offered £{:,.2f}'.format(nPrice))
+                print('Do you accept (Y/N)?')
+                if self.YesNo():
+                    self.num_squad = self.num_squad - 1
+                    self.DropPlayer(nPlayerNumber)
+                    self.players[nPlayerNumber].in_squad = False
+                    self.players[nPlayerNumber].skill = 5
+            else:
+                print('On range')
+            self.Wait()
+
+
+
+
+    def Market(self):
+        ''' Replacement for PROCMARKET (line 3330) in the BBC Basic version. '''
+        if self.num_squad >= 18:
+            # modANSI.CLS()
+            print('{}F.A. rules state that one team may not have more that 18 players. You already have 18 players therefore you may not buy another.{}'.format(modANSI.RED, modANSI.RESET_ALL))
+        else:
+            while True:
+                nPlayer = random.randint(0, 25)
+                if self.players[nPlayer].in_squad == False:
+                    break;
+            # modANSI.CLS()
+            if self.players[nPlayer].position == modPlayer.DEFENSE:
+                print('Defence')
+            elif self.players[nPlayer].position == modPlayer.MIDFIELD:
+                print('Mid-field')
+            else:
+                print('Attack')
+            self.players[nPlayer].WriteRow(5000 * (5 - self.division))
+            print('You have £{:,.2f}'.format(0))
+            nBid = self.EnterNumber('Enter your bid: ')
+            nPrice = self.players[nPlayer].skill * (5000 * (5 - self.division)) + random.randint(1, 10000) - 5000
+            if nBid > nPrice:
+                print('{}{} is added to your squad.{}'.format(modANSI.GREEN, self.players[nPlayer].name, modANSI.RESET_ALL))
+                self.num_squad = self.num_squad + 1
+                self.players[nPlayer].in_squad = True
+            else:
+                if nBid > 0:
+                    print('{}Your bid is turned down.{}'.format(modANSI.RED, modANSI.RESET_ALL))
+        self.Wait()
 
 
 

@@ -71,11 +71,11 @@ class CPlayer:
         elif nIndex == 13:
             self.name = 'S Hodge'
         elif nIndex == 14:
-            self.name = 'T Morley'
+            self.name = 'C Johnston'
         elif nIndex == 15:
             self.name = 'R Wilkins'
         elif nIndex == 16:
-            self.name = 'T Morley'
+            self.name = 'K Dalglish'
         elif nIndex == 17:
             self.name = 'J Barnes'
         elif nIndex == 18:
@@ -99,7 +99,7 @@ class CPlayer:
 
 
 
-    def WriteRow(self):
+    def WriteRow(self, nExchangeRate=0):
         ''' Display this player on a row. '''
         if self.position == DEFENSE:
             print(modANSI.BACKGROUND_LIGHT_BLUE, end = '')
@@ -111,6 +111,8 @@ class CPlayer:
             print(modANSI.BACKGROUND_WHITE, end = '')
             print(modANSI.BLUE, end = '')
         print('{:2} {:<20}{:>2}{:>3} '.format(self.index, self.name, self.skill, self.energy), end = '')
+        if nExchangeRate != 0:
+            print('{:>12s}'.format('£{:,.2f}'.format(self.skill * nExchangeRate)), end = '')
         if self.in_team:
             print(modANSI.BACKGROUND_GREEN, end = '')
             print(modANSI.LIGHT_YELLOW, end = '')
