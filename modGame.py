@@ -80,8 +80,7 @@ class CGame:
             if sKey == '1':
                 self.SellPlayer()
             elif sKey == '2':
-                # PROCLEND
-                pass
+                self.Bank()
             elif sKey == '3':
                 # PROCRENAME
                 pass
@@ -301,16 +300,57 @@ class CGame:
             else:
                 print('Attack')
             self.players[nPlayer].WriteRow(5000 * (5 - self.division))
-            print('You have £{:,.2f}'.format(0))
+            print('You have £{:,.2f}'.format(self.money))
             nBid = self.EnterNumber('Enter your bid: ')
             nPrice = self.players[nPlayer].skill * (5000 * (5 - self.division)) + random.randint(1, 10000) - 5000
-            if nBid > nPrice:
+            if nBid > self.money:
+                print('{}You do not have enough money{}'.format(modANSI.RED, modANSI.RESET_ALL))
+            elif nBid > nPrice:
                 print('{}{} is added to your squad.{}'.format(modANSI.GREEN, self.players[nPlayer].name, modANSI.RESET_ALL))
                 self.num_squad = self.num_squad + 1
                 self.players[nPlayer].in_squad = True
+                self.money = self.money - nBid
             else:
                 if nBid > 0:
                     print('{}Your bid is turned down.{}'.format(modANSI.RED, modANSI.RESET_ALL))
+        self.Wait()
+
+
+
+    def Bank(self):
+        ''' Replacement for PROCLEND (line 4170) in the BBC Basic version. '''
+        modANSI.CLS()
+        print('Bank')
+        print('You have £{:,.2f}'.format(self.money))
+        if self.debt > 0:
+            print('You owe £{:,.2f}'.format(self.debt))
+        else:
+            print('In Bank £{:,.2f}'.format(-self.debt))
+        print('Do you want to Deposit, Withdraw or Exit (D/W/E)?')
+        sKey = self.GetKeyboardCharacter(['d', 'w', 'e'])
+        if sKey == 'e':
+            return
+        if sKey == 'd':
+            print('Deposit')
+        else:
+            print('Withdraw')
+        nAmount = self.EnterNumber('Enter the amount >')
+        if sKey == 'd':
+            nAmount = -nAmount
+        self.money = self.money + nAmount
+        self.debt = self.debt + nAmount
+        if self.debt > 1e6:
+            print('You can not have that much')
+            self.money = self.money - (self.debt-1e6)
+            self.debt = 1e6
+        if self.money < 0:
+             self.debt = self.debt - self.money
+             self.money = 0
+        print('You have £{:,.2f}'.format(self.money))
+        if self.debt > 0:
+            print('You owe £{:,.2f}'.format(self.debt))
+        else:
+            print('In Bank £{:,.2f}'.format(-self.debt))
         self.Wait()
 
 
@@ -368,6 +408,10 @@ class CGame:
     def NewGame(self):
         ''' Initialise a new game. '''
         self.PickTeam()
+
+        # Initialise variables
+        self.money = 50000
+        self.debt = 200000
 
         # Initialise the players.
         self.players = []
