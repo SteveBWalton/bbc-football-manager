@@ -167,8 +167,11 @@ class CGame:
         self.Market()
         # PROCREPORT
         # PROCPROGRESS
+        modANSI.CLS()
+        self.PlayerCaps()
         self.PlayerFit()
         self.Wait()
+
 
 
     def ApplyPoints(self, nHome, nAway, nHomeGoals, nAwayGoals):
@@ -202,6 +205,7 @@ class CGame:
                     if oPlayer.energy < 1:
                         oPlayer.energy = 1
                     self.teams[self.team_index].energy = self.teams[self.team_index].energy + oPlayer.energy
+                    oPlayer.caps = oPlayer.caps + 1
                 else:
                     oPlayer.energy = oPlayer.energy + 9
                     if oPlayer.energy > 20:
@@ -255,9 +259,10 @@ class CGame:
                 nNumber = self.EnterNumber('>')
                 if nNumber == 0:
                     break;
-                nNumber = nNumber - 1
-                if self.players[nNumber].in_squad:
-                    self.AddPlayer(nNumber)
+                if nNumber >= 1 and nNumber <= 26:
+                    nNumber = nNumber - 1
+                    if self.players[nNumber].in_squad:
+                        self.AddPlayer(nNumber)
             else:
                 nNumber = self.EnterNumber('Enter Player to Drop ')
                 if nNumber >= 1 and nNumber <= 26:
@@ -320,7 +325,6 @@ class CGame:
                     self.num_squad = self.num_squad - 1
                     self.DropPlayer(nPlayerNumber)
                     self.players[nPlayerNumber].in_squad = False
-                    self.players[nPlayerNumber].skill = 5
             else:
                 print('On range')
             self.Wait()
@@ -339,6 +343,7 @@ class CGame:
                 if self.players[nPlayer].in_squad == False:
                     break;
             # modANSI.CLS()
+            self.players[nPlayer].skill = max(self.players[nPlayer].skill, random.randint(1, 5) + (1 if self.division <= 2 else 0))
             if self.players[nPlayer].position == modPlayer.DEFENSE:
                 print('Defence')
             elif self.players[nPlayer].position == modPlayer.MIDFIELD:
@@ -400,6 +405,16 @@ class CGame:
         else:
             print('In Bank £{:,.2f}'.format(-self.debt))
         self.Wait()
+
+
+
+    def PlayerCaps(self):
+        ''' This was part of PROCPROGRESS in the BBC Basic version. '''
+        oPlayersByCaps = sorted(self.players, key=lambda CPlayer: CPlayer.caps, reverse=True)
+        print('   Player         Position   Caps Goals')
+        for nIndex in range(11):
+            oPlayer = oPlayersByCaps[nIndex]
+            print('{:>2} {:<15}{:<10}{:>5}{:>6}'.format(nIndex + 1, oPlayer.name, oPlayer.GetPosition(), oPlayer.caps, oPlayer.goals))
 
 
 

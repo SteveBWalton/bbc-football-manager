@@ -1173,7 +1173,7 @@ But an attempt to make the code readable.
  5790   DEFPROCPROGRESS
  5800       CLS
             PRINT FNDH(YT$+"'s Progress in Divison:"+STR$(divison))
- 5810       PRIN T"F.A. Cup";
+ 5810       PRINT "F.A. Cup";
             IF (CP% AND 2) THEN
                 X = (match+2) DIV 6
                 PRINT "‚IN ";MID$(CUP$, 1+X*15, 15)
@@ -1200,8 +1200,7 @@ But an attempt to make the code readable.
  5900               FOR D = 0 TO 4
  5910                   PRINTFN@(3, D%(D, V));
  5920                   NEXT
-
- 5930               PRINT" ";
+ 5930               PRINT " ";
  5940               NEXT
  5950           PRINT FN@(4, FNV(T$(L), 1))
  5960           NEXT

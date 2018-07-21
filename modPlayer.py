@@ -31,6 +31,8 @@ class CPlayer:
         self.in_squad = False
         self.in_team = False
         self.injured = False
+        self.caps = 0
+        self.goals = 0
 
 
 
@@ -123,3 +125,11 @@ class CPlayer:
         print(modANSI.RESET_ALL)
 
 
+
+    def GetPosition(self):
+        ''' Returns the position of the player as a string. '''
+        if self.position == DEFENSE:
+            return 'Defense'
+        if self.position == MIDFIELD:
+            return 'Mid-field'
+        return 'Attack'
