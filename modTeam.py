@@ -32,7 +32,6 @@ class CTeam:
         self.difference = 0
         self.played_home = False
         self.played_away = False
-        self.sort = 0
         self.formation = '4-4-2'
         self.fixture = 0
         self.win = 0
@@ -55,6 +54,13 @@ class CTeam:
         self.attack = nNumAttack * nBonus + self.MultiRandomInt(nSkill, nNumAttack)
         self.formation = '{}-{}-{}'.format(nNumDefence-1, nNumMidfield, nNumAttack)
 
+        self.pts = 0
+        self.difference = 0
+        self.played_home = False
+        self.played_away = False
+        self.win = 0
+        self.draw = 0
+        self.lost = 0
 
 
     def Zero(self):
@@ -65,6 +71,15 @@ class CTeam:
         self.midfield = 0
         self.attack = 0
         self.formation = '0-0-0'
+
+        self.pts = 0
+        self.difference = 0
+        self.played_home = False
+        self.played_away = False
+        self.win = 0
+        self.draw = 0
+        self.lost = 0
+
 
 
 
@@ -132,6 +147,8 @@ class CTeam:
             elif nIndex == 16:
                 self.name = 'Newcastle'
                 self.colour = modANSI.WHITE
+            else:
+                self.GetTeam(nDivision+1, nIndex-16)
         elif nDivision == 2:
             if nIndex == 1:
                 self.name = 'Watford'
@@ -181,6 +198,8 @@ class CTeam:
             elif nIndex == 16:
                 self.name = 'Huddersfield'
                 self.colour = modANSI.LIGHT_BLUE
+            else:
+                self.GetTeam(nDivision+1, nIndex-16)
         elif nDivision == 3:
             if nIndex == 1:
                 self.name = 'Wolves'
@@ -230,6 +249,8 @@ class CTeam:
             elif nIndex == 16:
                 self.name = 'Stockport'
                 self.colour = modANSI.RED
+            else:
+                self.GetTeam(nDivision+1, nIndex-16)
         else:
             if nIndex == 1:
                 self.name = 'Scunthorpe'
@@ -279,6 +300,8 @@ class CTeam:
             elif nIndex == 16:
                 self.name = 'Exeter'
                 self.colour = modANSI.RED
+            else:
+                self.GetTeam(nDivision-1, nIndex-16)
 
 
 

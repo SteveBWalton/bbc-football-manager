@@ -62,48 +62,113 @@ class CGame:
             self.NewGame()
 
         # Play the game.
-        self.match = 0
-        while self.match < 30:
-            modANSI.CLS()
-            print('{} MANAGER: {}'.format(self.team.GetColouredName(), self.player_name))
-            print('LEVEL: {}'.format(self.level))
-            print()
-            print('1 .. Sell Players / View Squad')
-            print('2 .. Bank')
-            print('3 .. Rename Player')
-            print('4 .. Continue')
-            print('5 .. Save Game')
-            print('6 .. Restart')
-            print('7 .. League Table')
-            print('8 .. Quit')
-            sKey = self.GetKeyboardCharacter(['1', '2', '3', '4', '5', '6', '7', '8'])
-            if sKey == '1':
-                self.SellPlayer()
-            elif sKey == '2':
-                self.Bank()
-            elif sKey == '3':
-                # PROCRENAME
-                pass
-            elif sKey == '4':
-                # Continue.
-                self.PlayWeek()
-            elif sKey == '5':
-                # PROCSAVE
-                pass
-            elif sKey == '6':
-                # PROCRESTART
-                pass
-            elif sKey == '7':
-                self.ShowLeague()
-                self.Wait()
-            elif sKey == '8':
-                # Confirm with the user.
-                print('Are you sure you want to exit the program (Y/N) ?')
-                if self.YesNo():
-                    return
+        nYear = 0
+        while True:
+            # Play a season.
 
-        # Season has finished.
-        print('Season has finished.')
+            self.match = 0
+            while self.match < 30:
+                modANSI.CLS()
+                print('{} MANAGER: {}'.format(self.team.GetColouredName(), self.player_name))
+                print('LEVEL: {}'.format(self.level))
+                print()
+                print('1 .. Sell Players / View Squad')
+                print('2 .. Bank')
+                print('3 .. Rename Player')
+                print('4 .. Continue')
+                print('5 .. Save Game')
+                print('6 .. Restart')
+                print('7 .. League Table')
+                print('8 .. Quit')
+                sKey = self.GetKeyboardCharacter(['1', '2', '3', '4', '5', '6', '7', '8'])
+                if sKey == '1':
+                    self.SellPlayer()
+                elif sKey == '2':
+                    self.Bank()
+                elif sKey == '3':
+                    # PROCRENAME
+                    pass
+                elif sKey == '4':
+                    # Continue.
+                    self.PlayWeek()
+                elif sKey == '5':
+                    # PROCSAVE
+                    pass
+                elif sKey == '6':
+                    # PROCRESTART
+                    pass
+                elif sKey == '7':
+                    modANSI.CLS()
+                    self.ShowLeague()
+                    self.Wait()
+                elif sKey == '8':
+                    # Confirm with the user.
+                    print('Are you sure you want to exit the program (Y/N) ?')
+                    if self.YesNo():
+                        return
+
+            # Season has finished.
+            modANSI.CLS()
+            print('Season has finished.')
+            self.ShowLeague()
+            self.Wait()
+
+            if self.division == 1:
+                print('Qualify for Europe')
+            else:
+                print('Promotion')
+            for nIndex in range(0, 3):
+                print(self.teams[nIndex].GetColouredName())
+            if self.division != 4:
+                print('Relegation')
+                for nIndex in range(13, 16):
+                    print(self.teams[nIndex].GetColouredName())
+
+            # Rebuild the new league.
+            sExclued = []
+            if self.division != 1 and self.team_index <= 2:
+                # Promotion.
+                self.division = self.division - 1
+                print('{} are promoted to division {}'.format(self.teams[self.team_index].GetColouredName(), self.division))
+                for nIndex in range(3, 13):
+                    sExclued.append(self.teams[nIndex].name)
+                    self.teams[nIndex].name = ''
+            elif self.division != 4 and self.team_index >= 13:
+                # Relegation.
+                self.division = self.division + 1
+                print('{} are relegated to division {}'.format(self.teams[self.team_index].GetColouredName(), self.division))
+                for nIndex in range(0, 13):
+                    sExclued.append(self.teams[nIndex].name)
+                    self.teams[nIndex].name = ''
+            else:
+                # Same division.
+                print('{} stay in division {}'.format(self.teams[self.team_index].GetColouredName(), self.division))
+                if self.division != 1:
+                    for nIndex in range(0, 3):
+                        sExclued.append(self.teams[nIndex].name)
+                        self.teams[nIndex].name = ''
+                if self.division != 4:
+                    for nIndex in range(13, 16):
+                        sExclued.append(self.teams[nIndex].name)
+                        self.teams[nIndex].name = ''
+            self.SetTeamsForDivision(sExclued)
+
+            # Reskill the players.
+            self.num_team = 0
+            self.num_injured = 0
+            self.formation = [0, 0, 0]
+            nSkillBonus = 1 if self.division <= 2 else 0
+            for oPlayer in self.players:
+                oPlayer.skill = random.randint(1, 5) + nSkillBonus
+                oPlayer.energy = random.randint(1, 20)
+                oPlayer.in_team = False
+                oPlayer.injured = False
+                oPlayer.caps = 0
+                oPlayer.goals = 0
+            for nIndex in range(4):
+                nPlayer = random.randint(0, 25)
+                self.players[nPlayer].skill = 5 + nSkillBonus
+            self.Wait()
 
 
 
@@ -150,6 +215,7 @@ class CGame:
             self.ApplyPoints(nOpponent, self.team_index, nOpponentGoals, nPlayerGoals)
 
         # PROCPLAYERS
+        self.PlayerEngergy()
         self.PlayerInjured()
         # Decided the fixtures for the league was at half time of the playmatch.
         self.Fixtures(nOpponent)
@@ -157,10 +223,10 @@ class CGame:
         self.Wait()
 
         self.Rest()
-        self.PlayerEngergy()
         self.SortDivison()
         self.Wait()
 
+        modANSI.CLS()
         self.ShowLeague()
         self.Wait()
 
@@ -325,6 +391,7 @@ class CGame:
                     self.num_squad = self.num_squad - 1
                     self.DropPlayer(nPlayerNumber)
                     self.players[nPlayerNumber].in_squad = False
+                    self.money = self.money + nPrice
             else:
                 print('On range')
             self.Wait()
@@ -445,7 +512,6 @@ class CGame:
 
     def ShowLeague(self):
         ''' Replacement for PROCLEAGUE in the BBC Basic version. '''
-        modANSI.CLS()
         print('Division {}'.format(self.division))
         print('   Team             W  D  L Pts Dif')
         for oTeam in self.teams:
@@ -499,7 +565,7 @@ class CGame:
         # Initialise the teams.
         self.teams = None
         self.division = 4
-        self.SetTeamsForDivision()
+        self.SetTeamsForDivision([])
         self.SortDivison()
 
         # Pick a default selection of players.
@@ -512,7 +578,7 @@ class CGame:
 
 
 
-    def SetTeamsForDivision(self):
+    def SetTeamsForDivision(self, sExistingNames):
         ''' Replacement for PROCDIVISON (line 3520) in the BBC Basic version. '''
         if self.teams == None:
             self.teams = []
@@ -525,12 +591,23 @@ class CGame:
             self.teams[0].position = 1
         nDivision = self.division
 
+        # Record the existing team names.
+        for oTeam in self.teams:
+            if oTeam.name != '':
+                sExistingNames.append(oTeam.name)
+
         nNewTeam = 1
         for oTeam in self.teams:
             if oTeam.name == '':
                 oTeam.GetTeam(nDivision, nNewTeam)
                 # Check that this team is unique.
-                nNewTeam = nNewTeam+1
+                while oTeam.name in sExistingNames:
+                    nNewTeam = nNewTeam + 1
+                    oTeam.GetTeam(nDivision, nNewTeam)
+
+                sExistingNames.append(oTeam.name)
+                nNewTeam = nNewTeam + 1
+
             if oTeam.name == self.team_name:
                 # Initialise the players team.
                 oTeam.Zero()
