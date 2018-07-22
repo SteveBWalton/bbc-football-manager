@@ -92,8 +92,7 @@ class CGame:
                     # Continue.
                     self.PlayWeek()
                 elif sKey == '5':
-                    # PROCSAVE
-                    pass
+                    self.Save(True)
                 elif sKey == '6':
                     # PROCRESTART
                     pass
@@ -702,6 +701,12 @@ class CGame:
         print('                                                   ┃')
         print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛')
         print('By Steve Walton BBC BASIC 1982-1989, 2000, Python 2018.')
+
+
+
+    def Save(self, bInteractive):
+        ''' Implementation of DEFPROCSAVE (5420) from the BBC Basic version. '''
+        pass
 
 
 
