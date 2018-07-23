@@ -121,6 +121,7 @@ class CPlayer:
             print(' P ', end = '')
         if self.injured:
             print(modANSI.BACKGROUND_RED, end = '')
+            print(modANSI.LIGHT_YELLOW, end = '')
             print(' I ', end = '')
         print(modANSI.RESET_ALL)
 
