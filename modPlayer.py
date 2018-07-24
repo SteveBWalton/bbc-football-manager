@@ -6,6 +6,7 @@ Module to implement the CPlayer class for the the BBC Football Manager program.
 '''
 
 # System libraries.
+import json
 
 # Application Libraries.
 import modANSI
@@ -25,7 +26,7 @@ class CPlayer:
         ''' Class constructor. '''
         self.name = 'Error'
         self.skill = 1
-        self.engergy = 10
+        self.energy = 10
         self.position = DEFENSE
         self.index = 0
         self.in_squad = False
@@ -134,3 +135,53 @@ class CPlayer:
         if self.position == MIDFIELD:
             return 'Mid-field'
         return 'Attack'
+
+
+
+    def Dump(self, oFile):
+        ''' Write the player into the specified file. '''
+        json.dump(self.name, oFile)
+        oFile.write('\n')
+        json.dump(self.skill, oFile)
+        oFile.write('\n')
+        json.dump(self.energy, oFile)
+        oFile.write('\n')
+        json.dump(self.position, oFile)
+        oFile.write('\n')
+        json.dump(self.index, oFile)
+        oFile.write('\n')
+        json.dump(self.in_squad, oFile)
+        oFile.write('\n')
+        json.dump(self.in_team, oFile)
+        oFile.write('\n')
+        json.dump(self.injured, oFile)
+        oFile.write('\n')
+        json.dump(self.caps, oFile)
+        oFile.write('\n')
+        json.dump(self.goals, oFile)
+        oFile.write('\n')
+
+
+
+    def Load(self, oFile):
+        ''' Read the player from the specified file. '''
+        sLine = oFile.readline()
+        self.name = json.loads(sLine)
+        sLine = oFile.readline()
+        self.skill = json.loads(sLine)
+        sLine = oFile.readline()
+        self.energy = json.loads(sLine)
+        sLine = oFile.readline()
+        self.position = json.loads(sLine)
+        sLine = oFile.readline()
+        self.index = json.loads(sLine)
+        sLine = oFile.readline()
+        self.in_squad = json.loads(sLine)
+        sLine = oFile.readline()
+        self.in_team = json.loads(sLine)
+        sLine = oFile.readline()
+        self.injured = json.loads(sLine)
+        sLine = oFile.readline()
+        self.caps = json.loads(sLine)
+        sLine = oFile.readline()
+        self.goals = json.loads(sLine)

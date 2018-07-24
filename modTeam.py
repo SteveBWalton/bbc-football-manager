@@ -7,6 +7,7 @@ Module to implement the CTeam class for the the BBC Football Manager program.
 
 # System libraries.
 import random
+import json
 
 # Application Libraries.
 import modANSI
@@ -311,3 +312,81 @@ class CTeam:
         for nCount in range(nNumber):
             nTotal = nTotal + random.randint(1, nRange)
         return nTotal
+
+
+
+    def Dump(self, oFile):
+        ''' Write the team into the specified file. '''
+        json.dump(self.name, oFile)
+        oFile.write('\n')
+        json.dump(self.colour, oFile)
+        oFile.write('\n')
+        json.dump(self.energy, oFile)
+        oFile.write('\n')
+        json.dump(self.moral, oFile)
+        oFile.write('\n')
+        json.dump(self.defence, oFile)
+        oFile.write('\n')
+        json.dump(self.midfield, oFile)
+        oFile.write('\n')
+        json.dump(self.attack, oFile)
+        oFile.write('\n')
+        json.dump(self.position, oFile)
+        oFile.write('\n')
+        json.dump(self.pts, oFile)
+        oFile.write('\n')
+        json.dump(self.difference, oFile)
+        oFile.write('\n')
+        json.dump(self.played_home, oFile)
+        oFile.write('\n')
+        json.dump(self.played_away, oFile)
+        oFile.write('\n')
+        json.dump(self.formation, oFile)
+        oFile.write('\n')
+        json.dump(self.fixture, oFile)
+        oFile.write('\n')
+        json.dump(self.win, oFile)
+        oFile.write('\n')
+        json.dump(self.draw, oFile)
+        oFile.write('\n')
+        json.dump(self.lost, oFile)
+        oFile.write('\n')
+
+
+
+    def Load(self, oFile):
+        ''' Load the team from the specified file. '''
+        sLine = oFile.readline()
+        self.name = json.loads(sLine)
+        sLine = oFile.readline()
+        self.colour = json.loads(sLine)
+        sLine = oFile.readline()
+        self.energy = json.loads(sLine)
+        sLine = oFile.readline()
+        self.moral = json.loads(sLine)
+        sLine = oFile.readline()
+        self.defence = json.loads(sLine)
+        sLine = oFile.readline()
+        self.midfield = json.loads(sLine)
+        sLine = oFile.readline()
+        self.attack = json.loads(sLine)
+        sLine = oFile.readline()
+        self.position = json.loads(sLine)
+        sLine = oFile.readline()
+        self.pts = json.loads(sLine)
+        sLine = oFile.readline()
+        self.difference = json.loads(sLine)
+        sLine = oFile.readline()
+        self.played_home = json.loads(sLine)
+        sLine = oFile.readline()
+        self.played_away = json.loads(sLine)
+        sLine = oFile.readline()
+        self.formation = json.loads(sLine)
+        sLine = oFile.readline()
+        self.fixture = json.loads(sLine)
+        sLine = oFile.readline()
+        self.win = json.loads(sLine)
+        sLine = oFile.readline()
+        self.draw = json.loads(sLine)
+        sLine = oFile.readline()
+        self.lost = json.loads(sLine)

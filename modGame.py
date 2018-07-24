@@ -8,6 +8,7 @@ Module to implement the CGame class for the the BBC Football Manager program.
 # System libraries.
 import random
 import math
+import json
 
 # Application Libraries.
 import modANSI
@@ -57,6 +58,8 @@ class CGame:
         print('Do you want to load a game?')
         if self.YesNo():
             print('Yes')
+            self.Load()
+            self.SortDivison()
         else:
             print('No')
             self.NewGame()
@@ -66,7 +69,6 @@ class CGame:
         while True:
             # Play a season.
 
-            self.match = 0
             while self.match < 30:
                 modANSI.CLS()
                 print('{} MANAGER: {}'.format(self.team.GetColouredName(), self.player_name))
@@ -167,6 +169,9 @@ class CGame:
             for nIndex in range(4):
                 nPlayer = random.randint(0, 25)
                 self.players[nPlayer].skill = 5 + nSkillBonus
+
+            self.match = 0
+
             self.Wait()
 
 
@@ -538,6 +543,7 @@ class CGame:
         self.PickTeam()
 
         # Initialise variables
+        self.match = 0
         self.money = 50000
         self.debt = 200000
 
@@ -706,8 +712,81 @@ class CGame:
 
     def Save(self, bInteractive):
         ''' Implementation of DEFPROCSAVE (5420) from the BBC Basic version. '''
-        pass
+        oFile = open('save.game', 'w')
 
+        json.dump(self.match, oFile)
+        oFile.write('\n')
+        json.dump(self.money, oFile)
+        oFile.write('\n')
+        json.dump(self.debt, oFile)
+        oFile.write('\n')
+        json.dump(self.num_squad, oFile)
+        oFile.write('\n')
+        json.dump(self.num_team, oFile)
+        oFile.write('\n')
+        json.dump(self.num_injured, oFile)
+        oFile.write('\n')
+        json.dump(self.division, oFile)
+        oFile.write('\n')
+        json.dump(self.team_name, oFile)
+        oFile.write('\n')
+        json.dump(self.team_colour, oFile)
+        oFile.write('\n')
+        json.dump(self.formation, oFile)
+        oFile.write('\n')
+
+        # Save the players.
+        for oPlayer in self.players:
+            oPlayer.Dump(oFile)
+
+        # Save the teams.
+        for oTeam in self.teams:
+            oTeam.Dump(oFile)
+
+        oFile.close()
+
+
+
+    def Load(self):
+        ''' Implementation of DEFPROCLOAD (line 5530) from the BBC Basic version. '''
+        oFile = open('save.game', 'r')
+
+        sLine = oFile.readline()
+        self.match = json.loads(sLine)
+        sLine = oFile.readline()
+        self.money = json.loads(sLine)
+        sLine = oFile.readline()
+        self.debt = json.loads(sLine)
+        sLine = oFile.readline()
+        self.num_squad = json.loads(sLine)
+        sLine = oFile.readline()
+        self.num_team = json.loads(sLine)
+        sLine = oFile.readline()
+        self.num_injured = json.loads(sLine)
+        sLine = oFile.readline()
+        self.division = json.loads(sLine)
+        sLine = oFile.readline()
+        self.team_name = json.loads(sLine)
+        sLine = oFile.readline()
+        self.team_colour = json.loads(sLine)
+        sLine = oFile.readline()
+        self.formation= json.loads(sLine)
+
+        # Load the players.
+        self.players = []
+        for nIndex in range(26):
+            oPlayer = modPlayer.CPlayer()
+            oPlayer.Load(oFile)
+            self.players.append(oPlayer)
+
+        # Load the teams.
+        self.teams = []
+        for nIndex in range(16):
+            oTeam = modTeam.CTeam()
+            oTeam.Load(oFile)
+            self.teams.append(oTeam)
+
+        oFile.close()
 
 
     def Fixtures(self, nOpponent):
