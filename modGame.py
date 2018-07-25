@@ -9,6 +9,7 @@ Module to implement the CGame class for the the BBC Football Manager program.
 import random
 import math
 import json
+import time
 
 # Application Libraries.
 import modANSI
@@ -313,7 +314,7 @@ class CGame:
 
     def DisplaySquad(self):
         ''' Replacement for PROCPTEAM (line 2130) in the BBC Basic version. '''
-        print('   Player Skill Energy')
+        print('   Player        Skill Energy')
         for oPlayer in self.players:
             if oPlayer.in_squad:
                 oPlayer.WriteRow()
@@ -745,6 +746,9 @@ class CGame:
 
         oFile.close()
 
+        print('Game Saved.')
+        time.sleep(5)
+
 
 
     def Load(self):
@@ -787,6 +791,7 @@ class CGame:
             self.teams.append(oTeam)
 
         oFile.close()
+
 
 
     def Fixtures(self, nOpponent):
