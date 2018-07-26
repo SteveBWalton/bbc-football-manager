@@ -10,6 +10,7 @@ import random
 import math
 import json
 import time
+import sys
 
 # Application Libraries.
 import modANSI
@@ -464,10 +465,11 @@ class CGame:
             nAmount = -nAmount
         self.money = self.money + nAmount
         self.debt = self.debt + nAmount
-        if self.debt > 1e6:
+        MAX_DEBT = 2e6 # 1e6
+        if self.debt > MAX_DEBT:
             print('You can not have that much')
-            self.money = self.money - (self.debt-1e6)
-            self.debt = 1e6
+            self.money = self.money - (self.debt - MAX_DEBT)
+            self.debt = MAX_DEBT
         if self.money < 0:
              self.debt = self.debt - self.money
              self.money = 0
@@ -483,10 +485,33 @@ class CGame:
     def PlayerCaps(self):
         ''' This was part of PROCPROGRESS in the BBC Basic version. '''
         oPlayersByCaps = sorted(self.players, key=lambda CPlayer: CPlayer.caps, reverse=True)
-        print('   Player         Position   Caps Goals')
+        print('┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓')
+        print('┃   Player         Position   Caps Goals ┃')
         for nIndex in range(11):
             oPlayer = oPlayersByCaps[nIndex]
-            print('{:>2} {:<15}{:<10}{:>5}{:>6}'.format(nIndex + 1, oPlayer.name, oPlayer.GetPosition(), oPlayer.caps, oPlayer.goals))
+            if oPlayer.injured:
+                sPlayerColour = modANSI.RED
+            elif oPlayer.in_team:
+                sPlayerColour = modANSI.GREEN
+            else:
+                sPlayerColour = ''
+            print('┃{}{:>2} {:<15}{:<10}{:>5}{:>6}{} ┃'.format(sPlayerColour, nIndex + 1, oPlayer.name, oPlayer.GetPosition(), oPlayer.caps, oPlayer.goals, modANSI.RESET_ALL))
+
+        # Top Scorers.
+        oPlayersByGoals = sorted(self.players, key=lambda CPlayer: CPlayer.goals, reverse=True)
+        print('┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫')
+        print('┃   Player         Position   Caps Goals ┃')
+        for nIndex in range(5):
+            oPlayer = oPlayersByGoals[nIndex]
+            if oPlayer.injured:
+                sPlayerColour = modANSI.RED
+            elif oPlayer.in_team:
+                sPlayerColour = modANSI.GREEN
+            else:
+                sPlayerColour = ''
+            if oPlayer.goals > 0:
+                print('┃{}{:>2} {:<15}{:<10}{:>5}{:>6}{} ┃'.format(sPlayerColour, nIndex + 1, oPlayer.name, oPlayer.GetPosition(), oPlayer.caps, oPlayer.goals, modANSI.RESET_ALL))
+        print('┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛')
 
 
 
@@ -852,7 +877,14 @@ class CGame:
         naScorers = []
         for oPlayer in self.players:
             if oPlayer.in_team:
-                naScorers.append(oPlayer)
+                if oPlayer.position == modPlayer.DEFENSE:
+                    naScorers.append(oPlayer)
+                elif oPlayer.position == modPlayer.MIDFIELD:
+                    for nCount in range(oPlayer.skill):
+                        naScorers.append(oPlayer)
+                else:
+                    for nCount in range(oPlayer.skill * 3):
+                        naScorers.append(oPlayer)
 
 
         nHomeScore = 0
@@ -863,40 +895,51 @@ class CGame:
 
             if nTime in naHomeGoals:
                 nHomeScore = nHomeScore + 1
-                print('\033[1A', end='\r')
+                modANSI.CursorUp(1)
                 print('{} {} - {} {}'.format(self.teams[nHomeTeam].GetColouredName(), nHomeScore, nAwayScore, self.teams[nAwayTeam].GetColouredName()))
+                nTotalScore = nHomeScore + nAwayScore
                 if nHomeTeam == self.team_index:
-                    print('\033[{}B'.format(nHomeScore), end='\r')
+                    modANSI.CursorDown(nTotalScore)
                     nScorer = random.randint(0, len(naScorers)-1)
                     print('{} {}'.format(nTime, naScorers[nScorer].name), end='\r')
                     naScorers[nScorer].goals = naScorers[nScorer].goals + 1
-                    print('\033[{}A'.format(nHomeScore), end='\r')
+                    modANSI.CursorUp(nTotalScore)
+                else:
+                    modANSI.CursorDown(nTotalScore)
+                    print('{} Goal'.format(nTime), end='\r')
+                    modANSI.CursorUp(nTotalScore)
 
             if nTime in naAwayGoals:
                 nAwayScore = nAwayScore + 1
-                print('\033[1A', end='\r')
+                modANSI.CursorUp(1)
                 print('{} {} - {} {}'.format(self.teams[nHomeTeam].GetColouredName(), nHomeScore, nAwayScore, self.teams[nAwayTeam].GetColouredName()))
+                nTotalScore = nHomeScore + nAwayScore
                 if nAwayTeam == self.team_index:
-                    print('\033[{}B'.format(nAwayScore), end='\r')
+                    modANSI.CursorDown(nTotalScore)
                     nScorer = random.randint(0, len(naScorers)-1)
                     print('            {} {}'.format(nTime, naScorers[nScorer].name), end='\r')
                     naScorers[nScorer].goals = naScorers[nScorer].goals + 1
-                    print('\033[{}A'.format(nAwayScore), end='\r')
+                    modANSI.CursorUp(nTotalScore)
+                else:
+                    modANSI.CursorDown(nTotalScore)
+                    print('            {} Goal'.format(nTime), end='\r')
+                    modANSI.CursorUp(nTotalScore)
 
-            print('Time {}. '.format(nTime), end='\r')
 
+            print('Time {}.  '.format(nTime), end='\r')
+            sys.stdout.flush()
             time.sleep(fRealTime + 0.2 - time.time())
 
+            if nTime == 45:
+                print('Half Time.'.format(nTime), end='\r')
+                sys.stdout.flush()
+                # Did the fixture calculations here in the BBC Basic version.
+                time.sleep(4)
 
-
-
-
-
-
+        # Move down
+        modANSI.CursorDown(nHomeGoals + nAwayGoals + 1)
+        print('Final Score')
         print('{} {} - {} {}'.format(self.teams[nHomeTeam].GetColouredName(), nHomeGoals, nAwayGoals, self.teams[nAwayTeam].GetColouredName()))
-
-        # Decided the fixtures for the league at half time.
-        # PROCFIXTURES
 
         return nHomeGoals, nAwayGoals
 

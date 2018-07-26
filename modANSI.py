@@ -61,6 +61,19 @@ BOLD_MAGENTA = '\033[1;35m'
 BOLD_CYAN = '\033[1;36m'
 
 
+
 def CLS():
     ''' Clear the console window. '''
     print('\033[2J\033[;H', end = '')
+
+
+
+def CursorDown(nLines):
+    ''' Move the cursor down the specified number of lines. '''
+    print('\033[{}B'.format(nLines), end='\r')
+
+
+
+def CursorUp(nLines):
+    ''' Move the cursor up the specified number of lines. '''
+    print('\033[{}A'.format(nLines), end='\r')
