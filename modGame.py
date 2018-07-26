@@ -840,6 +840,59 @@ class CGame:
         nHomeGoals, nAwayGoals = self.Match(nHomeTeam, nAwayTeam, dHomeBonus, dAwayBonus)
         # Not implemented yet.
 
+        # Decide when the goals are scored.
+        naHomeGoals = []
+        for nGoal in range(nHomeGoals):
+            naHomeGoals.append(random.randint(1, 90))
+        naAwayGoals = []
+        for nGoal in range(nAwayGoals):
+            naAwayGoals.append(random.randint(1, 90))
+
+        # Decide who might score.
+        naScorers = []
+        for oPlayer in self.players:
+            if oPlayer.in_team:
+                naScorers.append(oPlayer)
+
+
+        nHomeScore = 0
+        nAwayScore = 0
+        print('{} {} - {} {}'.format(self.teams[nHomeTeam].GetColouredName(), nHomeScore, nAwayScore, self.teams[nAwayTeam].GetColouredName()))
+        for nTime in range(91):
+            fRealTime = time.time()
+
+            if nTime in naHomeGoals:
+                nHomeScore = nHomeScore + 1
+                print('\033[1A', end='\r')
+                print('{} {} - {} {}'.format(self.teams[nHomeTeam].GetColouredName(), nHomeScore, nAwayScore, self.teams[nAwayTeam].GetColouredName()))
+                if nHomeTeam == self.team_index:
+                    print('\033[{}B'.format(nHomeScore), end='\r')
+                    nScorer = random.randint(0, len(naScorers)-1)
+                    print('{} {}'.format(nTime, naScorers[nScorer].name), end='\r')
+                    naScorers[nScorer].goals = naScorers[nScorer].goals + 1
+                    print('\033[{}A'.format(nHomeScore), end='\r')
+
+            if nTime in naAwayGoals:
+                nAwayScore = nAwayScore + 1
+                print('\033[1A', end='\r')
+                print('{} {} - {} {}'.format(self.teams[nHomeTeam].GetColouredName(), nHomeScore, nAwayScore, self.teams[nAwayTeam].GetColouredName()))
+                if nAwayTeam == self.team_index:
+                    print('\033[{}B'.format(nAwayScore), end='\r')
+                    nScorer = random.randint(0, len(naScorers)-1)
+                    print('            {} {}'.format(nTime, naScorers[nScorer].name), end='\r')
+                    naScorers[nScorer].goals = naScorers[nScorer].goals + 1
+                    print('\033[{}A'.format(nAwayScore), end='\r')
+
+            print('Time {}. '.format(nTime), end='\r')
+
+            time.sleep(fRealTime + 0.2 - time.time())
+
+
+
+
+
+
+
         print('{} {} - {} {}'.format(self.teams[nHomeTeam].GetColouredName(), nHomeGoals, nAwayGoals, self.teams[nAwayTeam].GetColouredName()))
 
         # Decided the fixtures for the league at half time.
