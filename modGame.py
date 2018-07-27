@@ -868,10 +868,14 @@ class CGame:
         # Decide when the goals are scored.
         naHomeGoals = []
         for nGoal in range(nHomeGoals):
-            naHomeGoals.append(random.randint(1, 90))
+            nGoalTime = random.randint(1, 90)
+            if not (nGoalTime in naHomeGoals):
+                naHomeGoals.append(nGoalTime)
         naAwayGoals = []
         for nGoal in range(nAwayGoals):
-            naAwayGoals.append(random.randint(1, 90))
+            nGoalTime = random.randint(1, 90)
+            if not (nGoalTime in naAwayGoals):
+                naAwayGoals.append(nGoalTime)
 
         # Decide who might score.
         naScorers = []
@@ -885,7 +889,6 @@ class CGame:
                 else:
                     for nCount in range(oPlayer.skill * 3):
                         naScorers.append(oPlayer)
-
 
         nHomeScore = 0
         nAwayScore = 0
@@ -928,7 +931,7 @@ class CGame:
 
             print('Time {}.  '.format(nTime), end='\r')
             sys.stdout.flush()
-            time.sleep(fRealTime + 0.2 - time.time())
+            time.sleep(fRealTime + 0.3 - time.time())
 
             if nTime == 45:
                 print('Half Time.'.format(nTime), end='\r')
