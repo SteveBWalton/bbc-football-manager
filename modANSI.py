@@ -70,10 +70,10 @@ def CLS():
 
 def CursorDown(nLines):
     ''' Move the cursor down the specified number of lines. '''
-    print('\033[{}B'.format(nLines), end='\r')
+    print('\033[{}B'.format(nLines), end = '\r')
 
 
 
 def CursorUp(nLines):
     ''' Move the cursor up the specified number of lines. '''
-    print('\033[{}A'.format(nLines), end='\r')
+    print('\033[{}A'.format(nLines), end = '\r')

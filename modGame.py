@@ -485,8 +485,8 @@ class CGame:
     def PlayerCaps(self):
         ''' This was part of PROCPROGRESS in the BBC Basic version. '''
         oPlayersByCaps = sorted(self.players, key=lambda CPlayer: CPlayer.caps, reverse=True)
-        print('┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓')
-        print('┃   Player         Position   Caps Goals ┃')
+        print('{}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓{}'.format(modANSI.MAGENTA, modANSI.RESET_ALL))
+        print('{}┃{}   Player         Position   Caps Goals {}┃{}'.format(modANSI.MAGENTA, modANSI.RESET_ALL, modANSI.MAGENTA, modANSI.RESET_ALL))
         for nIndex in range(11):
             oPlayer = oPlayersByCaps[nIndex]
             if oPlayer.injured:
@@ -494,13 +494,13 @@ class CGame:
             elif oPlayer.in_team:
                 sPlayerColour = modANSI.GREEN
             else:
-                sPlayerColour = ''
-            print('┃{}{:>2} {:<15}{:<10}{:>5}{:>6}{} ┃'.format(sPlayerColour, nIndex + 1, oPlayer.name, oPlayer.GetPosition(), oPlayer.caps, oPlayer.goals, modANSI.RESET_ALL))
+                sPlayerColour = modANSI.RESET_ALL
+            print('{}┃{}{:>2} {:<15}{:<10}{:>5}{:>6} {}┃{}'.format(modANSI.MAGENTA, sPlayerColour, nIndex + 1, oPlayer.name, oPlayer.GetPosition(), oPlayer.caps, oPlayer.goals, modANSI.MAGENTA, modANSI.RESET_ALL))
 
         # Top Scorers.
         oPlayersByGoals = sorted(self.players, key=lambda CPlayer: CPlayer.goals, reverse=True)
-        print('┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫')
-        print('┃   Player         Position   Caps Goals ┃')
+        print('{}┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫{}'.format(modANSI.MAGENTA, modANSI.RESET_ALL))
+        print('{}┃{}   Player         Position   Caps Goals {}┃{}'.format(modANSI.MAGENTA, modANSI.RESET_ALL, modANSI.MAGENTA, modANSI.RESET_ALL))
         for nIndex in range(5):
             oPlayer = oPlayersByGoals[nIndex]
             if oPlayer.injured:
@@ -508,10 +508,10 @@ class CGame:
             elif oPlayer.in_team:
                 sPlayerColour = modANSI.GREEN
             else:
-                sPlayerColour = ''
+                sPlayerColour = modANSI.RESET_ALL
             if oPlayer.goals > 0:
-                print('┃{}{:>2} {:<15}{:<10}{:>5}{:>6}{} ┃'.format(sPlayerColour, nIndex + 1, oPlayer.name, oPlayer.GetPosition(), oPlayer.caps, oPlayer.goals, modANSI.RESET_ALL))
-        print('┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛')
+                print('{}┃{}{:>2} {:<15}{:<10}{:>5}{:>6} {}┃{}'.format(modANSI.MAGENTA, sPlayerColour, nIndex + 1, oPlayer.name, oPlayer.GetPosition(), oPlayer.caps, oPlayer.goals, modANSI.MAGENTA, modANSI.RESET_ALL))
+        print('{}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛{}'.format(modANSI.MAGENTA, modANSI.RESET_ALL))
 
 
 
@@ -855,7 +855,7 @@ class CGame:
                     nAway = nIndex
 
             nHomeGoals, nAwayGoals = self.Match(nHome, nAway, 0.5, 0)
-            print('{} {} - {} {}'.format(self.teams[nHome].GetColouredName(), nHomeGoals, nAwayGoals, self.teams[nAway].GetColouredName()))
+            print('{}{:>17}{} {} - {} {}'.format(self.teams[nHome].colour, self.teams[nHome].name, modANSI.RESET_ALL, nHomeGoals, nAwayGoals, self.teams[nAway].GetColouredName()))
             self.ApplyPoints(nHome, nAway, nHomeGoals, nAwayGoals)
 
 
@@ -892,49 +892,52 @@ class CGame:
 
         nHomeScore = 0
         nAwayScore = 0
-        print('{} {} - {} {}'.format(self.teams[nHomeTeam].GetColouredName(), nHomeScore, nAwayScore, self.teams[nAwayTeam].GetColouredName()))
+        # print('{} {} - {} {}'.format(self.teams[nHomeTeam].GetColouredName(), nHomeScore, nAwayScore, self.teams[nAwayTeam].GetColouredName()))
+        print('{}{:>17}{} {} - {} {}'.format(self.teams[nHomeTeam].colour, self.teams[nHomeTeam].name, modANSI.RESET_ALL, nHomeScore, nAwayScore, self.teams[nAwayTeam].GetColouredName()))
         for nTime in range(91):
             fRealTime = time.time()
 
             if nTime in naHomeGoals:
                 nHomeScore = nHomeScore + 1
                 modANSI.CursorUp(1)
-                print('{} {} - {} {}'.format(self.teams[nHomeTeam].GetColouredName(), nHomeScore, nAwayScore, self.teams[nAwayTeam].GetColouredName()))
+                # print('{} {} - {} {}'.format(self.teams[nHomeTeam].GetColouredName(), nHomeScore, nAwayScore, self.teams[nAwayTeam].GetColouredName()))
+                print('{}{:>17}{} {} - {} {}'.format(self.teams[nHomeTeam].colour, self.teams[nHomeTeam].name, modANSI.RESET_ALL, nHomeScore, nAwayScore, self.teams[nAwayTeam].GetColouredName()))
                 nTotalScore = nHomeScore + nAwayScore
                 if nHomeTeam == self.team_index:
                     modANSI.CursorDown(nTotalScore)
                     nScorer = random.randint(0, len(naScorers)-1)
-                    print('{} {}'.format(nTime, naScorers[nScorer].name), end='\r')
+                    print('{} {}'.format(nTime, naScorers[nScorer].name), end = '\r')
                     naScorers[nScorer].goals = naScorers[nScorer].goals + 1
                     modANSI.CursorUp(nTotalScore)
                 else:
                     modANSI.CursorDown(nTotalScore)
-                    print('{} Goal'.format(nTime), end='\r')
+                    print('{} Goal'.format(nTime), end = '\r')
                     modANSI.CursorUp(nTotalScore)
 
             if nTime in naAwayGoals:
                 nAwayScore = nAwayScore + 1
                 modANSI.CursorUp(1)
-                print('{} {} - {} {}'.format(self.teams[nHomeTeam].GetColouredName(), nHomeScore, nAwayScore, self.teams[nAwayTeam].GetColouredName()))
+                # print('{} {} - {} {}'.format(self.teams[nHomeTeam].GetColouredName(), nHomeScore, nAwayScore, self.teams[nAwayTeam].GetColouredName()))
+                print('{}{:>17}{} {} - {} {}'.format(self.teams[nHomeTeam].colour, self.teams[nHomeTeam].name, modANSI.RESET_ALL, nHomeScore, nAwayScore, self.teams[nAwayTeam].GetColouredName()))
                 nTotalScore = nHomeScore + nAwayScore
                 if nAwayTeam == self.team_index:
                     modANSI.CursorDown(nTotalScore)
                     nScorer = random.randint(0, len(naScorers)-1)
-                    print('            {} {}'.format(nTime, naScorers[nScorer].name), end='\r')
+                    print('{}{} {}'.format(' ' * 22, nTime, naScorers[nScorer].name), end = '\r')
                     naScorers[nScorer].goals = naScorers[nScorer].goals + 1
                     modANSI.CursorUp(nTotalScore)
                 else:
                     modANSI.CursorDown(nTotalScore)
-                    print('            {} Goal'.format(nTime), end='\r')
+                    print('{}{} Goal'.format(' ' * 22, nTime), end = '\r')
                     modANSI.CursorUp(nTotalScore)
 
 
-            print('Time {}.  '.format(nTime), end='\r')
+            print('Time {}.  '.format(nTime), end = '\r')
             sys.stdout.flush()
             time.sleep(fRealTime + 0.3 - time.time())
 
             if nTime == 45:
-                print('Half Time.'.format(nTime), end='\r')
+                print('Half Time.'.format(nTime), end = '\r')
                 sys.stdout.flush()
                 # Did the fixture calculations here in the BBC Basic version.
                 time.sleep(4)
@@ -942,8 +945,8 @@ class CGame:
         # Move down
         modANSI.CursorDown(nHomeGoals + nAwayGoals + 1)
         print('Final Score')
-        print('{} {} - {} {}'.format(self.teams[nHomeTeam].GetColouredName(), nHomeGoals, nAwayGoals, self.teams[nAwayTeam].GetColouredName()))
-
+        # print('{} {} - {} {}'.format(self.teams[nHomeTeam].GetColouredName(), nHomeGoals, nAwayGoals, self.teams[nAwayTeam].GetColouredName()))
+        print('{}{:>17}{} {} - {} {}'.format(self.teams[nHomeTeam].colour, self.teams[nHomeTeam].name, modANSI.RESET_ALL, nHomeGoals, nAwayGoals, self.teams[nAwayTeam].GetColouredName()))
         return nHomeGoals, nAwayGoals
 
 
