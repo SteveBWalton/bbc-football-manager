@@ -60,6 +60,26 @@ BOLD_BLUE = '\033[1;34m'
 BOLD_MAGENTA = '\033[1;35m'
 BOLD_CYAN = '\033[1;36m'
 
+ERASE_LINE = '\033[2K'
+
+
+
+def CURSOR_DOWN(nLines):
+    '''  Move the cursor down the specified number of lines. '''
+    return '\033[{}B'.format(nLines)
+
+
+
+def CURSOR_UP(nLines):
+    ''' Move the cursor up the specified number of lines. '''
+    return '\033[{}A'.format(nLines)
+
+
+
+def CURSOR_TO(nRow, nColumn):
+    ''' Move the cursor to the specified row and column. '''
+    return '\033[{};{}f'.format(nRow, nColumn)
+
 
 
 def CLS():
@@ -70,10 +90,10 @@ def CLS():
 
 def CursorDown(nLines):
     ''' Move the cursor down the specified number of lines. '''
-    print('\033[{}B'.format(nLines), end = '\r')
+    print(CURSOR_DOWN(nLines), end = '\r')
 
 
 
 def CursorUp(nLines):
     ''' Move the cursor up the specified number of lines. '''
-    print('\033[{}A'.format(nLines), end = '\r')
+    print(CURSOR_UP(nLines), end = '\r')

@@ -535,8 +535,9 @@ class CGame:
 
     def Wait(self):
         ''' Replacement for PROCWAIT in the BBC Basic version. '''
-        print('----- Press SPACE to continue -----')
+        print('{}{}{} Press SPACE to continue {}{}'.format(modANSI.BACKGROUND_BLUE, modANSI.YELLOW, '━' * 7, '━' * 7, modANSI.RESET_ALL))
         self.GetKeyboardCharacter([' '])
+        print('{}{}'.format(modANSI.CURSOR_UP(1), modANSI.ERASE_LINE), end = '\r')
 
 
 
