@@ -61,7 +61,7 @@ class CGame:
         if self.YesNo():
             print('Yes')
             self.Load()
-            self.SortDivison()
+            self.SortDivision()
         else:
             print('No')
             self.NewGame()
@@ -69,8 +69,10 @@ class CGame:
         # Play the game.
         nYear = 0
         while True:
-            # Play a season.
+            self.money_start = self.money - self.debt
+            self.money_message = ''
 
+            # Play a season.
             while self.match < 30:
                 modANSI.CLS()
                 print('{} MANAGER: {}'.format(self.team.GetColouredName(), self.player_name))
@@ -212,6 +214,10 @@ class CGame:
             # Pick the player.
             self.PickPlayers()
 
+        modANSI.CursorUp(2)
+        print(modANSI.ERASE_LINE)
+        print(modANSI.ERASE_LINE)
+
         # Play the match.
         if bHome:
             nPlayerGoals, nOpponentGoals = self.PlayMatch(self.team_index, nOpponent, 0.5, 0)
@@ -219,6 +225,14 @@ class CGame:
         else:
             nOpponentGoals, nPlayerGoals = self.PlayMatch(nOpponent, self.team_index, 0.5, 0)
             self.ApplyPoints(nOpponent, self.team_index, nOpponentGoals, nPlayerGoals)
+
+        # Calculate the gate money.
+        if bHome:
+            self.gate_money = (9000 + (15 - self.team_index - nOpponent) * 500) * (5 - self.division) + random.randint(0, 1000)
+            if abs(self.teams[self.team_index].pts - self.teams[nOpponent].pts) < 4:
+                self.gate_money += (5 - self.division) * 3000
+        else:
+            self.gate_money = 0
 
         # PROCPLAYERS
         self.PlayerEngergy()
@@ -229,7 +243,7 @@ class CGame:
         self.Wait()
 
         self.Rest()
-        self.SortDivison()
+        self.SortDivision()
         self.Wait()
 
         modANSI.CLS()
@@ -237,7 +251,7 @@ class CGame:
         self.Wait()
 
         self.Market()
-        # PROCREPORT
+        self.Report()
         # PROCPROGRESS
         modANSI.CLS()
         self.PlayerCaps()
@@ -398,6 +412,7 @@ class CGame:
                     self.DropPlayer(nPlayerNumber)
                     self.players[nPlayerNumber].in_squad = False
                     self.money = self.money + nPrice
+                    self.money_message = self.money_message + self.FinancialLine(self.players[nPlayerNumber].name + ' sold', nPrice, 0) + "\n";
             else:
                 print('On range')
             self.Wait()
@@ -436,6 +451,8 @@ class CGame:
                 self.num_squad = self.num_squad + 1
                 self.players[nPlayer].in_squad = True
                 self.money = self.money - nBid
+                self.money_message = self.money_message + self.FinancialLine(self.players[nPlayer].name + ' bought', 0, nBid) + "\n";
+
             else:
                 if nBid > 0:
                     print('{}Your bid is turned down.{}'.format(modANSI.RED, modANSI.RESET_ALL))
@@ -443,8 +460,49 @@ class CGame:
 
 
 
+    def Report(self):
+        ''' Replacement for PROCREPORT ( line 3970 ) in the BBC Basic version. '''
+        if self.gate_money > 0:
+            print(self.FinancialLine('Gate Money', self.gate_money, 0))
+            self.money += self.gate_money
+        print(self.FinancialLine('Paid to Squad', 0, self.num_squad * 500 * (5 - self.division)))
+        self.money -= self.num_squad * 500 * (5 - self.division)
+        if self.money_message != '':
+            print(self.money_message, end = '')
+        if self.debt > 0:
+            nInterest = int (self.debt * 0.005)
+            print(self.FinancialLine('Interest', 0, nInterest))
+            self.money = self.money - nInterest
+        print('━' * 40)
+        if self.money - self.debt >= self.money_start:
+            print(self.FinancialLine('Profit', self.money - self.debt - self.money_start, 0))
+        else:
+            print(self.FinancialLine('Loss', 0, self.money_start - self.money + self.debt))
+        print('━' * 40)
+
+        print(self.FinancialLine('Cash', self.money, 0))
+        print(self.FinancialLine('Debt', 0, self.debt))
+
+        # Reset the counters.
+        self.money_start = self.money - self.debt
+        self.money_message = ''
+
+        self.Wait()
+
+
+
+    def FinancialLine(self, sTitle, fProfit, fLoss):
+        ''' Build a line of financial information. '''
+        if fProfit - fLoss >= 0:
+            sProfit = '£{:,.0f}'.format(fProfit - fLoss)
+            return '{}{:<25} {:>13} {}'.format(modANSI.GREEN, sTitle, sProfit, modANSI.RESET_ALL)
+        sLoss = '(£{:,.0f})'.format(fLoss - fProfit)
+        return '{}{:<25}{:>15}{}'.format(modANSI.RED, sTitle, sLoss, modANSI.RESET_ALL)
+
+
+
     def Bank(self):
-        ''' Replacement for PROCLEND (line 4170) in the BBC Basic version. '''
+        ''' Replacement for PROCLEND ( line 4170 ) in the BBC Basic version. '''
         modANSI.CLS()
         print('Bank')
         print('You have £{:,.2f}'.format(self.money))
@@ -485,8 +543,8 @@ class CGame:
     def PlayerCaps(self):
         ''' This was part of PROCPROGRESS in the BBC Basic version. '''
         oPlayersByCaps = sorted(self.players, key=lambda CPlayer: CPlayer.caps, reverse=True)
-        print('{}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓{}'.format(modANSI.MAGENTA, modANSI.RESET_ALL))
-        print('{}┃{}   Player         Position   Caps Goals {}┃{}'.format(modANSI.MAGENTA, modANSI.RESET_ALL, modANSI.MAGENTA, modANSI.RESET_ALL))
+        print('{}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓{}'.format(modANSI.MAGENTA, modANSI.RESET_ALL))
+        print('{}┃{}   Player        Position  Caps Goals {}┃{}'.format(modANSI.MAGENTA, modANSI.RESET_ALL, modANSI.MAGENTA, modANSI.RESET_ALL))
         for nIndex in range(11):
             oPlayer = oPlayersByCaps[nIndex]
             if oPlayer.injured:
@@ -495,12 +553,12 @@ class CGame:
                 sPlayerColour = modANSI.GREEN
             else:
                 sPlayerColour = modANSI.RESET_ALL
-            print('{}┃{}{:>2} {:<15}{:<10}{:>5}{:>6} {}┃{}'.format(modANSI.MAGENTA, sPlayerColour, nIndex + 1, oPlayer.name, oPlayer.GetPosition(), oPlayer.caps, oPlayer.goals, modANSI.MAGENTA, modANSI.RESET_ALL))
+            print('{}┃{}{:>2} {:<14}{:<9}{:>5}{:>6} {}┃{}'.format(modANSI.MAGENTA, sPlayerColour, nIndex + 1, oPlayer.name, oPlayer.GetPosition(), oPlayer.caps, oPlayer.goals, modANSI.MAGENTA, modANSI.RESET_ALL))
 
         # Top Scorers.
         oPlayersByGoals = sorted(self.players, key=lambda CPlayer: CPlayer.goals, reverse=True)
-        print('{}┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫{}'.format(modANSI.MAGENTA, modANSI.RESET_ALL))
-        print('{}┃{}   Player         Position   Caps Goals {}┃{}'.format(modANSI.MAGENTA, modANSI.RESET_ALL, modANSI.MAGENTA, modANSI.RESET_ALL))
+        print('{}┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫{}'.format(modANSI.MAGENTA, modANSI.RESET_ALL))
+        print('{}┃{}   Player        Position  Caps Goals {}┃{}'.format(modANSI.MAGENTA, modANSI.RESET_ALL, modANSI.MAGENTA, modANSI.RESET_ALL))
         for nIndex in range(5):
             oPlayer = oPlayersByGoals[nIndex]
             if oPlayer.injured:
@@ -510,8 +568,8 @@ class CGame:
             else:
                 sPlayerColour = modANSI.RESET_ALL
             if oPlayer.goals > 0:
-                print('{}┃{}{:>2} {:<15}{:<10}{:>5}{:>6} {}┃{}'.format(modANSI.MAGENTA, sPlayerColour, nIndex + 1, oPlayer.name, oPlayer.GetPosition(), oPlayer.caps, oPlayer.goals, modANSI.MAGENTA, modANSI.RESET_ALL))
-        print('{}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛{}'.format(modANSI.MAGENTA, modANSI.RESET_ALL))
+                print('{}┃{}{:>2} {:<14}{:<9}{:>5}{:>6} {}┃{}'.format(modANSI.MAGENTA, sPlayerColour, nIndex + 1, oPlayer.name, oPlayer.GetPosition(), oPlayer.caps, oPlayer.goals, modANSI.MAGENTA, modANSI.RESET_ALL))
+        print('{}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛{}'.format(modANSI.MAGENTA, modANSI.RESET_ALL))
 
 
 
@@ -535,7 +593,7 @@ class CGame:
 
     def Wait(self):
         ''' Replacement for PROCWAIT in the BBC Basic version. '''
-        print('{}{}{} Press SPACE to continue {}{}'.format(modANSI.BACKGROUND_BLUE, modANSI.YELLOW, '━' * 7, '━' * 7, modANSI.RESET_ALL))
+        print('{}{}{} Press SPACE to continue {}{}'.format(modANSI.BACKGROUND_BLUE, modANSI.YELLOW, '━' * 7, '━' * 8, modANSI.RESET_ALL))
         self.GetKeyboardCharacter([' '])
         print('{}{}'.format(modANSI.CURSOR_UP(1), modANSI.ERASE_LINE), end = '\r')
 
@@ -552,7 +610,7 @@ class CGame:
 
 
 
-    def SortDivison(self):
+    def SortDivision(self):
         ''' Replacement for PROCSORT in the BBC Basic version. '''
         self.teams = sorted(self.teams, key=lambda CTeam: (CTeam.pts, CTeam.difference), reverse=True)
         nPosition = 1
@@ -598,7 +656,7 @@ class CGame:
         self.teams = None
         self.division = 4
         self.SetTeamsForDivision([])
-        self.SortDivison()
+        self.SortDivision()
 
         # Pick a default selection of players.
         self.num_team = 0
@@ -933,12 +991,12 @@ class CGame:
                     modANSI.CursorUp(nTotalScore)
 
 
-            print('Time {}.  '.format(nTime), end = '\r')
+            print('{}Time {}   '.format(' ' * 17, nTime), end = '\r')
             sys.stdout.flush()
             time.sleep(fRealTime + 0.3 - time.time())
 
             if nTime == 45:
-                print('Half Time.'.format(nTime), end = '\r')
+                print('{}Half Time.'.format(' ' * 16, nTime), end = '\r')
                 sys.stdout.flush()
                 # Did the fixture calculations here in the BBC Basic version.
                 time.sleep(4)

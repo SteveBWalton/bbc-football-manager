@@ -115,7 +115,7 @@ class CPlayer:
             print(modANSI.BLUE, end = '')
         print('{:2} {:<20}{:>2}{:>3} '.format(self.index, self.name, self.skill, self.energy), end = '')
         if nExchangeRate != 0:
-            print('{:>12s}'.format('£{:,.2f}'.format(self.skill * nExchangeRate)), end = '')
+            print('{:>11s}'.format('£{:,.0f}'.format(self.skill * nExchangeRate)), end = '')
         if self.in_team:
             print(modANSI.BACKGROUND_GREEN, end = '')
             print(modANSI.LIGHT_YELLOW, end = '')
