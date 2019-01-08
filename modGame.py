@@ -791,7 +791,7 @@ class CGame:
         print('┃   ┗━┛ ┗━┛  ┃  ┗#┛ ┗━┛ ┃ ┃   ┃   ┃ ┗━┛  ┃ ┃ ┗━┛ ┗━┫ ┗━━ ┃')
         print('                                                   ┃')
         print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛')
-        print('By Steve Walton BBC BASIC 1982-1989, 2000, Python 2018.')
+        print('By Steve Walton BBC BASIC 1982-1989, 2000, Python 2018-2019.')
 
 
 
