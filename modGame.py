@@ -783,15 +783,19 @@ class CGame:
 
 
     def Football(self):
-        ''' Implementation of DEFPROCfootball().  Display a title. '''
+        '''
+        Implementation of DEFPROCfootball().
+        Display a title.
+        This is using 'Box-drawing characters' or 'Line-drawing characters.'
+        '''
         print('┏━━             ┃       ┃ ┃   ┏━┳━┓')
         print('┃            ┃  ┃       ┃ ┃   ┃ ┃ ┃' )
-        print('┣━━ ┏━┓ ┏━┓ ━#━ ┣━┓ ━━┓ ┃ ┃   ┃   ┃ ━━┓ ━┳━┓ ━━┓ ┏━┓ ┏━┓ ┏━')
+        print('┣━━ ┏━┓ ┏━┓ ━╋━ ┣━┓ ━━┓ ┃ ┃   ┃   ┃ ━━┓ ━┳━┓ ━━┓ ┏━┓ ┏━┓ ┏━')
         print('┃   ┃ ┃ ┃ ┃  ┃  ┃ ┃ ┏━┫ ┃ ┃   ┃   ┃ ┏━┃  ┃ ┃ ┏━┫ ┃ ┃ ┣━┛ ┃')
-        print('┃   ┗━┛ ┗━┛  ┃  ┗#┛ ┗━┛ ┃ ┃   ┃   ┃ ┗━┛  ┃ ┃ ┗━┛ ┗━┫ ┗━━ ┃')
+        print('┃   ┗━┛ ┗━┛  ┃  ┗━┛ ┗━┛ ┃ ┃   ┃   ┃ ┗━┛  ┃ ┃ ┗━┛ ┗━┫ ┗━━ ┃')
         print('                                                   ┃')
         print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛')
-        print('By Steve Walton BBC BASIC 1982-1989, 2000, Python 2018.')
+        print('By Steve Walton BBC BASIC 1982-1989, 2000, Python 2018-2019.')
 
 
 
