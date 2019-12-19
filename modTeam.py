@@ -10,7 +10,7 @@ import random
 import json
 
 # Application Libraries.
-import modANSI
+import ansi
 import modInkey
 import modGame
 
@@ -22,7 +22,7 @@ class CTeam:
     def __init__(self):
         ''' Class constructor. '''
         self.name = 'Error'
-        self.colour = modANSI.WHITE
+        self.colour = ansi.WHITE
         self.energy = 1
         self.moral = 1
         self.defence = 1
@@ -86,14 +86,14 @@ class CTeam:
 
     def WriteTableRow(self):
         ''' Write this team into the league table. '''
-        # print('{:>2} {}{:<15}{:>3}{:>3}{:>3}{:>4}{:>4} {} {} {}'.format(self.position, self.colour, self.name, self.win, self.draw, self.lost, self.pts, self.difference, 'Y' if self.played_home else 'N', 'Y' if self.played_away else 'N', modANSI.RESET_ALL))
-        print('{:>2} {}{:<15}{:>3}{:>3}{:>3}{:>4}{:>4}{}'.format(self.position, self.colour, self.name, self.win, self.draw, self.lost, self.pts, self.difference, modANSI.RESET_ALL))
+        # print('{:>2} {}{:<15}{:>3}{:>3}{:>3}{:>4}{:>4} {} {} {}'.format(self.position, self.colour, self.name, self.win, self.draw, self.lost, self.pts, self.difference, 'Y' if self.played_home else 'N', 'Y' if self.played_away else 'N', ansi.RESET_ALL))
+        print('{:>2} {}{:<15}{:>3}{:>3}{:>3}{:>4}{:>4}{}'.format(self.position, self.colour, self.name, self.win, self.draw, self.lost, self.pts, self.difference, ansi.RESET_ALL))
 
 
 
     def GetColouredName(self):
         ''' Returns the team name wrapped in the colour code. '''
-        return '{}{}{}'.format(self.colour, self.name, modANSI.RESET_ALL)
+        return '{}{}{}'.format(self.colour, self.name, ansi.RESET_ALL)
 
 
 
@@ -102,205 +102,205 @@ class CTeam:
         if nDivision == 1:
             if nIndex == 1:
                 self.name = 'Liverpool'
-                self.colour = modANSI.RED
+                self.colour = ansi.RED
             elif nIndex == 2:
                 self.name = 'Man United'
-                self.colour = modANSI.RED
+                self.colour = ansi.RED
             elif nIndex == 3:
                 self.name = 'Leeds United'
-                self.colour = modANSI.YELLOW
+                self.colour = ansi.YELLOW
             elif nIndex == 4:
                 self.name = 'Arsenal'
-                self.colour = modANSI.RED
+                self.colour = ansi.RED
             elif nIndex == 5:
                 self.name = 'Spurs'
-                self.colour = modANSI.WHITE
+                self.colour = ansi.WHITE
             elif nIndex == 6:
                 self.name = 'Aston Villa'
-                self.colour = modANSI.MAGENTA
+                self.colour = ansi.MAGENTA
             elif nIndex == 7:
                 self.name = 'Everton'
-                self.colour = modANSI.LIGHT_BLUE
+                self.colour = ansi.LIGHT_BLUE
             elif nIndex == 8:
                 self.name = 'Nottm Forest'
-                self.colour = modANSI.RED
+                self.colour = ansi.RED
             elif nIndex == 9:
                 self.name = 'Millwall'
-                self.colour = modANSI.WHITE
+                self.colour = ansi.WHITE
             elif nIndex == 10:
                 self.name = 'Coventry'
-                self.colour = modANSI.CYAN
+                self.colour = ansi.CYAN
             elif nIndex == 11:
                 self.name = 'West Ham'
-                self.colour = modANSI.MAGENTA
+                self.colour = ansi.MAGENTA
             elif nIndex == 12:
                 self.name = 'Norwich'
-                self.colour = modANSI.YELLOW
+                self.colour = ansi.YELLOW
             elif nIndex == 13:
                 self.name = 'Sheff Wed'
-                self.colour = modANSI.YELLOW
+                self.colour = ansi.YELLOW
             elif nIndex == 14:
                 self.name = 'Derby'
-                self.colour = modANSI.WHITE
+                self.colour = ansi.WHITE
             elif nIndex == 15:
                 self.name = 'Chelsea'
-                self.colour = modANSI.LIGHT_BLUE
+                self.colour = ansi.LIGHT_BLUE
             elif nIndex == 16:
                 self.name = 'Newcastle'
-                self.colour = modANSI.WHITE
+                self.colour = ansi.WHITE
             else:
                 self.GetTeam(nDivision+1, nIndex-16)
         elif nDivision == 2:
             if nIndex == 1:
                 self.name = 'Watford'
-                self.colour = modANSI.YELLOW
+                self.colour = ansi.YELLOW
             elif nIndex == 2:
                 self.name = 'Stoke City'
-                self.colour = modANSI.RED
+                self.colour = ansi.RED
             elif nIndex == 3:
                 self.name = 'Brighton'
-                self.colour = modANSI.LIGHT_BLUE
+                self.colour = ansi.LIGHT_BLUE
             elif nIndex == 4:
                 self.name = 'Barnsley'
-                self.colour = modANSI.RED
+                self.colour = ansi.RED
             elif nIndex == 5:
                 self.name = 'Plymouth'
-                self.colour = modANSI.LIGHT_BLUE
+                self.colour = ansi.LIGHT_BLUE
             elif nIndex == 6:
                 self.name = 'Hull City'
-                self.colour = modANSI.MAGENTA
+                self.colour = ansi.MAGENTA
             elif nIndex == 7:
                 self.name = 'Notts Co'
-                self.colour = modANSI.WHITE
+                self.colour = ansi.WHITE
             elif nIndex == 8:
                 self.name = 'Man City'
-                self.colour = modANSI.CYAN
+                self.colour = ansi.CYAN
             elif nIndex == 9:
                 self.name = 'Shrewsbury'
-                self.colour = modANSI.RED
+                self.colour = ansi.RED
             elif nIndex == 10:
                 self.name = 'Burnley'
-                self.colour = modANSI.MAGENTA
+                self.colour = ansi.MAGENTA
             elif nIndex == 11:
                 self.name = 'Charlton'
-                self.colour = modANSI.RED
+                self.colour = ansi.RED
             elif nIndex == 12:
                 self.name = 'Sunderland'
-                self.colour = modANSI.RED
+                self.colour = ansi.RED
             elif nIndex == 13:
                 self.name = 'Bradford'
-                self.colour = modANSI.RED
+                self.colour = ansi.RED
             elif nIndex == 14:
                 self.name = 'Bury'
-                self.colour = modANSI.LIGHT_BLUE
+                self.colour = ansi.LIGHT_BLUE
             elif nIndex == 15:
                 self.name = 'Sheff United'
-                self.colour = modANSI.RED
+                self.colour = ansi.RED
             elif nIndex == 16:
                 self.name = 'Huddersfield'
-                self.colour = modANSI.LIGHT_BLUE
+                self.colour = ansi.LIGHT_BLUE
             else:
                 self.GetTeam(nDivision+1, nIndex-16)
         elif nDivision == 3:
             if nIndex == 1:
                 self.name = 'Wolves'
-                self.colour = modANSI.YELLOW
+                self.colour = ansi.YELLOW
             elif nIndex == 2:
                 self.name = 'Oxford'
-                self.colour = modANSI.RED
+                self.colour = ansi.RED
             elif nIndex == 3:
                 self.name = 'Swindon'
-                self.colour = modANSI.RED
+                self.colour = ansi.RED
             elif nIndex == 4:
                 self.name = 'Walsall'
-                self.colour = modANSI.RED
+                self.colour = ansi.RED
             elif nIndex == 5:
                 self.name = 'Newport'
-                self.colour = modANSI.GREEN
+                self.colour = ansi.GREEN
             elif nIndex == 6:
                 self.name = 'Wigan'
-                self.colour = modANSI.RED
+                self.colour = ansi.RED
             elif nIndex == 7:
                 self.name = 'Wimbledon'
-                self.colour = modANSI.RED
+                self.colour = ansi.RED
             elif nIndex == 8:
                 self.name = 'Mansfield'
-                self.colour = modANSI.GREEN
+                self.colour = ansi.GREEN
             elif nIndex == 9:
                 self.name = 'Southend'
-                self.colour = modANSI.RED
+                self.colour = ansi.RED
             elif nIndex == 10:
                 self.name = 'Grimsby'
-                self.colour = modANSI.GREEN
+                self.colour = ansi.GREEN
             elif nIndex == 11:
                 self.name = 'Blackburn'
-                self.colour = modANSI.MAGENTA
+                self.colour = ansi.MAGENTA
             elif nIndex == 12:
                 self.name = 'Reading'
-                self.colour = modANSI.RED
+                self.colour = ansi.RED
             elif nIndex == 13:
                 self.name = 'Crewe'
-                self.colour = modANSI.YELLOW
+                self.colour = ansi.YELLOW
             elif nIndex == 14:
                 self.name = 'Darlington'
-                self.colour = modANSI.RED
+                self.colour = ansi.RED
             elif nIndex == 15:
                 self.name = 'Port Value'
-                self.colour = modANSI.LIGHT_BLUE
+                self.colour = ansi.LIGHT_BLUE
             elif nIndex == 16:
                 self.name = 'Stockport'
-                self.colour = modANSI.RED
+                self.colour = ansi.RED
             else:
                 self.GetTeam(nDivision+1, nIndex-16)
         else:
             if nIndex == 1:
                 self.name = 'Scunthorpe'
-                self.colour = modANSI.RED
+                self.colour = ansi.RED
             elif nIndex == 2:
                 self.name = 'York'
-                self.colour = modANSI.GREEN
+                self.colour = ansi.GREEN
             elif nIndex == 3:
                 self.name = 'Bournemouth'
-                self.colour = modANSI.LIGHT_BLUE
+                self.colour = ansi.LIGHT_BLUE
             elif nIndex == 4:
                 self.name = 'Doncaster'
-                self.colour = modANSI.CYAN
+                self.colour = ansi.CYAN
             elif nIndex == 5:
                 self.name = 'Lincoln'
-                self.colour = modANSI.MAGENTA
+                self.colour = ansi.MAGENTA
             elif nIndex == 6:
                 self.name = 'Rochdale'
-                self.colour = modANSI.RED
+                self.colour = ansi.RED
             elif nIndex == 7:
                 self.name = 'Hereford'
-                self.colour = modANSI.YELLOW
+                self.colour = ansi.YELLOW
             elif nIndex == 8:
                 self.name = 'Hartlepool'
-                self.colour = modANSI.LIGHT_BLUE
+                self.colour = ansi.LIGHT_BLUE
             elif nIndex == 9:
                 self.name = 'Halifax'
-                self.colour = modANSI.RED
+                self.colour = ansi.RED
             elif nIndex == 10:
                 self.name = 'Tranmere'
-                self.colour = modANSI.RED
+                self.colour = ansi.RED
             elif nIndex == 11:
                 self.name = 'Aldershot'
-                self.colour = modANSI.YELLOW
+                self.colour = ansi.YELLOW
             elif nIndex == 12:
                 self.name = 'Bristol'
-                self.colour = modANSI.LIGHT_BLUE
+                self.colour = ansi.LIGHT_BLUE
             elif nIndex == 13:
                 self.name = 'Wrexham'
-                self.colour = modANSI.RED
+                self.colour = ansi.RED
             elif nIndex == 14:
                 self.name = 'Torquay'
-                self.colour = modANSI.GREEN
+                self.colour = ansi.GREEN
             elif nIndex == 15:
                 self.name = 'Gillingham'
-                self.colour = modANSI.GREEN
+                self.colour = ansi.GREEN
             elif nIndex == 16:
                 self.name = 'Exeter'
-                self.colour = modANSI.RED
+                self.colour = ansi.RED
             else:
                 self.GetTeam(nDivision-1, nIndex-16)
 

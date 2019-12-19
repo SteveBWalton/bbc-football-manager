@@ -9,7 +9,7 @@ Module to implement the CPlayer class for the the BBC Football Manager program.
 import json
 
 # Application Libraries.
-import modANSI
+import ansi
 
 
 DEFENSE = 0
@@ -105,26 +105,26 @@ class CPlayer:
     def WriteRow(self, nExchangeRate=0):
         ''' Display this player on a row. '''
         if self.position == DEFENSE:
-            print(modANSI.BACKGROUND_LIGHT_BLUE, end = '')
-            print(modANSI.LIGHT_YELLOW, end = '')
+            print(ansi.BACKGROUND_LIGHT_BLUE, end = '')
+            print(ansi.LIGHT_YELLOW, end = '')
         elif self.position == MIDFIELD:
-            print(modANSI.BACKGROUND_LIGHT_YELLOW, end = '')
-            print(modANSI.BLUE, end = '')
+            print(ansi.BACKGROUND_LIGHT_YELLOW, end = '')
+            print(ansi.BLUE, end = '')
         else:
-            print(modANSI.BACKGROUND_WHITE, end = '')
-            print(modANSI.BLUE, end = '')
+            print(ansi.BACKGROUND_WHITE, end = '')
+            print(ansi.BLUE, end = '')
         print('{:2} {:<20}{:>2}{:>3} '.format(self.index, self.name, self.skill, self.energy), end = '')
         if nExchangeRate != 0:
             print('{:>11s}'.format('£{:,.0f}'.format(self.skill * nExchangeRate)), end = '')
         if self.in_team:
-            print(modANSI.BACKGROUND_GREEN, end = '')
-            print(modANSI.LIGHT_YELLOW, end = '')
+            print(ansi.BACKGROUND_GREEN, end = '')
+            print(ansi.LIGHT_YELLOW, end = '')
             print(' P ', end = '')
         if self.injured:
-            print(modANSI.BACKGROUND_RED, end = '')
-            print(modANSI.LIGHT_YELLOW, end = '')
+            print(ansi.BACKGROUND_RED, end = '')
+            print(ansi.LIGHT_YELLOW, end = '')
             print(' I ', end = '')
-        print(modANSI.RESET_ALL)
+        print(ansi.RESET_ALL)
 
 
 

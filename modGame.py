@@ -13,7 +13,7 @@ import time
 import sys
 
 # Application Libraries.
-import modANSI
+import ansi
 import modInkey
 import modTeam
 import modPlayer
@@ -30,7 +30,7 @@ class CGame:
         self.player_name = ''
         self.level = 1
         self.team_name = ''
-        self.team_colour = modANSI.WHITE
+        self.team_colour = ansi.WHITE
         self.team_index = None
         self.num_squad = 0
         self.num_team = 0
@@ -44,7 +44,7 @@ class CGame:
         self.keyboard = modInkey.CInkey()
         random.seed()
 
-        modANSI.CLS()
+        ansi.doCls()
         self.Football()
 
         # Get the player settings.
@@ -74,7 +74,7 @@ class CGame:
 
             # Play a season.
             while self.match < 30:
-                modANSI.CLS()
+                ansi.doCls()
                 print('{} MANAGER: {}'.format(self.team.GetColouredName(), self.player_name))
                 print('LEVEL: {}'.format(self.level))
                 print()
@@ -103,7 +103,7 @@ class CGame:
                     # PROCRESTART
                     pass
                 elif sKey == '7':
-                    modANSI.CLS()
+                    ansi.doCls()
                     self.ShowLeague()
                     self.Wait()
                 elif sKey == '8':
@@ -113,7 +113,7 @@ class CGame:
                         return
 
             # Season has finished.
-            modANSI.CLS()
+            ansi.doCls()
             print('Season has finished.')
             self.ShowLeague()
             self.Wait()
@@ -203,7 +203,7 @@ class CGame:
 
         # Let the player select the players for the team.
         while True:
-            modANSI.CLS()
+            ansi.doCls()
             if bHome:
                 self.DisplayMatch(self.team_index, nOpponent)
             else:
@@ -214,9 +214,9 @@ class CGame:
             # Pick the player.
             self.PickPlayers()
 
-        modANSI.CursorUp(2)
-        print(modANSI.ERASE_LINE)
-        print(modANSI.ERASE_LINE)
+        ansi.doCursorUp(2)
+        print(ansi.ERASE_LINE)
+        print(ansi.ERASE_LINE)
 
         # Play the match.
         if bHome:
@@ -246,14 +246,14 @@ class CGame:
         self.SortDivision()
         self.Wait()
 
-        modANSI.CLS()
+        ansi.doCls()
         self.ShowLeague()
         self.Wait()
 
         self.Market()
         self.Report()
         # PROCPROGRESS
-        modANSI.CLS()
+        ansi.doCls()
         self.PlayerCaps()
         self.PlayerFit()
         self.Wait()
@@ -310,7 +310,7 @@ class CGame:
         self.DropPlayer(nPlayer)
         self.players[nPlayer].injured = True
         if self.players[nPlayer].in_squad:
-            print('{}{} has been injured.{}'.format(modANSI.RED, self.players[nPlayer].name, modANSI.RESET_ALL))
+            print('{}{} has been injured.{}'.format(ansi.RED, self.players[nPlayer].name, ansi.RESET_ALL))
             self.num_injured = self.num_injured + 1
 
 
@@ -322,7 +322,7 @@ class CGame:
                 if random.randint(1, 3) == 1:
                     oPlayer.injured = False
                     if oPlayer.in_squad:
-                        print('{}{} is fit.{}'.format(modANSI.GREEN, oPlayer.name, modANSI.RESET_ALL))
+                        print('{}{} is fit.{}'.format(ansi.GREEN, oPlayer.name, ansi.RESET_ALL))
                         self.num_injured = self.num_injured - 1
 
 
@@ -339,7 +339,7 @@ class CGame:
     def PickPlayers(self):
         ''' Replacement for PROCPICK (line 2260) in the BBC Basic version. '''
         while True:
-            modANSI.CLS()
+            ansi.doCls()
             self.DisplaySquad()
             if self.num_team <= 11:
                 nNumber = self.EnterNumber('>')
@@ -396,7 +396,7 @@ class CGame:
 
     def SellPlayer(self):
         ''' Replacement for PROCSELL (line 1950) in the BBC Basic version. '''
-        modANSI.CLS()
+        ansi.doCls()
         self.DisplaySquad()
         print('Enter <RETURN> to return to menu.')
         print('Else enter player number to be sold')
@@ -423,14 +423,14 @@ class CGame:
     def Market(self):
         ''' Replacement for PROCMARKET (line 3330) in the BBC Basic version. '''
         if self.num_squad >= 18:
-            # modANSI.CLS()
-            print('{}F.A. rules state that one team may not have more that 18 players. You already have 18 players therefore you may not buy another.{}'.format(modANSI.RED, modANSI.RESET_ALL))
+            # ansi.doCls()
+            print('{}F.A. rules state that one team may not have more that 18 players. You already have 18 players therefore you may not buy another.{}'.format(ansi.RED, ansi.RESET_ALL))
         else:
             while True:
                 nPlayer = random.randint(0, 25)
                 if self.players[nPlayer].in_squad == False:
                     break;
-            # modANSI.CLS()
+            # ansi.doCls()
             self.players[nPlayer].skill = max(self.players[nPlayer].skill, random.randint(1, 5) + (1 if self.division <= 2 else 0))
             if self.players[nPlayer].position == modPlayer.DEFENSE:
                 print('Defence')
@@ -445,9 +445,9 @@ class CGame:
                 return
             nPrice = self.players[nPlayer].skill * (5000 * (5 - self.division)) + random.randint(1, 10000) - 5000
             if nBid > self.money:
-                print('{}You do not have enough money{}'.format(modANSI.RED, modANSI.RESET_ALL))
+                print('{}You do not have enough money{}'.format(ansi.RED, ansi.RESET_ALL))
             elif nBid > nPrice:
-                print('{}{} is added to your squad.{}'.format(modANSI.GREEN, self.players[nPlayer].name, modANSI.RESET_ALL))
+                print('{}{} is added to your squad.{}'.format(ansi.GREEN, self.players[nPlayer].name, ansi.RESET_ALL))
                 self.num_squad = self.num_squad + 1
                 self.players[nPlayer].in_squad = True
                 self.money = self.money - nBid
@@ -455,7 +455,7 @@ class CGame:
 
             else:
                 if nBid > 0:
-                    print('{}Your bid is turned down.{}'.format(modANSI.RED, modANSI.RESET_ALL))
+                    print('{}Your bid is turned down.{}'.format(ansi.RED, ansi.RESET_ALL))
         self.Wait()
 
 
@@ -495,15 +495,15 @@ class CGame:
         ''' Build a line of financial information. '''
         if fProfit - fLoss >= 0:
             sProfit = '£{:,.0f}'.format(fProfit - fLoss)
-            return '{}{:<25} {:>13} {}'.format(modANSI.GREEN, sTitle, sProfit, modANSI.RESET_ALL)
+            return '{}{:<25} {:>13} {}'.format(ansi.GREEN, sTitle, sProfit, ansi.RESET_ALL)
         sLoss = '(£{:,.0f})'.format(fLoss - fProfit)
-        return '{}{:<25}{:>15}{}'.format(modANSI.RED, sTitle, sLoss, modANSI.RESET_ALL)
+        return '{}{:<25}{:>15}{}'.format(ansi.RED, sTitle, sLoss, ansi.RESET_ALL)
 
 
 
     def Bank(self):
         ''' Replacement for PROCLEND ( line 4170 ) in the BBC Basic version. '''
-        modANSI.CLS()
+        ansi.doCls()
         print('Bank')
         print('You have £{:,.2f}'.format(self.money))
         if self.debt > 0:
@@ -543,39 +543,39 @@ class CGame:
     def PlayerCaps(self):
         ''' This was part of PROCPROGRESS in the BBC Basic version. '''
         oPlayersByCaps = sorted(self.players, key=lambda CPlayer: CPlayer.caps, reverse=True)
-        print('{}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓{}'.format(modANSI.MAGENTA, modANSI.RESET_ALL))
-        print('{}┃{}   Player        Position  Caps Goals {}┃{}'.format(modANSI.MAGENTA, modANSI.RESET_ALL, modANSI.MAGENTA, modANSI.RESET_ALL))
+        print('{}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓{}'.format(ansi.MAGENTA, ansi.RESET_ALL))
+        print('{}┃{}   Player        Position  Caps Goals {}┃{}'.format(ansi.MAGENTA, ansi.RESET_ALL, ansi.MAGENTA, ansi.RESET_ALL))
         for nIndex in range(11):
             oPlayer = oPlayersByCaps[nIndex]
             if oPlayer.injured:
-                sPlayerColour = modANSI.RED
+                sPlayerColour = ansi.RED
             elif oPlayer.in_team:
-                sPlayerColour = modANSI.GREEN
+                sPlayerColour = ansi.GREEN
             else:
-                sPlayerColour = modANSI.RESET_ALL
-            print('{}┃{}{:>2} {:<14}{:<9}{:>5}{:>6} {}┃{}'.format(modANSI.MAGENTA, sPlayerColour, nIndex + 1, oPlayer.name, oPlayer.GetPosition(), oPlayer.caps, oPlayer.goals, modANSI.MAGENTA, modANSI.RESET_ALL))
+                sPlayerColour = ansi.RESET_ALL
+            print('{}┃{}{:>2} {:<14}{:<9}{:>5}{:>6} {}┃{}'.format(ansi.MAGENTA, sPlayerColour, nIndex + 1, oPlayer.name, oPlayer.GetPosition(), oPlayer.caps, oPlayer.goals, ansi.MAGENTA, ansi.RESET_ALL))
 
         # Top Scorers.
         oPlayersByGoals = sorted(self.players, key=lambda CPlayer: CPlayer.goals, reverse=True)
-        print('{}┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫{}'.format(modANSI.MAGENTA, modANSI.RESET_ALL))
-        print('{}┃{}   Player        Position  Caps Goals {}┃{}'.format(modANSI.MAGENTA, modANSI.RESET_ALL, modANSI.MAGENTA, modANSI.RESET_ALL))
+        print('{}┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫{}'.format(ansi.MAGENTA, ansi.RESET_ALL))
+        print('{}┃{}   Player        Position  Caps Goals {}┃{}'.format(ansi.MAGENTA, ansi.RESET_ALL, ansi.MAGENTA, ansi.RESET_ALL))
         for nIndex in range(5):
             oPlayer = oPlayersByGoals[nIndex]
             if oPlayer.injured:
-                sPlayerColour = modANSI.RED
+                sPlayerColour = ansi.RED
             elif oPlayer.in_team:
-                sPlayerColour = modANSI.GREEN
+                sPlayerColour = ansi.GREEN
             else:
-                sPlayerColour = modANSI.RESET_ALL
+                sPlayerColour = ansi.RESET_ALL
             if oPlayer.goals > 0:
-                print('{}┃{}{:>2} {:<14}{:<9}{:>5}{:>6} {}┃{}'.format(modANSI.MAGENTA, sPlayerColour, nIndex + 1, oPlayer.name, oPlayer.GetPosition(), oPlayer.caps, oPlayer.goals, modANSI.MAGENTA, modANSI.RESET_ALL))
-        print('{}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛{}'.format(modANSI.MAGENTA, modANSI.RESET_ALL))
+                print('{}┃{}{:>2} {:<14}{:<9}{:>5}{:>6} {}┃{}'.format(ansi.MAGENTA, sPlayerColour, nIndex + 1, oPlayer.name, oPlayer.GetPosition(), oPlayer.caps, oPlayer.goals, ansi.MAGENTA, ansi.RESET_ALL))
+        print('{}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛{}'.format(ansi.MAGENTA, ansi.RESET_ALL))
 
 
 
     def DisplayMatch(self, nHome, nAway):
         ''' Replacement for PROCDISPLAY in the BBC Basic version. '''
-        print('   {}{:^18}{}{:^18}{}'.format(self.teams[nHome].colour, self.teams[nHome].name, self.teams[nAway].colour, self.teams[nAway].name, modANSI.RESET_ALL))
+        print('   {}{:^18}{}{:^18}{}'.format(self.teams[nHome].colour, self.teams[nHome].name, self.teams[nAway].colour, self.teams[nAway].name, ansi.RESET_ALL))
         if True:
             print('Pos{:^18}{:^18}'.format(self.teams[nHome].position, self.teams[nAway].position))
         print('Eng{:^18}{:^18}'.format(self.teams[nHome].energy, self.teams[nAway].energy))
@@ -593,9 +593,9 @@ class CGame:
 
     def Wait(self):
         ''' Replacement for PROCWAIT in the BBC Basic version. '''
-        print('{}{}{} Press SPACE to continue {}{}'.format(modANSI.BACKGROUND_BLUE, modANSI.YELLOW, '━' * 7, '━' * 8, modANSI.RESET_ALL))
+        print('{}{}{} Press SPACE to continue {}{}'.format(ansi.BACKGROUND_BLUE, ansi.YELLOW, '━' * 7, '━' * 8, ansi.RESET_ALL))
         self.GetKeyboardCharacter([' '])
-        print('{}{}'.format(modANSI.CURSOR_UP(1), modANSI.ERASE_LINE), end = '\r')
+        print('{}{}'.format(ansi.getCursorUp(1), ansi.ERASE_LINE), end = '\r')
 
 
 
@@ -729,7 +729,7 @@ class CGame:
         ''' Replacement for PROCPICKTEAM in the BBC Basic version. '''
         nDivision = 1
         while True:
-            modANSI.CLS()
+            ansi.doCls()
             print(' 0 More Teams')
             print(' 1 Own Team')
             for nIndex in range(2, 17):
@@ -744,10 +744,10 @@ class CGame:
                 break;
             if nNumber == 1:
                 self.team_name = input('Enter Team name ')
-                self.team_colour = modANSI.CYAN
+                self.team_colour = ansi.CYAN
                 break;
             nDivision = 1 + (nDivision & 3)
-        print('You manage {}{}{}'.format(self.team_colour, self.team_name, modANSI.RESET_ALL))
+        print('You manage {}{}{}'.format(self.team_colour, self.team_name, ansi.RESET_ALL))
 
 
 
@@ -918,7 +918,7 @@ class CGame:
                     nAway = nIndex
 
             nHomeGoals, nAwayGoals = self.Match(nHome, nAway, 0.5, 0)
-            print('{}{:>17}{} {} - {} {}'.format(self.teams[nHome].colour, self.teams[nHome].name, modANSI.RESET_ALL, nHomeGoals, nAwayGoals, self.teams[nAway].GetColouredName()))
+            print('{}{:>17}{} {} - {} {}'.format(self.teams[nHome].colour, self.teams[nHome].name, ansi.RESET_ALL, nHomeGoals, nAwayGoals, self.teams[nAway].GetColouredName()))
             self.ApplyPoints(nHome, nAway, nHomeGoals, nAwayGoals)
 
 
@@ -956,43 +956,43 @@ class CGame:
         nHomeScore = 0
         nAwayScore = 0
         # print('{} {} - {} {}'.format(self.teams[nHomeTeam].GetColouredName(), nHomeScore, nAwayScore, self.teams[nAwayTeam].GetColouredName()))
-        print('{}{:>17}{} {} - {} {}'.format(self.teams[nHomeTeam].colour, self.teams[nHomeTeam].name, modANSI.RESET_ALL, nHomeScore, nAwayScore, self.teams[nAwayTeam].GetColouredName()))
+        print('{}{:>17}{} {} - {} {}'.format(self.teams[nHomeTeam].colour, self.teams[nHomeTeam].name, ansi.RESET_ALL, nHomeScore, nAwayScore, self.teams[nAwayTeam].GetColouredName()))
         for nTime in range(91):
             fRealTime = time.time()
 
             if nTime in naHomeGoals:
                 nHomeScore = nHomeScore + 1
-                modANSI.CursorUp(1)
+                ansi.doCursorUp(1)
                 # print('{} {} - {} {}'.format(self.teams[nHomeTeam].GetColouredName(), nHomeScore, nAwayScore, self.teams[nAwayTeam].GetColouredName()))
-                print('{}{:>17}{} {} - {} {}'.format(self.teams[nHomeTeam].colour, self.teams[nHomeTeam].name, modANSI.RESET_ALL, nHomeScore, nAwayScore, self.teams[nAwayTeam].GetColouredName()))
+                print('{}{:>17}{} {} - {} {}'.format(self.teams[nHomeTeam].colour, self.teams[nHomeTeam].name, ansi.RESET_ALL, nHomeScore, nAwayScore, self.teams[nAwayTeam].GetColouredName()))
                 nTotalScore = nHomeScore + nAwayScore
                 if nHomeTeam == self.team_index:
-                    modANSI.CursorDown(nTotalScore)
+                    ansi.doCursorDown(nTotalScore)
                     nScorer = random.randint(0, len(naScorers)-1)
                     print('{} {}'.format(nTime, naScorers[nScorer].name), end = '\r')
                     naScorers[nScorer].goals = naScorers[nScorer].goals + 1
-                    modANSI.CursorUp(nTotalScore)
+                    ansi.doCursorUp(nTotalScore)
                 else:
-                    modANSI.CursorDown(nTotalScore)
+                    ansi.doCursorDown(nTotalScore)
                     print('{} Goal'.format(nTime), end = '\r')
-                    modANSI.CursorUp(nTotalScore)
+                    ansi.doCursorUp(nTotalScore)
 
             if nTime in naAwayGoals:
                 nAwayScore = nAwayScore + 1
-                modANSI.CursorUp(1)
+                ansi.doCursorUp(1)
                 # print('{} {} - {} {}'.format(self.teams[nHomeTeam].GetColouredName(), nHomeScore, nAwayScore, self.teams[nAwayTeam].GetColouredName()))
-                print('{}{:>17}{} {} - {} {}'.format(self.teams[nHomeTeam].colour, self.teams[nHomeTeam].name, modANSI.RESET_ALL, nHomeScore, nAwayScore, self.teams[nAwayTeam].GetColouredName()))
+                print('{}{:>17}{} {} - {} {}'.format(self.teams[nHomeTeam].colour, self.teams[nHomeTeam].name, ansi.RESET_ALL, nHomeScore, nAwayScore, self.teams[nAwayTeam].GetColouredName()))
                 nTotalScore = nHomeScore + nAwayScore
                 if nAwayTeam == self.team_index:
-                    modANSI.CursorDown(nTotalScore)
+                    ansi.doCursorDown(nTotalScore)
                     nScorer = random.randint(0, len(naScorers)-1)
                     print('{}{} {}'.format(' ' * 22, nTime, naScorers[nScorer].name), end = '\r')
                     naScorers[nScorer].goals = naScorers[nScorer].goals + 1
-                    modANSI.CursorUp(nTotalScore)
+                    ansi.doCursorUp(nTotalScore)
                 else:
-                    modANSI.CursorDown(nTotalScore)
+                    ansi.doCursorDown(nTotalScore)
                     print('{}{} Goal'.format(' ' * 22, nTime), end = '\r')
-                    modANSI.CursorUp(nTotalScore)
+                    ansi.doCursorUp(nTotalScore)
 
 
             print('{}Time {}   '.format(' ' * 17, nTime), end = '\r')
@@ -1005,11 +1005,11 @@ class CGame:
                 # Did the fixture calculations here in the BBC Basic version.
                 time.sleep(4)
 
-        # Move down
-        modANSI.CursorDown(nHomeGoals + nAwayGoals + 1)
+        # Move down.
+        ansi.doCursorDown(nHomeGoals + nAwayGoals + 1)
         print('Final Score')
         # print('{} {} - {} {}'.format(self.teams[nHomeTeam].GetColouredName(), nHomeGoals, nAwayGoals, self.teams[nAwayTeam].GetColouredName()))
-        print('{}{:>17}{} {} - {} {}'.format(self.teams[nHomeTeam].colour, self.teams[nHomeTeam].name, modANSI.RESET_ALL, nHomeGoals, nAwayGoals, self.teams[nAwayTeam].GetColouredName()))
+        print('{}{:>17}{} {} - {} {}'.format(self.teams[nHomeTeam].colour, self.teams[nHomeTeam].name, ansi.RESET_ALL, nHomeGoals, nAwayGoals, self.teams[nAwayTeam].GetColouredName()))
         return nHomeGoals, nAwayGoals
 
 

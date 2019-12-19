@@ -64,36 +64,36 @@ ERASE_LINE = '\033[2K'
 
 
 
-def CURSOR_DOWN(nLines):
-    '''  Move the cursor down the specified number of lines. '''
-    return '\033[{}B'.format(nLines)
+def getCursorDown(lines):
+    ''' Return the code to move the cursor down the specified number of lines. '''
+    return '\033[{}B'.format(lines)
 
 
 
-def CURSOR_UP(nLines):
-    ''' Move the cursor up the specified number of lines. '''
-    return '\033[{}A'.format(nLines)
+def getCursorUp(lines):
+    ''' Return the code to move the cursor up the specified number of lines. '''
+    return '\033[{}A'.format(lines)
 
 
 
-def CURSOR_TO(nRow, nColumn):
-    ''' Move the cursor to the specified row and column. '''
-    return '\033[{};{}f'.format(nRow, nColumn)
+def getCursorTo(row, column):
+    ''' Return the code to move the cursor to the specified row and column. '''
+    return '\033[{};{}f'.format(row, column)
 
 
 
-def CLS():
+def doCls():
     ''' Clear the console window. '''
     print('\033[2J\033[;H', end = '')
 
 
 
-def CursorDown(nLines):
+def doCursorDown(lines):
     ''' Move the cursor down the specified number of lines. '''
-    print(CURSOR_DOWN(nLines), end = '\r')
+    print(getCursorDown(lines), end = '\r')
 
 
 
-def CursorUp(nLines):
+def doCursorUp(lines):
     ''' Move the cursor up the specified number of lines. '''
-    print(CURSOR_UP(nLines), end = '\r')
+    print(getCursorUp(lines), end = '\r')
