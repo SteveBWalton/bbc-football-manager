@@ -16,7 +16,7 @@ import sys
 import ansi
 import modInkey
 import modTeam
-import modPlayer
+from player import Player
 
 
 
@@ -166,7 +166,7 @@ class CGame:
             for oPlayer in self.players:
                 oPlayer.skill = random.randint(1, 5) + nSkillBonus
                 oPlayer.energy = random.randint(1, 20)
-                oPlayer.in_team = False
+                oPlayer.inTeam = False
                 oPlayer.injured = False
                 oPlayer.caps = 0
                 oPlayer.goals = 0
@@ -285,8 +285,8 @@ class CGame:
         ''' Replacement for PROCRESET (line 3200) in the BBC Basic version. '''
         self.teams[self.team_index].energy = 0
         for oPlayer in self.players:
-            if oPlayer.in_squad:
-                if oPlayer.in_team:
+            if oPlayer.inSquad:
+                if oPlayer.inTeam:
                     oPlayer.energy = oPlayer.energy - random.randint(1, 2)
                     if oPlayer.energy < 1:
                         oPlayer.energy = 1
@@ -309,7 +309,7 @@ class CGame:
             return
         self.DropPlayer(nPlayer)
         self.players[nPlayer].injured = True
-        if self.players[nPlayer].in_squad:
+        if self.players[nPlayer].inSquad:
             print('{}{} has been injured.{}'.format(ansi.RED, self.players[nPlayer].name, ansi.RESET_ALL))
             self.num_injured = self.num_injured + 1
 
@@ -321,7 +321,7 @@ class CGame:
             if oPlayer.injured:
                 if random.randint(1, 3) == 1:
                     oPlayer.injured = False
-                    if oPlayer.in_squad:
+                    if oPlayer.inSquad:
                         print('{}{} is fit.{}'.format(ansi.GREEN, oPlayer.name, ansi.RESET_ALL))
                         self.num_injured = self.num_injured - 1
 
@@ -331,8 +331,8 @@ class CGame:
         ''' Replacement for PROCPTEAM (line 2130) in the BBC Basic version. '''
         print('   Player        Skill Energy')
         for oPlayer in self.players:
-            if oPlayer.in_squad:
-                oPlayer.WriteRow()
+            if oPlayer.inSquad:
+                oPlayer.writeRow()
 
 
 
@@ -347,7 +347,7 @@ class CGame:
                     break;
                 if nNumber >= 1 and nNumber <= 26:
                     nNumber = nNumber - 1
-                    if self.players[nNumber].in_squad:
+                    if self.players[nNumber].inSquad:
                         self.AddPlayer(nNumber)
             else:
                 nNumber = self.EnterNumber('Enter Player to Drop ')
@@ -359,38 +359,38 @@ class CGame:
     def DropPlayer(self, nIndex):
         ''' Replacement for PROCDROP (line ????) in the BBC Basic version. '''
         oPlayer = self.players[nIndex]
-        if oPlayer.in_team == False:
+        if oPlayer.inTeam == False:
             return
-        oPlayer.in_team = False
-        if oPlayer.position == modPlayer.DEFENSE:
+        oPlayer.inTeam = False
+        if oPlayer.position == Player.DEFENSE:
             self.team.defence = self.team.defence - oPlayer.skill
-        elif oPlayer.position == modPlayer.MIDFIELD:
+        elif oPlayer.position == Player.MIDFIELD:
             self.team.midfield = self.team.midfield - oPlayer.skill
         else:
             self.team.attack = self.team.attack - oPlayer.skill
         self.team.energy = self.team.energy - oPlayer.energy
         self.num_team = self.num_team - 1
         self.formation[oPlayer.position] = self.formation[oPlayer.position] - 1
-        self.team.formation = '{}-{}-{}'.format(self.formation[modPlayer.DEFENSE]-1, self.formation[modPlayer.MIDFIELD], self.formation[modPlayer.ATTACK])
+        self.team.formation = '{}-{}-{}'.format(self.formation[Player.DEFENSE]-1, self.formation[Player.MIDFIELD], self.formation[Player.ATTACK])
 
 
 
     def AddPlayer(self, nIndex):
         ''' Replacement for PROCIN (line 1580) in the BBC Basic version. '''
         oPlayer = self.players[nIndex]
-        if oPlayer.in_team:
+        if oPlayer.inTeam:
             return
-        oPlayer.in_team = True
-        if oPlayer.position == modPlayer.DEFENSE:
+        oPlayer.inTeam = True
+        if oPlayer.position == Player.DEFENSE:
             self.team.defence = self.team.defence + oPlayer.skill
-        elif oPlayer.position == modPlayer.MIDFIELD:
+        elif oPlayer.position == Player.MIDFIELD:
             self.team.midfield = self.team.midfield + oPlayer.skill
         else:
             self.team.attack = self.team.attack + oPlayer.skill
         self.team.energy = self.team.energy + oPlayer.energy
         self.num_team = self.num_team + 1
         self.formation[oPlayer.position] = self.formation[oPlayer.position] + 1
-        self.team.formation = '{}-{}-{}'.format(self.formation[modPlayer.DEFENSE]-1, self.formation[modPlayer.MIDFIELD], self.formation[modPlayer.ATTACK])
+        self.team.formation = '{}-{}-{}'.format(self.formation[Player.DEFENSE]-1, self.formation[Player.MIDFIELD], self.formation[Player.ATTACK])
 
 
 
@@ -403,14 +403,14 @@ class CGame:
         nPlayerNumber = self.EnterNumber('>')
         if nPlayerNumber >= 1 and nPlayerNumber <= 26:
             nPlayerNumber = nPlayerNumber - 1
-            if self.players[nPlayerNumber].in_squad:
+            if self.players[nPlayerNumber].inSquad:
                 nPrice = int((self.players[nPlayerNumber].skill + random.uniform(0, 1)) * 5000 * (5 - self.division))
                 print('You are offered £{:,.2f}'.format(nPrice))
                 print('Do you accept (Y/N)?')
                 if self.YesNo():
                     self.num_squad = self.num_squad - 1
                     self.DropPlayer(nPlayerNumber)
-                    self.players[nPlayerNumber].in_squad = False
+                    self.players[nPlayerNumber].inSquad = False
                     self.money = self.money + nPrice
                     self.money_message = self.money_message + self.FinancialLine(self.players[nPlayerNumber].name + ' sold', nPrice, 0) + "\n";
             else:
@@ -428,17 +428,17 @@ class CGame:
         else:
             while True:
                 nPlayer = random.randint(0, 25)
-                if self.players[nPlayer].in_squad == False:
+                if self.players[nPlayer].inSquad == False:
                     break;
             # ansi.doCls()
             self.players[nPlayer].skill = max(self.players[nPlayer].skill, random.randint(1, 5) + (1 if self.division <= 2 else 0))
-            if self.players[nPlayer].position == modPlayer.DEFENSE:
+            if self.players[nPlayer].position == Player.DEFENSE:
                 print('Defence')
-            elif self.players[nPlayer].position == modPlayer.MIDFIELD:
+            elif self.players[nPlayer].position == Player.MIDFIELD:
                 print('Mid-field')
             else:
                 print('Attack')
-            self.players[nPlayer].WriteRow(5000 * (5 - self.division))
+            self.players[nPlayer].writeRow(5000 * (5 - self.division))
             print('You have £{:,.2f}'.format(self.money))
             nBid = self.EnterNumber('Enter your bid: ')
             if nBid <= 0:
@@ -449,7 +449,7 @@ class CGame:
             elif nBid > nPrice:
                 print('{}{} is added to your squad.{}'.format(ansi.GREEN, self.players[nPlayer].name, ansi.RESET_ALL))
                 self.num_squad = self.num_squad + 1
-                self.players[nPlayer].in_squad = True
+                self.players[nPlayer].inSquad = True
                 self.money = self.money - nBid
                 self.money_message = self.money_message + self.FinancialLine(self.players[nPlayer].name + ' bought', 0, nBid) + "\n";
 
@@ -549,11 +549,11 @@ class CGame:
             oPlayer = oPlayersByCaps[nIndex]
             if oPlayer.injured:
                 sPlayerColour = ansi.RED
-            elif oPlayer.in_team:
+            elif oPlayer.inTeam:
                 sPlayerColour = ansi.GREEN
             else:
                 sPlayerColour = ansi.RESET_ALL
-            print('{}┃{}{:>2} {:<14}{:<9}{:>5}{:>6} {}┃{}'.format(ansi.MAGENTA, sPlayerColour, nIndex + 1, oPlayer.name, oPlayer.GetPosition(), oPlayer.caps, oPlayer.goals, ansi.MAGENTA, ansi.RESET_ALL))
+            print('{}┃{}{:>2} {:<14}{:<9}{:>5}{:>6} {}┃{}'.format(ansi.MAGENTA, sPlayerColour, nIndex + 1, oPlayer.name, oPlayer.getPosition(), oPlayer.caps, oPlayer.goals, ansi.MAGENTA, ansi.RESET_ALL))
 
         # Top Scorers.
         oPlayersByGoals = sorted(self.players, key=lambda CPlayer: CPlayer.goals, reverse=True)
@@ -563,12 +563,12 @@ class CGame:
             oPlayer = oPlayersByGoals[nIndex]
             if oPlayer.injured:
                 sPlayerColour = ansi.RED
-            elif oPlayer.in_team:
+            elif oPlayer.inTeam:
                 sPlayerColour = ansi.GREEN
             else:
                 sPlayerColour = ansi.RESET_ALL
             if oPlayer.goals > 0:
-                print('{}┃{}{:>2} {:<14}{:<9}{:>5}{:>6} {}┃{}'.format(ansi.MAGENTA, sPlayerColour, nIndex + 1, oPlayer.name, oPlayer.GetPosition(), oPlayer.caps, oPlayer.goals, ansi.MAGENTA, ansi.RESET_ALL))
+                print('{}┃{}{:>2} {:<14}{:<9}{:>5}{:>6} {}┃{}'.format(ansi.MAGENTA, sPlayerColour, nIndex + 1, oPlayer.name, oPlayer.getPosition(), oPlayer.caps, oPlayer.goals, ansi.MAGENTA, ansi.RESET_ALL))
         print('{}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛{}'.format(ansi.MAGENTA, ansi.RESET_ALL))
 
 
@@ -635,8 +635,8 @@ class CGame:
         # Initialise the players.
         self.players = []
         for nIndex in range(1, 27):
-            oPlayer = modPlayer.CPlayer()
-            oPlayer.GetPlayer(nIndex)
+            oPlayer = Player()
+            oPlayer.getPlayer(nIndex)
             oPlayer.skill = random.randint(1, 5)
             oPlayer.energy = random.randint(1, 20)
             self.players.append(oPlayer)
@@ -648,9 +648,9 @@ class CGame:
         self.num_squad = 12
         for nIndex in range(self.num_squad):
             nPlayer = random.randint(0, 25)
-            while self.players[nPlayer].in_squad:
+            while self.players[nPlayer].inSquad:
                 nPlayer = random.randint(0, 25)
-            self.players[nPlayer].in_squad = True
+            self.players[nPlayer].inSquad = True
 
         # Initialise the teams.
         self.teams = None
@@ -662,7 +662,7 @@ class CGame:
         self.num_team = 0
         self.num_injured = 0
         for nIndex in range(26):
-            if self.players[nIndex].in_squad:
+            if self.players[nIndex].inSquad:
                 if self.num_team < 11:
                     self.AddPlayer(nIndex)
 
@@ -867,7 +867,7 @@ class CGame:
         # Load the players.
         self.players = []
         for nIndex in range(26):
-            oPlayer = modPlayer.CPlayer()
+            oPlayer = Player()
             oPlayer.Load(oFile)
             self.players.append(oPlayer)
 
@@ -943,10 +943,10 @@ class CGame:
         # Decide who might score.
         naScorers = []
         for oPlayer in self.players:
-            if oPlayer.in_team:
-                if oPlayer.position == modPlayer.DEFENSE:
+            if oPlayer.inTeam:
+                if oPlayer.position == Player.DEFENSE:
                     naScorers.append(oPlayer)
-                elif oPlayer.position == modPlayer.MIDFIELD:
+                elif oPlayer.position == Player.MIDFIELD:
                     for nCount in range(oPlayer.skill):
                         naScorers.append(oPlayer)
                 else:
