@@ -41,7 +41,7 @@ class CGame:
 
     def Run(self):
         ''' Execute the football manager game. '''
-        self.keyboard = modInkey.CInkey()
+        self.keyboard = modInkey.InKey()
         random.seed()
 
         ansi.doCls()
@@ -777,7 +777,7 @@ class CGame:
         sCharacter = modInkey.getwch()
         while not (sCharacter in allowed):
             sCharacter = modInkey.getwch()
-        self.keyboard.Stop()
+        self.keyboard.stop()
         return sCharacter
 
 

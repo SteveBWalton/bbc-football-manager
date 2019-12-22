@@ -20,11 +20,11 @@ try:
     # import msvcrt
     from msvcrt import getwch # , kbhit
     # print('Using Windows getwch().')
-    UseLinux = False
+    isLinux = False
 except ImportError:
     # Define non-Windows version.
     # print('Using Linux getwch().')
-    UseLinux = True
+    isLinux = True
     import tty
     import termios
     def getwch():
@@ -44,7 +44,7 @@ except ImportError:
 
 
 
-class CInkey:
+class InKey:
     ''' Class to provide a keyboard scan function like BBC Basic InKey(). '''
 
 
@@ -52,8 +52,8 @@ class CInkey:
     def __init__(self):
         ''' Class constructor. '''
         # print('CInKey class constructor.')
-        self.sLastKey = None
-        if UseLinux:
+        self.lastKey = None
+        if isLinux:
             fd = sys.stdin.fileno()
             self.old_settings = termios.tcgetattr(fd)
         # print('CInKey class constructor finished.')
@@ -62,21 +62,21 @@ class CInkey:
     def __del__(self):
         ''' Class destructor. '''
         # print('CInKey class destructor.')
-        self.Stop()
+        self.stop()
 
 
 
-    def Start(self):
+    def start(self):
         ''' Start the keyboard monitoring.  This was in the class constructor initially. '''
         # print('_thread.start_new_thread.')
         _thread.start_new_thread(self._keypress, ())
 
 
 
-    def Stop(self):
+    def stop(self):
         ''' Restore the terminal. Sometimes there is an extra setcbreak() call.  So call here at the end to restore the ECHO after this setcbreak() call.'''
         # print('Close')
-        if UseLinux:
+        if isLinux:
             self.old_settings[3] = self.old_settings[3] | termios.ECHO
             fd = sys.stdin.fileno()
             termios.tcsetattr(fd, termios.TCSADRAIN, self.old_settings)
@@ -92,53 +92,52 @@ class CInkey:
         # print('_keypress().start')
         # This does not work under minitty.
         # print ('_keypress.getwch()')
-        self.sLastKey = getwch()
+        self.lastKey = getwch()
         # print('_keypress().finish')
 
 
 
-    def InKey(self, bContinue=True):
+    def inKey(self, isContinue=True):
         ''' Return the last (current) keypress or None for no keypress. '''
-        if self.sLastKey == None:
-            sReturn = None
+        if self.lastKey == None:
+            result = None
             # print('No Key pressed.')
         else:
-            sReturn = self.sLastKey
-            # print('"{}" key pressed.'.format(sReturn))
-            self.sLastKey = None
-            if bContinue:
+            result = self.lastKey
+            # print('"{}" key pressed.'.format(result))
+            self.lastKey = None
+            if isContinue:
                 # Scan for the next key.
                 _thread.start_new_thread(self._keypress, ())
             else:
-                self.Stop()
-        return sReturn
+                self.stop()
+        return result
 
 
 
 def main():
-    # print('Hello from modInKey.py')
-    oInKey = CInKey()
-    # print('CInkey object created.')
-    nWait = 10000
-    while nWait > 0:
-        sCharacter = oInKey.InKey()
-        if sCharacter == None:
+    inKey = InKey()
+    inKey.start()
+    wait = 10000
+    while wait > 0:
+        character = inKey.inKey()
+        if character == None:
             pass
             print('No Key pressed.')
         else:
-            print('"{}" key pressed.'.format(sCharacter))
-            if sCharacter == 'q' or sCharacter == '\x1b':  # x1b is ESC
+            print('"{}" key pressed.'.format(character))
+            if character == 'q' or character == '\x1b':  # x1b is ESC
                 break
-                nWait = 10
+                wait = 10
         time.sleep(1)
-        nWait = nWait - 1
+        wait -= 1
 
     time.sleep(1)
     time.sleep(1)
     time.sleep(1)
     time.sleep(1)
     time.sleep(1)
-    oInKey.Close()
+    inKey.stop()
 
 
 
