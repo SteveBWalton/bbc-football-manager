@@ -10,8 +10,7 @@ Under Windows.
 '''
 
 import sys
-# Don't use _thread use threading instead!
-import _thread
+import threading
 import time
 
 
@@ -69,8 +68,8 @@ class InKey:
 
     def start(self):
         ''' Start the keyboard monitoring.  This was in the class constructor initially. '''
-        # print('_thread.start_new_thread.')
-        _thread.start_new_thread(self._keypress, ())
+        thread = threading.Thread(target=self._keypress, args=())
+        thread.start()
 
 
 
@@ -109,7 +108,9 @@ class InKey:
             self.lastKey = None
             if isContinue:
                 # Scan for the next key.
-                _thread.start_new_thread(self._keypress, ())
+                thread = threading.Thread(target=self._keypress, args=())
+                thread.start()
+
             else:
                 self.stop()
         return result
