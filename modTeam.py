@@ -11,8 +11,9 @@ import json
 
 # Application Libraries.
 import ansi
-import modInkey
 import modGame
+
+
 
 class CTeam:
     ''' Class to represent a team in the BBC Football Manager game. '''

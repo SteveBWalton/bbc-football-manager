@@ -10,6 +10,7 @@ Under Windows.
 '''
 
 import sys
+# Don't use _thread use threading instead!
 import _thread
 import time
 
@@ -55,7 +56,7 @@ class InKey:
         self.lastKey = None
         if isLinux:
             fd = sys.stdin.fileno()
-            self.old_settings = termios.tcgetattr(fd)
+            self.oldSettings = termios.tcgetattr(fd)
         # print('CInKey class constructor finished.')
 
 
@@ -77,9 +78,9 @@ class InKey:
         ''' Restore the terminal. Sometimes there is an extra setcbreak() call.  So call here at the end to restore the ECHO after this setcbreak() call.'''
         # print('Close')
         if isLinux:
-            self.old_settings[3] = self.old_settings[3] | termios.ECHO
+            self.oldSettings[3] = self.oldSettings[3] | termios.ECHO
             fd = sys.stdin.fileno()
-            termios.tcsetattr(fd, termios.TCSADRAIN, self.old_settings)
+            termios.tcsetattr(fd, termios.TCSADRAIN, self.oldSettings)
             # Use 'stty --all' to see all terminal settings.
             # Use 'stty echo' to turn echo back on (for example).
 
@@ -112,6 +113,12 @@ class InKey:
             else:
                 self.stop()
         return result
+
+
+
+    def getKey(self):
+        ''' Get a key from the keyboard.  This function will block until a key is pressed. This does not need a start() but it does require a stop() to restore the echo. '''
+        return getwch()
 
 
 

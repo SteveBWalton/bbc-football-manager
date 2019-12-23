@@ -14,7 +14,7 @@ import sys
 
 # Application Libraries.
 import ansi
-import modInkey
+from inkey import InKey
 import modTeam
 from player import Player
 
@@ -41,7 +41,7 @@ class CGame:
 
     def Run(self):
         ''' Execute the football manager game. '''
-        self.keyboard = modInkey.InKey()
+        self.keyboard = InKey()
         random.seed()
 
         ansi.doCls()
@@ -774,9 +774,11 @@ class CGame:
     def GetKeyboardCharacter(self, allowed):
         ''' Return a keyboard character from the allowed characters. '''
         # No Repeat Until in Python.
-        sCharacter = modInkey.getwch()
+        # sCharacter = modInkey.getwch()
+        sCharacter = self.keyboard.getKey()
         while not (sCharacter in allowed):
-            sCharacter = modInkey.getwch()
+            # sCharacter = modInkey.getwch()
+            sCharacter = self.keyboard.getKey()
         self.keyboard.stop()
         return sCharacter
 
