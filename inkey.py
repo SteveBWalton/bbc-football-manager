@@ -9,11 +9,15 @@ Under Windows.
     This does not work under minitty.
 '''
 
+# System Libraries.
 import sys
 import threading
 import time
 
 
+# Define a getwch() function.
+# Either by importing from msvcrt (windows)
+# or by implementation (linux).
 try:
     # Try to import Windows version.
     # print('Try to import Windows version')
