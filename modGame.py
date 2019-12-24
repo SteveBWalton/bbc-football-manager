@@ -15,7 +15,7 @@ import sys
 # Application Libraries.
 import ansi
 from inkey import InKey
-import modTeam
+from team import Team
 from player import Player
 
 
@@ -29,12 +29,12 @@ class CGame:
         ''' Class constructor for the BBC Football manager game. '''
         self.player_name = ''
         self.level = 1
-        self.team_name = ''
-        self.team_colour = ansi.WHITE
-        self.team_index = None
-        self.num_squad = 0
-        self.num_team = 0
-        self.num_injured = 0
+        self.teamName = ''
+        self.teamColour = ansi.WHITE
+        self.teamIndex = None
+        self.numSquad = 0
+        self.numTeam = 0
+        self.numInjured = 0
         self.formation = [0, 0, 0]
 
 
@@ -53,15 +53,15 @@ class CGame:
 
         # Select the level.
         print('Enter level [1-4]')
-        self.level = int(self.GetKeyboardCharacter(['1', '2', '3', '4']))
+        self.level = int(self.getKeyboardCharacter(['1', '2', '3', '4']))
         print('Level {} was selected'.format(self.level))
 
         # Load a game.
         print('Do you want to load a game?')
-        if self.YesNo():
+        if self.getYesNo():
             print('Yes')
             self.Load()
-            self.SortDivision()
+            self.sortDivision()
         else:
             print('No')
             self.NewGame()
@@ -69,13 +69,13 @@ class CGame:
         # Play the game.
         nYear = 0
         while True:
-            self.money_start = self.money - self.debt
-            self.money_message = ''
+            self.moneyStart = self.money - self.debt
+            self.moneyMessage = ''
 
             # Play a season.
             while self.match < 30:
                 ansi.doCls()
-                print('{} MANAGER: {}'.format(self.team.GetColouredName(), self.player_name))
+                print('{} MANAGER: {}'.format(self.team.getColouredName(), self.player_name))
                 print('LEVEL: {}'.format(self.level))
                 print()
                 print('1 .. Sell Players / View Squad')
@@ -86,68 +86,68 @@ class CGame:
                 print('6 .. Restart')
                 print('7 .. League Table')
                 print('8 .. Quit')
-                sKey = self.GetKeyboardCharacter(['1', '2', '3', '4', '5', '6', '7', '8'])
-                if sKey == '1':
+                keyPress = self.getKeyboardCharacter(['1', '2', '3', '4', '5', '6', '7', '8'])
+                if keyPress == '1':
                     self.SellPlayer()
-                elif sKey == '2':
+                elif keyPress == '2':
                     self.Bank()
-                elif sKey == '3':
+                elif keyPress == '3':
                     # PROCRENAME
                     pass
-                elif sKey == '4':
+                elif keyPress == '4':
                     # Continue.
-                    self.PlayWeek()
-                elif sKey == '5':
+                    self.playWeek()
+                elif keyPress == '5':
                     self.Save(True)
-                elif sKey == '6':
+                elif keyPress == '6':
                     # PROCRESTART
                     pass
-                elif sKey == '7':
+                elif keyPress == '7':
                     ansi.doCls()
-                    self.ShowLeague()
-                    self.Wait()
-                elif sKey == '8':
+                    self.showLeague()
+                    self.wait()
+                elif keyPress == '8':
                     # Confirm with the user.
                     print('Are you sure you want to exit the program (Y/N) ?')
-                    if self.YesNo():
+                    if self.getYesNo():
                         return
 
             # Season has finished.
             ansi.doCls()
             print('Season has finished.')
-            self.ShowLeague()
-            self.Wait()
+            self.showLeague()
+            self.wait()
 
             if self.division == 1:
                 print('Qualify for Europe')
             else:
                 print('Promotion')
             for nIndex in range(0, 3):
-                print(self.teams[nIndex].GetColouredName())
+                print(self.teams[nIndex].getColouredName())
             if self.division != 4:
                 print('Relegation')
                 for nIndex in range(13, 16):
-                    print(self.teams[nIndex].GetColouredName())
+                    print(self.teams[nIndex].getColouredName())
 
             # Rebuild the new league.
             sExclued = []
-            if self.division != 1 and self.team_index <= 2:
+            if self.division != 1 and self.teamIndex <= 2:
                 # Promotion.
                 self.division = self.division - 1
-                print('{} are promoted to division {}'.format(self.teams[self.team_index].GetColouredName(), self.division))
+                print('{} are promoted to division {}'.format(self.teams[self.teamIndex].getColouredName(), self.division))
                 for nIndex in range(3, 13):
                     sExclued.append(self.teams[nIndex].name)
                     self.teams[nIndex].name = ''
-            elif self.division != 4 and self.team_index >= 13:
+            elif self.division != 4 and self.teamIndex >= 13:
                 # Relegation.
                 self.division = self.division + 1
-                print('{} are relegated to division {}'.format(self.teams[self.team_index].GetColouredName(), self.division))
+                print('{} are relegated to division {}'.format(self.teams[self.teamIndex].getColouredName(), self.division))
                 for nIndex in range(0, 13):
                     sExclued.append(self.teams[nIndex].name)
                     self.teams[nIndex].name = ''
             else:
                 # Same division.
-                print('{} stay in division {}'.format(self.teams[self.team_index].GetColouredName(), self.division))
+                print('{} stay in division {}'.format(self.teams[self.teamIndex].getColouredName(), self.division))
                 if self.division != 1:
                     for nIndex in range(0, 3):
                         sExclued.append(self.teams[nIndex].name)
@@ -159,8 +159,8 @@ class CGame:
             self.SetTeamsForDivision(sExclued)
 
             # Reskill the players.
-            self.num_team = 0
-            self.num_injured = 0
+            self.numTeam = 0
+            self.numInjured = 0
             self.formation = [0, 0, 0]
             nSkillBonus = 1 if self.division <= 2 else 0
             for oPlayer in self.players:
@@ -176,40 +176,40 @@ class CGame:
 
             self.match = 0
 
-            self.Wait()
+            self.wait()
 
 
 
-    def PlayWeek(self):
+    def playWeek(self):
         ''' This is the block of code that was after the menu in the week loop of the BBC Basic version. Line 740 onward.'''
         self.match = self.match + 1
 
         # Decide and play any cup matches.
 
         # Choose an opponent for the league match.
-        self.team.played_home = True
-        self.team.played_away = True
+        self.team.isPlayedHome = True
+        self.team.isPlayedAway = True
         while True:
             nOpponent = random.randint(0, 15)
-            bHome = (self.match & 1) == 1
-            if bHome:
-                if self.teams[nOpponent].played_home == False:
-                    self.teams[nOpponent].played_home = True
+            isHomeMatch = (self.match & 1) == 1
+            if isHomeMatch:
+                if self.teams[nOpponent].isPlayedHome == False:
+                    self.teams[nOpponent].isPlayedHome = True
                     break;
             else:
-                if self.teams[nOpponent].played_away == False:
-                    self.teams[nOpponent].played_away = True
+                if self.teams[nOpponent].isPlayedAway == False:
+                    self.teams[nOpponent].isPlayedAway = True
                     break;
 
         # Let the player select the players for the team.
         while True:
             ansi.doCls()
-            if bHome:
-                self.DisplayMatch(self.team_index, nOpponent)
+            if isHomeMatch:
+                self.DisplayMatch(self.teamIndex, nOpponent)
             else:
-                self.DisplayMatch(nOpponent, self.team_index)
-            sKey = self.GetKeyboardCharacter(['c', '\t'])
-            if sKey == '\t':
+                self.DisplayMatch(nOpponent, self.teamIndex)
+            keyPress = self.getKeyboardCharacter(['c', '\t'])
+            if keyPress == '\t':
                 break;
             # Pick the player.
             self.PickPlayers()
@@ -219,17 +219,17 @@ class CGame:
         print(ansi.ERASE_LINE)
 
         # Play the match.
-        if bHome:
-            nPlayerGoals, nOpponentGoals = self.PlayMatch(self.team_index, nOpponent, 0.5, 0)
-            self.ApplyPoints(self.team_index, nOpponent, nPlayerGoals, nOpponentGoals)
+        if isHomeMatch:
+            nPlayerGoals, nOpponentGoals = self.PlayMatch(self.teamIndex, nOpponent, 0.5, 0)
+            self.ApplyPoints(self.teamIndex, nOpponent, nPlayerGoals, nOpponentGoals)
         else:
-            nOpponentGoals, nPlayerGoals = self.PlayMatch(nOpponent, self.team_index, 0.5, 0)
-            self.ApplyPoints(nOpponent, self.team_index, nOpponentGoals, nPlayerGoals)
+            nOpponentGoals, nPlayerGoals = self.PlayMatch(nOpponent, self.teamIndex, 0.5, 0)
+            self.ApplyPoints(nOpponent, self.teamIndex, nOpponentGoals, nPlayerGoals)
 
         # Calculate the gate money.
-        if bHome:
-            self.gate_money = (9000 + (15 - self.team_index - nOpponent) * 500) * (5 - self.division) + random.randint(0, 1000)
-            if abs(self.teams[self.team_index].pts - self.teams[nOpponent].pts) < 4:
+        if isHomeMatch:
+            self.gate_money = (9000 + (15 - self.teamIndex - nOpponent) * 500) * (5 - self.division) + random.randint(0, 1000)
+            if abs(self.teams[self.teamIndex].pts - self.teams[nOpponent].pts) < 4:
                 self.gate_money += (5 - self.division) * 3000
         else:
             self.gate_money = 0
@@ -240,15 +240,15 @@ class CGame:
         # Decided the fixtures for the league was at half time of the playmatch.
         self.Fixtures(nOpponent)
 
-        self.Wait()
+        self.wait()
 
         self.Rest()
-        self.SortDivision()
-        self.Wait()
+        self.sortDivision()
+        self.wait()
 
         ansi.doCls()
-        self.ShowLeague()
-        self.Wait()
+        self.showLeague()
+        self.wait()
 
         self.Market()
         self.Report()
@@ -256,7 +256,7 @@ class CGame:
         ansi.doCls()
         self.PlayerCaps()
         self.PlayerFit()
-        self.Wait()
+        self.wait()
 
 
 
@@ -283,14 +283,14 @@ class CGame:
 
     def PlayerEngergy(self):
         ''' Replacement for PROCRESET (line 3200) in the BBC Basic version. '''
-        self.teams[self.team_index].energy = 0
+        self.teams[self.teamIndex].energy = 0
         for oPlayer in self.players:
             if oPlayer.inSquad:
                 if oPlayer.inTeam:
                     oPlayer.energy = oPlayer.energy - random.randint(1, 2)
                     if oPlayer.energy < 1:
                         oPlayer.energy = 1
-                    self.teams[self.team_index].energy = self.teams[self.team_index].energy + oPlayer.energy
+                    self.teams[self.teamIndex].energy = self.teams[self.teamIndex].energy + oPlayer.energy
                     oPlayer.caps = oPlayer.caps + 1
                 else:
                     oPlayer.energy = oPlayer.energy + 9
@@ -311,7 +311,7 @@ class CGame:
         self.players[nPlayer].injured = True
         if self.players[nPlayer].inSquad:
             print('{}{} has been injured.{}'.format(ansi.RED, self.players[nPlayer].name, ansi.RESET_ALL))
-            self.num_injured = self.num_injured + 1
+            self.numInjured = self.numInjured + 1
 
 
 
@@ -323,7 +323,7 @@ class CGame:
                     oPlayer.injured = False
                     if oPlayer.inSquad:
                         print('{}{} is fit.{}'.format(ansi.GREEN, oPlayer.name, ansi.RESET_ALL))
-                        self.num_injured = self.num_injured - 1
+                        self.numInjured = self.numInjured - 1
 
 
 
@@ -341,7 +341,7 @@ class CGame:
         while True:
             ansi.doCls()
             self.DisplaySquad()
-            if self.num_team <= 11:
+            if self.numTeam <= 11:
                 nNumber = self.EnterNumber('>')
                 if nNumber == 0:
                     break;
@@ -369,7 +369,7 @@ class CGame:
         else:
             self.team.attack = self.team.attack - oPlayer.skill
         self.team.energy = self.team.energy - oPlayer.energy
-        self.num_team = self.num_team - 1
+        self.numTeam = self.numTeam - 1
         self.formation[oPlayer.position] = self.formation[oPlayer.position] - 1
         self.team.formation = '{}-{}-{}'.format(self.formation[Player.DEFENSE]-1, self.formation[Player.MIDFIELD], self.formation[Player.ATTACK])
 
@@ -388,7 +388,7 @@ class CGame:
         else:
             self.team.attack = self.team.attack + oPlayer.skill
         self.team.energy = self.team.energy + oPlayer.energy
-        self.num_team = self.num_team + 1
+        self.numTeam = self.numTeam + 1
         self.formation[oPlayer.position] = self.formation[oPlayer.position] + 1
         self.team.formation = '{}-{}-{}'.format(self.formation[Player.DEFENSE]-1, self.formation[Player.MIDFIELD], self.formation[Player.ATTACK])
 
@@ -407,22 +407,22 @@ class CGame:
                 nPrice = int((self.players[nPlayerNumber].skill + random.uniform(0, 1)) * 5000 * (5 - self.division))
                 print('You are offered £{:,.2f}'.format(nPrice))
                 print('Do you accept (Y/N)?')
-                if self.YesNo():
-                    self.num_squad = self.num_squad - 1
+                if self.getYesNo():
+                    self.numSquad = self.numSquad - 1
                     self.DropPlayer(nPlayerNumber)
                     self.players[nPlayerNumber].inSquad = False
                     self.money = self.money + nPrice
-                    self.money_message = self.money_message + self.FinancialLine(self.players[nPlayerNumber].name + ' sold', nPrice, 0) + "\n";
+                    self.moneyMessage = self.moneyMessage + self.FinancialLine(self.players[nPlayerNumber].name + ' sold', nPrice, 0) + "\n";
             else:
                 print('On range')
-            self.Wait()
+            self.wait()
 
 
 
 
     def Market(self):
         ''' Replacement for PROCMARKET (line 3330) in the BBC Basic version. '''
-        if self.num_squad >= 18:
+        if self.numSquad >= 18:
             # ansi.doCls()
             print('{}F.A. rules state that one team may not have more that 18 players. You already have 18 players therefore you may not buy another.{}'.format(ansi.RED, ansi.RESET_ALL))
         else:
@@ -448,15 +448,15 @@ class CGame:
                 print('{}You do not have enough money{}'.format(ansi.RED, ansi.RESET_ALL))
             elif nBid > nPrice:
                 print('{}{} is added to your squad.{}'.format(ansi.GREEN, self.players[nPlayer].name, ansi.RESET_ALL))
-                self.num_squad = self.num_squad + 1
+                self.numSquad = self.numSquad + 1
                 self.players[nPlayer].inSquad = True
                 self.money = self.money - nBid
-                self.money_message = self.money_message + self.FinancialLine(self.players[nPlayer].name + ' bought', 0, nBid) + "\n";
+                self.moneyMessage = self.moneyMessage + self.FinancialLine(self.players[nPlayer].name + ' bought', 0, nBid) + "\n";
 
             else:
                 if nBid > 0:
                     print('{}Your bid is turned down.{}'.format(ansi.RED, ansi.RESET_ALL))
-        self.Wait()
+        self.wait()
 
 
 
@@ -465,29 +465,29 @@ class CGame:
         if self.gate_money > 0:
             print(self.FinancialLine('Gate Money', self.gate_money, 0))
             self.money += self.gate_money
-        print(self.FinancialLine('Paid to Squad', 0, self.num_squad * 500 * (5 - self.division)))
-        self.money -= self.num_squad * 500 * (5 - self.division)
-        if self.money_message != '':
-            print(self.money_message, end = '')
+        print(self.FinancialLine('Paid to Squad', 0, self.numSquad * 500 * (5 - self.division)))
+        self.money -= self.numSquad * 500 * (5 - self.division)
+        if self.moneyMessage != '':
+            print(self.moneyMessage, end = '')
         if self.debt > 0:
             nInterest = int (self.debt * 0.005)
             print(self.FinancialLine('Interest', 0, nInterest))
             self.money = self.money - nInterest
         print('━' * 40)
-        if self.money - self.debt >= self.money_start:
-            print(self.FinancialLine('Profit', self.money - self.debt - self.money_start, 0))
+        if self.money - self.debt >= self.moneyStart:
+            print(self.FinancialLine('Profit', self.money - self.debt - self.moneyStart, 0))
         else:
-            print(self.FinancialLine('Loss', 0, self.money_start - self.money + self.debt))
+            print(self.FinancialLine('Loss', 0, self.moneyStart - self.money + self.debt))
         print('━' * 40)
 
         print(self.FinancialLine('Cash', self.money, 0))
         print(self.FinancialLine('Debt', 0, self.debt))
 
         # Reset the counters.
-        self.money_start = self.money - self.debt
-        self.money_message = ''
+        self.moneyStart = self.money - self.debt
+        self.moneyMessage = ''
 
-        self.Wait()
+        self.wait()
 
 
 
@@ -511,32 +511,32 @@ class CGame:
         else:
             print('In Bank £{:,.2f}'.format(-self.debt))
         print('Do you want to Deposit, Withdraw or Exit (D/W/E)?')
-        sKey = self.GetKeyboardCharacter(['d', 'w', 'e'])
-        if sKey == 'e':
+        keyPress = self.getKeyboardCharacter(['d', 'w', 'e'])
+        if keyPress == 'e':
             return
-        if sKey == 'd':
+        if keyPress == 'd':
             print('Deposit')
         else:
             print('Withdraw')
-        nAmount = self.EnterNumber('Enter the amount >')
-        if sKey == 'd':
-            nAmount = -nAmount
-        self.money = self.money + nAmount
-        self.debt = self.debt + nAmount
+        amount = self.EnterNumber('Enter the amount >')
+        if keyPress == 'd':
+            amount = -amount
+        self.money += amount
+        self.debt += amount
         MAX_DEBT = 2e6 # 1e6
         if self.debt > MAX_DEBT:
             print('You can not have that much')
-            self.money = self.money - (self.debt - MAX_DEBT)
+            self.money -= self.debt - MAX_DEBT
             self.debt = MAX_DEBT
         if self.money < 0:
-             self.debt = self.debt - self.money
+             self.debt -= self.money
              self.money = 0
         print('You have £{:,.2f}'.format(self.money))
         if self.debt > 0:
             print('You owe £{:,.2f}'.format(self.debt))
         else:
             print('In Bank £{:,.2f}'.format(-self.debt))
-        self.Wait()
+        self.wait()
 
 
 
@@ -585,41 +585,41 @@ class CGame:
         print('Mid{:^18}{:^18}'.format(self.teams[nHome].midfield, self.teams[nAway].midfield))
         print('Att{:^18}{:^18}'.format(self.teams[nHome].attack, self.teams[nAway].attack))
         print()
-        print('{} Picked, {} Squad, {} Injured.'.format(self.num_team, self.num_squad, self.num_injured))
+        print('{} Picked, {} Squad, {} Injured.'.format(self.numTeam, self.numSquad, self.numInjured))
         print('Press C to change team')
         print('Press TAB to play match.')
 
 
 
-    def Wait(self):
+    def wait(self):
         ''' Replacement for PROCWAIT in the BBC Basic version. '''
         print('{}{}{} Press SPACE to continue {}{}'.format(ansi.BACKGROUND_BLUE, ansi.YELLOW, '━' * 7, '━' * 8, ansi.RESET_ALL))
-        self.GetKeyboardCharacter([' '])
+        self.getKeyboardCharacter([' '])
         print('{}{}'.format(ansi.getCursorUp(1), ansi.ERASE_LINE), end = '\r')
 
 
 
-    def ShowLeague(self):
+    def showLeague(self):
         ''' Replacement for PROCLEAGUE in the BBC Basic version. '''
         print('Division {}'.format(self.division))
         print('   Team             W  D  L Pts Dif')
         for oTeam in self.teams:
-            oTeam.WriteTableRow()
+            oTeam.writeTableRow()
         print('Matches Played: {}'.format(self.match))
-        print('{} position: {}'.format(self.team.GetColouredName(), self.team_index+1))
+        print('{} position: {}'.format(self.team.getColouredName(), self.teamIndex+1))
 
 
 
-    def SortDivision(self):
+    def sortDivision(self):
         ''' Replacement for PROCSORT in the BBC Basic version. '''
-        self.teams = sorted(self.teams, key=lambda CTeam: (CTeam.pts, CTeam.difference), reverse=True)
-        nPosition = 1
+        self.teams = sorted(self.teams, key=lambda Team: (Team.pts, Team.difference), reverse=True)
+        position = 1
         for oTeam in self.teams:
-            oTeam.position = nPosition
-            if oTeam.name == self.team_name:
-                self.team_index = nPosition-1
+            oTeam.position = position
+            if oTeam.name == self.teamName:
+                self.teamIndex = position-1
                 self.team = oTeam
-            nPosition = nPosition + 1
+            position += 1
 
 
 
@@ -645,8 +645,8 @@ class CGame:
             self.players[nPlayer].skill = 5
 
         # Pick 12 players.
-        self.num_squad = 12
-        for nIndex in range(self.num_squad):
+        self.numSquad = 12
+        for nIndex in range(self.numSquad):
             nPlayer = random.randint(0, 25)
             while self.players[nPlayer].inSquad:
                 nPlayer = random.randint(0, 25)
@@ -656,14 +656,14 @@ class CGame:
         self.teams = None
         self.division = 4
         self.SetTeamsForDivision([])
-        self.SortDivision()
+        self.sortDivision()
 
         # Pick a default selection of players.
-        self.num_team = 0
-        self.num_injured = 0
+        self.numTeam = 0
+        self.numInjured = 0
         for nIndex in range(26):
             if self.players[nIndex].inSquad:
-                if self.num_team < 11:
+                if self.numTeam < 11:
                     self.AddPlayer(nIndex)
 
 
@@ -673,11 +673,11 @@ class CGame:
         if self.teams == None:
             self.teams = []
             for nTeam in range(16):
-                oTeam = modTeam.CTeam()
+                oTeam = Team()
                 oTeam.name = ''
                 self.teams.append(oTeam)
-            self.teams[0].name = self.team_name
-            self.teams[0].colour = self.team_colour
+            self.teams[0].name = self.teamName
+            self.teams[0].colour = self.teamColour
             self.teams[0].position = 1
         nDivision = self.division
 
@@ -689,39 +689,39 @@ class CGame:
         nNewTeam = 1
         for oTeam in self.teams:
             if oTeam.name == '':
-                oTeam.GetTeam(nDivision, nNewTeam)
+                oTeam.getTeam(nDivision, nNewTeam)
                 # Check that this team is unique.
                 while oTeam.name in sExistingNames:
-                    nNewTeam = nNewTeam + 1
-                    oTeam.GetTeam(nDivision, nNewTeam)
+                    nNewTeam += 1
+                    oTeam.getTeam(nDivision, nNewTeam)
 
                 sExistingNames.append(oTeam.name)
-                nNewTeam = nNewTeam + 1
+                nNewTeam += 1
 
-            if oTeam.name == self.team_name:
+            if oTeam.name == self.teamName:
                 # Initialise the players team.
-                oTeam.Zero()
+                oTeam.zero()
             else:
                 # Initialise the opponent team.
-                oTeam.Initialise(self.division)
+                oTeam.initialise(self.division)
 
 
 
-    def MultiRandomInt(self, nRange, nNumber):
-        ''' Replacement for FNRND() (Line 6640) in the BBC Basic version. This gives an integer result. '''
-        nTotal = 0
-        for nCount in range(nNumber):
-            nTotal = nTotal + random.randint(1, nRange)
-        return nTotal
+    def multiRandomInt(self, rndRange, rndNumber):
+        ''' Replacement for FNRND() (Line 6640) in the BBC Basic version. '''
+        numTotal = 0
+        for count in range(rndNumber):
+            numTotal += random.randint(1, rndRange)
+        return numTotal
 
 
 
-    def MultiRandom(self, dRange, nNumber):
-        ''' Replacement of FNRND (Line 6640) in the BBC Basic version. This gives a floating point result.  It is usually expected that dRange will be 1.'''
-        dTotal = 0
-        for nCount in range(nNumber):
-            dTotal = dTotal + random.uniform(0, dRange)
-        return dTotal
+    def multiRandom(self, rndRange, rndNumber):
+        ''' Replacement of FNRND (Line 6640) in the BBC Basic version. This gives a floating point result.  It is usually expected that rndRange will be '1.0'.'''
+        numTotal = 0
+        for count in range(rndNumber):
+            numTotal += random.uniform(0, rndRange)
+        return numTotal
 
 
 
@@ -733,21 +733,21 @@ class CGame:
             print(' 0 More Teams')
             print(' 1 Own Team')
             for nIndex in range(2, 17):
-                oTeam = modTeam.CTeam()
-                oTeam.GetTeam(nDivision, nIndex - 1)
-                print('{:2} {}'.format(nIndex, oTeam.GetColouredName()))
+                oTeam = Team()
+                oTeam.getTeam(nDivision, nIndex - 1)
+                print('{:2} {}'.format(nIndex, oTeam.getColouredName()))
             nNumber = self.EnterNumber('Enter Team Number ')
             if nNumber >= 2 and nNumber <= 17:
-                oTeam.GetTeam(nDivision, nNumber - 1)
-                self.team_name = oTeam.name
-                self.team_colour = oTeam.colour
+                oTeam.getTeam(nDivision, nNumber - 1)
+                self.teamName = oTeam.name
+                self.teamColour = oTeam.colour
                 break;
             if nNumber == 1:
-                self.team_name = input('Enter Team name ')
-                self.team_colour = ansi.CYAN
+                self.teamName = input('Enter Team name ')
+                self.teamColour = ansi.CYAN
                 break;
             nDivision = 1 + (nDivision & 3)
-        print('You manage {}{}{}'.format(self.team_colour, self.team_name, ansi.RESET_ALL))
+        print('You manage {}{}{}'.format(self.teamColour, self.teamName, ansi.RESET_ALL))
 
 
 
@@ -762,25 +762,25 @@ class CGame:
 
 
 
-    def YesNo(self):
+    def getYesNo(self):
         ''' Replacement for FNYES in the BBC Basic version.  Returns True if 'Y' is pressed or False if 'N' is pressed. '''
-        sCharacter = self.GetKeyboardCharacter(['y', 'n'])
-        if sCharacter == 'y':
+        character = self.getKeyboardCharacter(['y', 'n'])
+        if character == 'y':
             return True
         return False
 
 
 
-    def GetKeyboardCharacter(self, allowed):
+    def getKeyboardCharacter(self, allowed):
         ''' Return a keyboard character from the allowed characters. '''
         # No Repeat Until in Python.
-        # sCharacter = modInkey.getwch()
-        sCharacter = self.keyboard.getKey()
-        while not (sCharacter in allowed):
-            # sCharacter = modInkey.getwch()
-            sCharacter = self.keyboard.getKey()
+        # character = modInkey.getwch()
+        character = self.keyboard.getKey()
+        while not (character in allowed):
+            # character = modInkey.getwch()
+            character = self.keyboard.getKey()
         self.keyboard.stop()
-        return sCharacter
+        return character
 
 
 
@@ -803,38 +803,38 @@ class CGame:
 
     def Save(self, bInteractive):
         ''' Implementation of DEFPROCSAVE (5420) from the BBC Basic version. '''
-        oFile = open('save.game', 'w')
+        outputFile = open('save.game', 'w')
 
-        json.dump(self.match, oFile)
-        oFile.write('\n')
-        json.dump(self.money, oFile)
-        oFile.write('\n')
-        json.dump(self.debt, oFile)
-        oFile.write('\n')
-        json.dump(self.num_squad, oFile)
-        oFile.write('\n')
-        json.dump(self.num_team, oFile)
-        oFile.write('\n')
-        json.dump(self.num_injured, oFile)
-        oFile.write('\n')
-        json.dump(self.division, oFile)
-        oFile.write('\n')
-        json.dump(self.team_name, oFile)
-        oFile.write('\n')
-        json.dump(self.team_colour, oFile)
-        oFile.write('\n')
-        json.dump(self.formation, oFile)
-        oFile.write('\n')
+        json.dump(self.match, outputFile)
+        outputFile.write('\n')
+        json.dump(self.money, outputFile)
+        outputFile.write('\n')
+        json.dump(self.debt, outputFile)
+        outputFile.write('\n')
+        json.dump(self.numSquad, outputFile)
+        outputFile.write('\n')
+        json.dump(self.numTeam, outputFile)
+        outputFile.write('\n')
+        json.dump(self.numInjured, outputFile)
+        outputFile.write('\n')
+        json.dump(self.division, outputFile)
+        outputFile.write('\n')
+        json.dump(self.teamName, outputFile)
+        outputFile.write('\n')
+        json.dump(self.teamColour, outputFile)
+        outputFile.write('\n')
+        json.dump(self.formation, outputFile)
+        outputFile.write('\n')
 
         # Save the players.
         for oPlayer in self.players:
-            oPlayer.Dump(oFile)
+            oPlayer.dump(outputFile)
 
         # Save the teams.
         for oTeam in self.teams:
-            oTeam.Dump(oFile)
+            oTeam.dump(outputFile)
 
-        oFile.close()
+        outputFile.close()
 
         print('Game Saved.')
         time.sleep(5)
@@ -843,44 +843,44 @@ class CGame:
 
     def Load(self):
         ''' Implementation of DEFPROCLOAD (line 5530) from the BBC Basic version. '''
-        oFile = open('save.game', 'r')
+        inputFile = open('save.game', 'r')
 
-        sLine = oFile.readline()
+        sLine = inputFile.readline()
         self.match = json.loads(sLine)
-        sLine = oFile.readline()
+        sLine = inputFile.readline()
         self.money = json.loads(sLine)
-        sLine = oFile.readline()
+        sLine = inputFile.readline()
         self.debt = json.loads(sLine)
-        sLine = oFile.readline()
-        self.num_squad = json.loads(sLine)
-        sLine = oFile.readline()
-        self.num_team = json.loads(sLine)
-        sLine = oFile.readline()
-        self.num_injured = json.loads(sLine)
-        sLine = oFile.readline()
+        sLine = inputFile.readline()
+        self.numSquad = json.loads(sLine)
+        sLine = inputFile.readline()
+        self.numTeam = json.loads(sLine)
+        sLine = inputFile.readline()
+        self.numInjured = json.loads(sLine)
+        sLine = inputFile.readline()
         self.division = json.loads(sLine)
-        sLine = oFile.readline()
-        self.team_name = json.loads(sLine)
-        sLine = oFile.readline()
-        self.team_colour = json.loads(sLine)
-        sLine = oFile.readline()
+        sLine = inputFile.readline()
+        self.teamName = json.loads(sLine)
+        sLine = inputFile.readline()
+        self.teamColour = json.loads(sLine)
+        sLine = inputFile.readline()
         self.formation= json.loads(sLine)
 
         # Load the players.
         self.players = []
         for nIndex in range(26):
             oPlayer = Player()
-            oPlayer.Load(oFile)
+            oPlayer.load(inputFile)
             self.players.append(oPlayer)
 
         # Load the teams.
         self.teams = []
         for nIndex in range(16):
-            oTeam = modTeam.CTeam()
-            oTeam.Load(oFile)
+            oTeam = Team()
+            oTeam.load(inputFile)
             self.teams.append(oTeam)
 
-        oFile.close()
+        inputFile.close()
 
 
 
@@ -889,7 +889,7 @@ class CGame:
         for oTeam in self.teams:
             oTeam.fixture = 0
 
-        self.teams[self.team_index].fixture = -1
+        self.teams[self.teamIndex].fixture = -1
         self.teams[nOpponent].fixture = -1
         for nMatch in range(1, 8):
             while True:
@@ -920,7 +920,7 @@ class CGame:
                     nAway = nIndex
 
             nHomeGoals, nAwayGoals = self.Match(nHome, nAway, 0.5, 0)
-            print('{}{:>17}{} {} - {} {}'.format(self.teams[nHome].colour, self.teams[nHome].name, ansi.RESET_ALL, nHomeGoals, nAwayGoals, self.teams[nAway].GetColouredName()))
+            print('{}{:>17}{} {} - {} {}'.format(self.teams[nHome].colour, self.teams[nHome].name, ansi.RESET_ALL, nHomeGoals, nAwayGoals, self.teams[nAway].getColouredName()))
             self.ApplyPoints(nHome, nAway, nHomeGoals, nAwayGoals)
 
 
@@ -957,18 +957,18 @@ class CGame:
 
         nHomeScore = 0
         nAwayScore = 0
-        # print('{} {} - {} {}'.format(self.teams[nHomeTeam].GetColouredName(), nHomeScore, nAwayScore, self.teams[nAwayTeam].GetColouredName()))
-        print('{}{:>17}{} {} - {} {}'.format(self.teams[nHomeTeam].colour, self.teams[nHomeTeam].name, ansi.RESET_ALL, nHomeScore, nAwayScore, self.teams[nAwayTeam].GetColouredName()))
+        # print('{} {} - {} {}'.format(self.teams[nHomeTeam].getColouredName(), nHomeScore, nAwayScore, self.teams[nAwayTeam].getColouredName()))
+        print('{}{:>17}{} {} - {} {}'.format(self.teams[nHomeTeam].colour, self.teams[nHomeTeam].name, ansi.RESET_ALL, nHomeScore, nAwayScore, self.teams[nAwayTeam].getColouredName()))
         for nTime in range(91):
             fRealTime = time.time()
 
             if nTime in naHomeGoals:
                 nHomeScore = nHomeScore + 1
                 ansi.doCursorUp(1)
-                # print('{} {} - {} {}'.format(self.teams[nHomeTeam].GetColouredName(), nHomeScore, nAwayScore, self.teams[nAwayTeam].GetColouredName()))
-                print('{}{:>17}{} {} - {} {}'.format(self.teams[nHomeTeam].colour, self.teams[nHomeTeam].name, ansi.RESET_ALL, nHomeScore, nAwayScore, self.teams[nAwayTeam].GetColouredName()))
+                # print('{} {} - {} {}'.format(self.teams[nHomeTeam].getColouredName(), nHomeScore, nAwayScore, self.teams[nAwayTeam].getColouredName()))
+                print('{}{:>17}{} {} - {} {}'.format(self.teams[nHomeTeam].colour, self.teams[nHomeTeam].name, ansi.RESET_ALL, nHomeScore, nAwayScore, self.teams[nAwayTeam].getColouredName()))
                 nTotalScore = nHomeScore + nAwayScore
-                if nHomeTeam == self.team_index:
+                if nHomeTeam == self.teamIndex:
                     ansi.doCursorDown(nTotalScore)
                     nScorer = random.randint(0, len(naScorers)-1)
                     print('{} {}'.format(nTime, naScorers[nScorer].name), end = '\r')
@@ -982,10 +982,10 @@ class CGame:
             if nTime in naAwayGoals:
                 nAwayScore = nAwayScore + 1
                 ansi.doCursorUp(1)
-                # print('{} {} - {} {}'.format(self.teams[nHomeTeam].GetColouredName(), nHomeScore, nAwayScore, self.teams[nAwayTeam].GetColouredName()))
-                print('{}{:>17}{} {} - {} {}'.format(self.teams[nHomeTeam].colour, self.teams[nHomeTeam].name, ansi.RESET_ALL, nHomeScore, nAwayScore, self.teams[nAwayTeam].GetColouredName()))
+                # print('{} {} - {} {}'.format(self.teams[nHomeTeam].getColouredName(), nHomeScore, nAwayScore, self.teams[nAwayTeam].getColouredName()))
+                print('{}{:>17}{} {} - {} {}'.format(self.teams[nHomeTeam].colour, self.teams[nHomeTeam].name, ansi.RESET_ALL, nHomeScore, nAwayScore, self.teams[nAwayTeam].getColouredName()))
                 nTotalScore = nHomeScore + nAwayScore
-                if nAwayTeam == self.team_index:
+                if nAwayTeam == self.teamIndex:
                     ansi.doCursorDown(nTotalScore)
                     nScorer = random.randint(0, len(naScorers)-1)
                     print('{}{} {}'.format(' ' * 22, nTime, naScorers[nScorer].name), end = '\r')
@@ -1010,8 +1010,8 @@ class CGame:
         # Move down.
         ansi.doCursorDown(nHomeGoals + nAwayGoals + 1)
         print('Final Score')
-        # print('{} {} - {} {}'.format(self.teams[nHomeTeam].GetColouredName(), nHomeGoals, nAwayGoals, self.teams[nAwayTeam].GetColouredName()))
-        print('{}{:>17}{} {} - {} {}'.format(self.teams[nHomeTeam].colour, self.teams[nHomeTeam].name, ansi.RESET_ALL, nHomeGoals, nAwayGoals, self.teams[nAwayTeam].GetColouredName()))
+        # print('{} {} - {} {}'.format(self.teams[nHomeTeam].getColouredName(), nHomeGoals, nAwayGoals, self.teams[nAwayTeam].getColouredName()))
+        print('{}{:>17}{} {} - {} {}'.format(self.teams[nHomeTeam].colour, self.teams[nHomeTeam].name, ansi.RESET_ALL, nHomeGoals, nAwayGoals, self.teams[nAwayTeam].getColouredName()))
         return nHomeGoals, nAwayGoals
 
 
@@ -1039,8 +1039,8 @@ class CGame:
         oAway = self.teams[nAwayTeam]
         dHomeAverageGoals = dHomeBonus + (4.0 * oHome.attack / oAway.defence) * oHome.midfield / (oHome.midfield + oAway.midfield) + (oHome.moral - 10.0) / 40.0 - (oAway.energy - 100.0) / 400.0
         dAwayAverageGoals = dAwayBonus + (4.0 * oAway.attack / oHome.defence) * oAway.midfield / (oAway.midfield + oHome.midfield) + (oAway.moral - 10.0) / 40.0 - (oHome.energy - 100.0) / 400.0
-        nHomeGoals = self.Pois(dHomeAverageGoals, self.MultiRandom(1, 2) / 2)
-        nAwayGoals = self.Pois(dAwayAverageGoals, self.MultiRandom(1, 2) / 2)
+        nHomeGoals = self.Pois(dHomeAverageGoals, self.multiRandom(1, 2) / 2)
+        nAwayGoals = self.Pois(dAwayAverageGoals, self.multiRandom(1, 2) / 2)
 
         # Set the moral for the teams.
         if nHomeGoals == nAwayGoals:

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-Module to implement the CTeam class for the the BBC Football Manager program.
+Module to implement the Team class for the the BBC Football Manager program.
 '''
 
 # System libraries.
@@ -15,7 +15,7 @@ import modGame
 
 
 
-class CTeam:
+class Team:
     ''' Class to represent a team in the BBC Football Manager game. '''
 
 
@@ -32,8 +32,8 @@ class CTeam:
         self.position = 1
         self.pts = 0
         self.difference = 0
-        self.played_home = False
-        self.played_away = False
+        self.isPlayedHome = False
+        self.isPlayedAway = False
         self.formation = '4-4-2'
         self.fixture = 0
         self.win = 0
@@ -42,30 +42,31 @@ class CTeam:
 
 
 
-    def Initialise(self, nDivision):
+    def initialise(self, division):
         ''' Replacement for FNTEAM (Line 3750) in the BBC Basic version. '''
-        nNumDefence = 3 + random.randint(1, 2)
-        nNumMidfield = 2 + random.randint(1, 3)
-        nNumAttack = 11 - nNumMidfield - nNumDefence
-        nBonus = 1 + (1 if nDivision < 4 else 0) + (1 if nDivision == 1 else 0)
-        nSkill = 4 - (nDivision & 1)
-        self.energy = self.MultiRandomInt(20, 11)
+        numDefence = 3 + random.randint(1, 2)
+        numMidfield = 2 + random.randint(1, 3)
+        numAttack = 11 - numMidfield - numDefence
+        bonus = 1 + (1 if division < 4 else 0) + (1 if division == 1 else 0)
+        skill = 4 - (division & 1)
+        self.energy = self.multiRandomInt(20, 11)
         self.moral = 9 + random.randint(1, 11)
-        self.defence = nNumDefence * nBonus + self.MultiRandomInt(nSkill, nNumDefence)
-        self.midfield = nNumMidfield * nBonus + self.MultiRandomInt(nSkill, nNumMidfield)
-        self.attack = nNumAttack * nBonus + self.MultiRandomInt(nSkill, nNumAttack)
-        self.formation = '{}-{}-{}'.format(nNumDefence-1, nNumMidfield, nNumAttack)
+        self.defence = numDefence * bonus + self.multiRandomInt(skill, numDefence)
+        self.midfield = numMidfield * bonus + self.multiRandomInt(skill, numMidfield)
+        self.attack = numAttack * bonus + self.multiRandomInt(skill, numAttack)
+        self.formation = '{}-{}-{}'.format(numDefence-1, numMidfield, numAttack)
 
         self.pts = 0
         self.difference = 0
-        self.played_home = False
-        self.played_away = False
+        self.isPlayedHome = False
+        self.isPlayedAway = False
         self.win = 0
         self.draw = 0
         self.lost = 0
 
 
-    def Zero(self):
+
+    def zero(self):
         ''' Initialise the team properties to zero. '''
         self.energy = 0
         self.moral = 10
@@ -76,8 +77,8 @@ class CTeam:
 
         self.pts = 0
         self.difference = 0
-        self.played_home = False
-        self.played_away = False
+        self.isPlayedHome = False
+        self.isPlayedAway = False
         self.win = 0
         self.draw = 0
         self.lost = 0
@@ -85,309 +86,309 @@ class CTeam:
 
 
 
-    def WriteTableRow(self):
+    def writeTableRow(self):
         ''' Write this team into the league table. '''
-        # print('{:>2} {}{:<15}{:>3}{:>3}{:>3}{:>4}{:>4} {} {} {}'.format(self.position, self.colour, self.name, self.win, self.draw, self.lost, self.pts, self.difference, 'Y' if self.played_home else 'N', 'Y' if self.played_away else 'N', ansi.RESET_ALL))
+        # print('{:>2} {}{:<15}{:>3}{:>3}{:>3}{:>4}{:>4} {} {} {}'.format(self.position, self.colour, self.name, self.win, self.draw, self.lost, self.pts, self.difference, 'Y' if self.isPlayedHome else 'N', 'Y' if self.isPlayedAway else 'N', ansi.RESET_ALL))
         print('{:>2} {}{:<15}{:>3}{:>3}{:>3}{:>4}{:>4}{}'.format(self.position, self.colour, self.name, self.win, self.draw, self.lost, self.pts, self.difference, ansi.RESET_ALL))
 
 
 
-    def GetColouredName(self):
+    def getColouredName(self):
         ''' Returns the team name wrapped in the colour code. '''
         return '{}{}{}'.format(self.colour, self.name, ansi.RESET_ALL)
 
 
 
-    def GetTeam(self, nDivision, nIndex):
+    def getTeam(self, division, index):
         ''' This is the replacement for FNGETTEAM(). Populate the object with a prebuilt team. '''
-        if nDivision == 1:
-            if nIndex == 1:
+        if division == 1:
+            if index == 1:
                 self.name = 'Liverpool'
                 self.colour = ansi.RED
-            elif nIndex == 2:
+            elif index == 2:
                 self.name = 'Man United'
                 self.colour = ansi.RED
-            elif nIndex == 3:
+            elif index == 3:
                 self.name = 'Leeds United'
                 self.colour = ansi.YELLOW
-            elif nIndex == 4:
+            elif index == 4:
                 self.name = 'Arsenal'
                 self.colour = ansi.RED
-            elif nIndex == 5:
+            elif index == 5:
                 self.name = 'Spurs'
                 self.colour = ansi.WHITE
-            elif nIndex == 6:
+            elif index == 6:
                 self.name = 'Aston Villa'
                 self.colour = ansi.MAGENTA
-            elif nIndex == 7:
+            elif index == 7:
                 self.name = 'Everton'
                 self.colour = ansi.LIGHT_BLUE
-            elif nIndex == 8:
+            elif index == 8:
                 self.name = 'Nottm Forest'
                 self.colour = ansi.RED
-            elif nIndex == 9:
+            elif index == 9:
                 self.name = 'Millwall'
                 self.colour = ansi.WHITE
-            elif nIndex == 10:
+            elif index == 10:
                 self.name = 'Coventry'
                 self.colour = ansi.CYAN
-            elif nIndex == 11:
+            elif index == 11:
                 self.name = 'West Ham'
                 self.colour = ansi.MAGENTA
-            elif nIndex == 12:
+            elif index == 12:
                 self.name = 'Norwich'
                 self.colour = ansi.YELLOW
-            elif nIndex == 13:
+            elif index == 13:
                 self.name = 'Sheff Wed'
                 self.colour = ansi.YELLOW
-            elif nIndex == 14:
+            elif index == 14:
                 self.name = 'Derby'
                 self.colour = ansi.WHITE
-            elif nIndex == 15:
+            elif index == 15:
                 self.name = 'Chelsea'
                 self.colour = ansi.LIGHT_BLUE
-            elif nIndex == 16:
+            elif index == 16:
                 self.name = 'Newcastle'
                 self.colour = ansi.WHITE
             else:
-                self.GetTeam(nDivision+1, nIndex-16)
-        elif nDivision == 2:
-            if nIndex == 1:
+                self.getTeam(division+1, index-16)
+        elif division == 2:
+            if index == 1:
                 self.name = 'Watford'
                 self.colour = ansi.YELLOW
-            elif nIndex == 2:
+            elif index == 2:
                 self.name = 'Stoke City'
                 self.colour = ansi.RED
-            elif nIndex == 3:
+            elif index == 3:
                 self.name = 'Brighton'
                 self.colour = ansi.LIGHT_BLUE
-            elif nIndex == 4:
+            elif index == 4:
                 self.name = 'Barnsley'
                 self.colour = ansi.RED
-            elif nIndex == 5:
+            elif index == 5:
                 self.name = 'Plymouth'
                 self.colour = ansi.LIGHT_BLUE
-            elif nIndex == 6:
+            elif index == 6:
                 self.name = 'Hull City'
                 self.colour = ansi.MAGENTA
-            elif nIndex == 7:
+            elif index == 7:
                 self.name = 'Notts Co'
                 self.colour = ansi.WHITE
-            elif nIndex == 8:
+            elif index == 8:
                 self.name = 'Man City'
                 self.colour = ansi.CYAN
-            elif nIndex == 9:
+            elif index == 9:
                 self.name = 'Shrewsbury'
                 self.colour = ansi.RED
-            elif nIndex == 10:
+            elif index == 10:
                 self.name = 'Burnley'
                 self.colour = ansi.MAGENTA
-            elif nIndex == 11:
+            elif index == 11:
                 self.name = 'Charlton'
                 self.colour = ansi.RED
-            elif nIndex == 12:
+            elif index == 12:
                 self.name = 'Sunderland'
                 self.colour = ansi.RED
-            elif nIndex == 13:
+            elif index == 13:
                 self.name = 'Bradford'
                 self.colour = ansi.RED
-            elif nIndex == 14:
+            elif index == 14:
                 self.name = 'Bury'
                 self.colour = ansi.LIGHT_BLUE
-            elif nIndex == 15:
+            elif index == 15:
                 self.name = 'Sheff United'
                 self.colour = ansi.RED
-            elif nIndex == 16:
+            elif index == 16:
                 self.name = 'Huddersfield'
                 self.colour = ansi.LIGHT_BLUE
             else:
-                self.GetTeam(nDivision+1, nIndex-16)
-        elif nDivision == 3:
-            if nIndex == 1:
+                self.getTeam(division+1, index-16)
+        elif division == 3:
+            if index == 1:
                 self.name = 'Wolves'
                 self.colour = ansi.YELLOW
-            elif nIndex == 2:
+            elif index == 2:
                 self.name = 'Oxford'
                 self.colour = ansi.RED
-            elif nIndex == 3:
+            elif index == 3:
                 self.name = 'Swindon'
                 self.colour = ansi.RED
-            elif nIndex == 4:
+            elif index == 4:
                 self.name = 'Walsall'
                 self.colour = ansi.RED
-            elif nIndex == 5:
+            elif index == 5:
                 self.name = 'Newport'
                 self.colour = ansi.GREEN
-            elif nIndex == 6:
+            elif index == 6:
                 self.name = 'Wigan'
                 self.colour = ansi.RED
-            elif nIndex == 7:
+            elif index == 7:
                 self.name = 'Wimbledon'
                 self.colour = ansi.RED
-            elif nIndex == 8:
+            elif index == 8:
                 self.name = 'Mansfield'
                 self.colour = ansi.GREEN
-            elif nIndex == 9:
+            elif index == 9:
                 self.name = 'Southend'
                 self.colour = ansi.RED
-            elif nIndex == 10:
+            elif index == 10:
                 self.name = 'Grimsby'
                 self.colour = ansi.GREEN
-            elif nIndex == 11:
+            elif index == 11:
                 self.name = 'Blackburn'
                 self.colour = ansi.MAGENTA
-            elif nIndex == 12:
+            elif index == 12:
                 self.name = 'Reading'
                 self.colour = ansi.RED
-            elif nIndex == 13:
+            elif index == 13:
                 self.name = 'Crewe'
                 self.colour = ansi.YELLOW
-            elif nIndex == 14:
+            elif index == 14:
                 self.name = 'Darlington'
                 self.colour = ansi.RED
-            elif nIndex == 15:
+            elif index == 15:
                 self.name = 'Port Value'
                 self.colour = ansi.LIGHT_BLUE
-            elif nIndex == 16:
+            elif index == 16:
                 self.name = 'Stockport'
                 self.colour = ansi.RED
             else:
-                self.GetTeam(nDivision+1, nIndex-16)
+                self.getTeam(division+1, index-16)
         else:
-            if nIndex == 1:
+            if index == 1:
                 self.name = 'Scunthorpe'
                 self.colour = ansi.RED
-            elif nIndex == 2:
+            elif index == 2:
                 self.name = 'York'
                 self.colour = ansi.GREEN
-            elif nIndex == 3:
+            elif index == 3:
                 self.name = 'Bournemouth'
                 self.colour = ansi.LIGHT_BLUE
-            elif nIndex == 4:
+            elif index == 4:
                 self.name = 'Doncaster'
                 self.colour = ansi.CYAN
-            elif nIndex == 5:
+            elif index == 5:
                 self.name = 'Lincoln'
                 self.colour = ansi.MAGENTA
-            elif nIndex == 6:
+            elif index == 6:
                 self.name = 'Rochdale'
                 self.colour = ansi.RED
-            elif nIndex == 7:
+            elif index == 7:
                 self.name = 'Hereford'
                 self.colour = ansi.YELLOW
-            elif nIndex == 8:
+            elif index == 8:
                 self.name = 'Hartlepool'
                 self.colour = ansi.LIGHT_BLUE
-            elif nIndex == 9:
+            elif index == 9:
                 self.name = 'Halifax'
                 self.colour = ansi.RED
-            elif nIndex == 10:
+            elif index == 10:
                 self.name = 'Tranmere'
                 self.colour = ansi.RED
-            elif nIndex == 11:
+            elif index == 11:
                 self.name = 'Aldershot'
                 self.colour = ansi.YELLOW
-            elif nIndex == 12:
+            elif index == 12:
                 self.name = 'Bristol'
                 self.colour = ansi.LIGHT_BLUE
-            elif nIndex == 13:
+            elif index == 13:
                 self.name = 'Wrexham'
                 self.colour = ansi.RED
-            elif nIndex == 14:
+            elif index == 14:
                 self.name = 'Torquay'
                 self.colour = ansi.GREEN
-            elif nIndex == 15:
+            elif index == 15:
                 self.name = 'Gillingham'
                 self.colour = ansi.GREEN
-            elif nIndex == 16:
+            elif index == 16:
                 self.name = 'Exeter'
                 self.colour = ansi.RED
             else:
-                self.GetTeam(nDivision-1, nIndex-16)
+                self.getTeam(division-1, index-16)
 
 
 
-    def MultiRandomInt(self, nRange, nNumber):
+    def multiRandomInt(self, rndRange, rndNumber):
         ''' Replacement for FNRND() (Line 6640) in the BBC Basic version. '''
-        nTotal = 0
-        for nCount in range(nNumber):
-            nTotal = nTotal + random.randint(1, nRange)
-        return nTotal
+        numTotal = 0
+        for count in range(rndNumber):
+            numTotal += random.randint(1, rndRange)
+        return numTotal
 
 
 
-    def Dump(self, oFile):
+    def dump(self, outputFile):
         ''' Write the team into the specified file. '''
-        json.dump(self.name, oFile)
-        oFile.write('\n')
-        json.dump(self.colour, oFile)
-        oFile.write('\n')
-        json.dump(self.energy, oFile)
-        oFile.write('\n')
-        json.dump(self.moral, oFile)
-        oFile.write('\n')
-        json.dump(self.defence, oFile)
-        oFile.write('\n')
-        json.dump(self.midfield, oFile)
-        oFile.write('\n')
-        json.dump(self.attack, oFile)
-        oFile.write('\n')
-        json.dump(self.position, oFile)
-        oFile.write('\n')
-        json.dump(self.pts, oFile)
-        oFile.write('\n')
-        json.dump(self.difference, oFile)
-        oFile.write('\n')
-        json.dump(self.played_home, oFile)
-        oFile.write('\n')
-        json.dump(self.played_away, oFile)
-        oFile.write('\n')
-        json.dump(self.formation, oFile)
-        oFile.write('\n')
-        json.dump(self.fixture, oFile)
-        oFile.write('\n')
-        json.dump(self.win, oFile)
-        oFile.write('\n')
-        json.dump(self.draw, oFile)
-        oFile.write('\n')
-        json.dump(self.lost, oFile)
-        oFile.write('\n')
+        json.dump(self.name, outputFile)
+        outputFile.write('\n')
+        json.dump(self.colour, outputFile)
+        outputFile.write('\n')
+        json.dump(self.energy, outputFile)
+        outputFile.write('\n')
+        json.dump(self.moral, outputFile)
+        outputFile.write('\n')
+        json.dump(self.defence, outputFile)
+        outputFile.write('\n')
+        json.dump(self.midfield, outputFile)
+        outputFile.write('\n')
+        json.dump(self.attack, outputFile)
+        outputFile.write('\n')
+        json.dump(self.position, outputFile)
+        outputFile.write('\n')
+        json.dump(self.pts, outputFile)
+        outputFile.write('\n')
+        json.dump(self.difference, outputFile)
+        outputFile.write('\n')
+        json.dump(self.isPlayedHome, outputFile)
+        outputFile.write('\n')
+        json.dump(self.isPlayedAway, outputFile)
+        outputFile.write('\n')
+        json.dump(self.formation, outputFile)
+        outputFile.write('\n')
+        json.dump(self.fixture, outputFile)
+        outputFile.write('\n')
+        json.dump(self.win, outputFile)
+        outputFile.write('\n')
+        json.dump(self.draw, outputFile)
+        outputFile.write('\n')
+        json.dump(self.lost, outputFile)
+        outputFile.write('\n')
 
 
 
-    def Load(self, oFile):
-        ''' Load the team from the specified file. '''
-        sLine = oFile.readline()
-        self.name = json.loads(sLine)
-        sLine = oFile.readline()
-        self.colour = json.loads(sLine)
-        sLine = oFile.readline()
-        self.energy = json.loads(sLine)
-        sLine = oFile.readline()
-        self.moral = json.loads(sLine)
-        sLine = oFile.readline()
-        self.defence = json.loads(sLine)
-        sLine = oFile.readline()
-        self.midfield = json.loads(sLine)
-        sLine = oFile.readline()
-        self.attack = json.loads(sLine)
-        sLine = oFile.readline()
-        self.position = json.loads(sLine)
-        sLine = oFile.readline()
-        self.pts = json.loads(sLine)
-        sLine = oFile.readline()
-        self.difference = json.loads(sLine)
-        sLine = oFile.readline()
-        self.played_home = json.loads(sLine)
-        sLine = oFile.readline()
-        self.played_away = json.loads(sLine)
-        sLine = oFile.readline()
-        self.formation = json.loads(sLine)
-        sLine = oFile.readline()
-        self.fixture = json.loads(sLine)
-        sLine = oFile.readline()
-        self.win = json.loads(sLine)
-        sLine = oFile.readline()
-        self.draw = json.loads(sLine)
-        sLine = oFile.readline()
-        self.lost = json.loads(sLine)
+    def load(self, inputFile):
+        ''' load the team from the specified file. '''
+        line = inputFile.readline()
+        self.name = json.loads(line)
+        line = inputFile.readline()
+        self.colour = json.loads(line)
+        line = inputFile.readline()
+        self.energy = json.loads(line)
+        line = inputFile.readline()
+        self.moral = json.loads(line)
+        line = inputFile.readline()
+        self.defence = json.loads(line)
+        line = inputFile.readline()
+        self.midfield = json.loads(line)
+        line = inputFile.readline()
+        self.attack = json.loads(line)
+        line = inputFile.readline()
+        self.position = json.loads(line)
+        line = inputFile.readline()
+        self.pts = json.loads(line)
+        line = inputFile.readline()
+        self.difference = json.loads(line)
+        line = inputFile.readline()
+        self.isPlayedHome = json.loads(line)
+        line = inputFile.readline()
+        self.isPlayedAway = json.loads(line)
+        line = inputFile.readline()
+        self.formation = json.loads(line)
+        line = inputFile.readline()
+        self.fixture = json.loads(line)
+        line = inputFile.readline()
+        self.win = json.loads(line)
+        line = inputFile.readline()
+        self.draw = json.loads(line)
+        line = inputFile.readline()
+        self.lost = json.loads(line)
