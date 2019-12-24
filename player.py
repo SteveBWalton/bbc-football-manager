@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-Module to implement the CPlayer class for the the BBC Football Manager program.
+Module to implement the Player class for the the BBC Football Manager program.
 '''
 
 # System libraries.

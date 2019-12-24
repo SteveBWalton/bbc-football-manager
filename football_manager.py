@@ -20,23 +20,23 @@ import random
 
 # Application Libraries.
 import ansi
-import modGame
+from game import Game
 
 
 
-def Run():
+def run():
     ''' Main entry point for the program. '''
     # Create a game object.
-    oGame = modGame.CGame()
-    oGame.Run()
+    game = Game()
+    game.run()
 
 
 
 if __name__ == '__main__':
     # Process the command line arguments.
     # This might end the program (--help).
-    oParse = argparse.ArgumentParser(prog='football_manager', description='Convertion of the BBC Basic Football Manager program.')
-    oArgs = oParse.parse_args()
+    argParse = argparse.ArgumentParser(prog='football_manager', description='Convertion of the BBC Basic Football Manager program.')
+    args = argParse.parse_args()
 
     # Welcome message.
     print('{}BBC Football Manager{} by Steve Walton.'.format(ansi.RED, ansi.RESET_ALL))
@@ -45,6 +45,6 @@ if __name__ == '__main__':
     print('Operating System is "{}".  Desktop is "{}".'.format(platform.system(), os.environ.get('DESKTOP_SESSION')))
 
     # Main loop.
-    Run()
+    run()
 
     print('Goodbye from the {}BBC Football Manager{} program.'.format(ansi.RED, ansi.RESET_ALL))

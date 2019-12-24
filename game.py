@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-Module to implement the CGame class for the the BBC Football Manager program.
+Module to implement the Game class for the the BBC Football Manager program.
 '''
 
 # System libraries.
@@ -20,7 +20,7 @@ from player import Player
 
 
 
-class CGame:
+class Game:
     ''' Class to represent the BBC Football Manager game. '''
 
 
@@ -39,13 +39,13 @@ class CGame:
 
 
 
-    def Run(self):
+    def run(self):
         ''' Execute the football manager game. '''
         self.keyboard = InKey()
         random.seed()
 
         ansi.doCls()
-        self.Football()
+        self.football()
 
         # Get the player settings.
         print()
@@ -60,11 +60,11 @@ class CGame:
         print('Do you want to load a game?')
         if self.getYesNo():
             print('Yes')
-            self.Load()
+            self.load()
             self.sortDivision()
         else:
             print('No')
-            self.NewGame()
+            self.newGame()
 
         # Play the game.
         nYear = 0
@@ -98,7 +98,7 @@ class CGame:
                     # Continue.
                     self.playWeek()
                 elif keyPress == '5':
-                    self.Save(True)
+                    self.save(True)
                 elif keyPress == '6':
                     # PROCRESTART
                     pass
@@ -212,7 +212,7 @@ class CGame:
             if keyPress == '\t':
                 break;
             # Pick the player.
-            self.PickPlayers()
+            self.pickPlayers()
 
         ansi.doCursorUp(2)
         print(ansi.ERASE_LINE)
@@ -307,7 +307,7 @@ class CGame:
         nPlayer = random.randint(0, 25)
         if self.players[nPlayer].injured:
             return
-        self.DropPlayer(nPlayer)
+        self.dropPlayer(nPlayer)
         self.players[nPlayer].injured = True
         if self.players[nPlayer].inSquad:
             print('{}{} has been injured.{}'.format(ansi.RED, self.players[nPlayer].name, ansi.RESET_ALL))
@@ -327,7 +327,7 @@ class CGame:
 
 
 
-    def DisplaySquad(self):
+    def displaySquad(self):
         ''' Replacement for PROCPTEAM (line 2130) in the BBC Basic version. '''
         print('   Player        Skill Energy')
         for oPlayer in self.players:
@@ -336,60 +336,63 @@ class CGame:
 
 
 
-    def PickPlayers(self):
+    def pickPlayers(self):
         ''' Replacement for PROCPICK (line 2260) in the BBC Basic version. '''
         while True:
             ansi.doCls()
-            self.DisplaySquad()
+            self.displaySquad()
             if self.numTeam <= 11:
-                nNumber = self.EnterNumber('>')
-                if nNumber == 0:
+                number = self.EnterNumber('>')
+                if number == 0:
                     break;
-                if nNumber >= 1 and nNumber <= 26:
-                    nNumber = nNumber - 1
-                    if self.players[nNumber].inSquad:
-                        self.AddPlayer(nNumber)
+                if number >= 1 and number <= 26:
+                    number -= 1
+                    if self.players[number].inSquad:
+                        if self.players[number].inTeam:
+                            self.dropPlayer(number)
+                        else:
+                            self.addPlayer(number)
             else:
-                nNumber = self.EnterNumber('Enter Player to Drop ')
-                if nNumber >= 1 and nNumber <= 26:
-                    self.DropPlayer(nNumber - 1)
+                number = self.EnterNumber('Enter Player to Drop ')
+                if number >= 1 and number <= 26:
+                    self.dropPlayer(number - 1)
 
 
 
-    def DropPlayer(self, nIndex):
-        ''' Replacement for PROCDROP (line ????) in the BBC Basic version. '''
-        oPlayer = self.players[nIndex]
-        if oPlayer.inTeam == False:
+    def dropPlayer(self, index):
+        ''' Replacement for PROCDROP (line 1630) in the BBC Basic version. '''
+        player = self.players[index]
+        if player.inTeam == False:
             return
-        oPlayer.inTeam = False
-        if oPlayer.position == Player.DEFENSE:
-            self.team.defence = self.team.defence - oPlayer.skill
-        elif oPlayer.position == Player.MIDFIELD:
-            self.team.midfield = self.team.midfield - oPlayer.skill
+        player.inTeam = False
+        if player.position == Player.DEFENSE:
+            self.team.defence -= player.skill
+        elif player.position == Player.MIDFIELD:
+            self.team.midfield -= player.skill
         else:
-            self.team.attack = self.team.attack - oPlayer.skill
-        self.team.energy = self.team.energy - oPlayer.energy
-        self.numTeam = self.numTeam - 1
-        self.formation[oPlayer.position] = self.formation[oPlayer.position] - 1
+            self.team.attack -= player.skill
+        self.team.energy -= player.energy
+        self.numTeam -= 1
+        self.formation[player.position] -= 1
         self.team.formation = '{}-{}-{}'.format(self.formation[Player.DEFENSE]-1, self.formation[Player.MIDFIELD], self.formation[Player.ATTACK])
 
 
 
-    def AddPlayer(self, nIndex):
+    def addPlayer(self, index):
         ''' Replacement for PROCIN (line 1580) in the BBC Basic version. '''
-        oPlayer = self.players[nIndex]
-        if oPlayer.inTeam:
+        player = self.players[index]
+        if player.inTeam:
             return
-        oPlayer.inTeam = True
-        if oPlayer.position == Player.DEFENSE:
-            self.team.defence = self.team.defence + oPlayer.skill
-        elif oPlayer.position == Player.MIDFIELD:
-            self.team.midfield = self.team.midfield + oPlayer.skill
+        player.inTeam = True
+        if player.position == Player.DEFENSE:
+            self.team.defence += player.skill
+        elif player.position == Player.MIDFIELD:
+            self.team.midfield += player.skill
         else:
-            self.team.attack = self.team.attack + oPlayer.skill
-        self.team.energy = self.team.energy + oPlayer.energy
-        self.numTeam = self.numTeam + 1
-        self.formation[oPlayer.position] = self.formation[oPlayer.position] + 1
+            self.team.attack += player.skill
+        self.team.energy += player.energy
+        self.numTeam += 1
+        self.formation[player.position] += 1
         self.team.formation = '{}-{}-{}'.format(self.formation[Player.DEFENSE]-1, self.formation[Player.MIDFIELD], self.formation[Player.ATTACK])
 
 
@@ -397,7 +400,7 @@ class CGame:
     def SellPlayer(self):
         ''' Replacement for PROCSELL (line 1950) in the BBC Basic version. '''
         ansi.doCls()
-        self.DisplaySquad()
+        self.displaySquad()
         print('Enter <RETURN> to return to menu.')
         print('Else enter player number to be sold')
         nPlayerNumber = self.EnterNumber('>')
@@ -409,7 +412,7 @@ class CGame:
                 print('Do you accept (Y/N)?')
                 if self.getYesNo():
                     self.numSquad = self.numSquad - 1
-                    self.DropPlayer(nPlayerNumber)
+                    self.dropPlayer(nPlayerNumber)
                     self.players[nPlayerNumber].inSquad = False
                     self.money = self.money + nPrice
                     self.moneyMessage = self.moneyMessage + self.FinancialLine(self.players[nPlayerNumber].name + ' sold', nPrice, 0) + "\n";
@@ -623,7 +626,7 @@ class CGame:
 
 
 
-    def NewGame(self):
+    def newGame(self):
         ''' Initialise a new game. '''
         self.PickTeam()
 
@@ -664,7 +667,7 @@ class CGame:
         for nIndex in range(26):
             if self.players[nIndex].inSquad:
                 if self.numTeam < 11:
-                    self.AddPlayer(nIndex)
+                    self.addPlayer(nIndex)
 
 
 
@@ -784,7 +787,7 @@ class CGame:
 
 
 
-    def Football(self):
+    def football(self):
         '''
         Implementation of DEFPROCfootball().
         Display a title.
@@ -801,7 +804,7 @@ class CGame:
 
 
 
-    def Save(self, bInteractive):
+    def save(self, isInteractive):
         ''' Implementation of DEFPROCSAVE (5420) from the BBC Basic version. '''
         outputFile = open('save.game', 'w')
 
@@ -841,7 +844,7 @@ class CGame:
 
 
 
-    def Load(self):
+    def load(self):
         ''' Implementation of DEFPROCLOAD (line 5530) from the BBC Basic version. '''
         inputFile = open('save.game', 'r')
 
