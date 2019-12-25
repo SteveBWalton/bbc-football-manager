@@ -90,7 +90,7 @@ class Game:
                 if keyPress == '1':
                     self.SellPlayer()
                 elif keyPress == '2':
-                    self.Bank()
+                    self.bank()
                 elif keyPress == '3':
                     # PROCRENAME
                     pass
@@ -182,7 +182,7 @@ class Game:
 
     def playWeek(self):
         ''' This is the block of code that was after the menu in the week loop of the BBC Basic version. Line 740 onward.'''
-        self.match = self.match + 1
+        self.match += 1
 
         # Decide and play any cup matches.
 
@@ -205,9 +205,9 @@ class Game:
         while True:
             ansi.doCls()
             if isHomeMatch:
-                self.DisplayMatch(self.teamIndex, nOpponent)
+                self.displayMatch(self.teamIndex, nOpponent)
             else:
-                self.DisplayMatch(nOpponent, self.teamIndex)
+                self.displayMatch(nOpponent, self.teamIndex)
             keyPress = self.getKeyboardCharacter(['c', '\t'])
             if keyPress == '\t':
                 break;
@@ -221,10 +221,10 @@ class Game:
         # Play the match.
         if isHomeMatch:
             nPlayerGoals, nOpponentGoals = self.PlayMatch(self.teamIndex, nOpponent, 0.5, 0)
-            self.ApplyPoints(self.teamIndex, nOpponent, nPlayerGoals, nOpponentGoals)
+            self.applyPoints(self.teamIndex, nOpponent, nPlayerGoals, nOpponentGoals)
         else:
             nOpponentGoals, nPlayerGoals = self.PlayMatch(nOpponent, self.teamIndex, 0.5, 0)
-            self.ApplyPoints(nOpponent, self.teamIndex, nOpponentGoals, nPlayerGoals)
+            self.applyPoints(nOpponent, self.teamIndex, nOpponentGoals, nPlayerGoals)
 
         # Calculate the gate money.
         if isHomeMatch:
@@ -235,7 +235,7 @@ class Game:
             self.gate_money = 0
 
         # PROCPLAYERS
-        self.PlayerEngergy()
+        self.playerEngergy()
         self.PlayerInjured()
         # Decided the fixtures for the league was at half time of the playmatch.
         self.Fixtures(nOpponent)
@@ -255,47 +255,47 @@ class Game:
         # PROCPROGRESS
         ansi.doCls()
         self.PlayerCaps()
-        self.PlayerFit()
+        self.playerFit()
         self.wait()
 
 
 
-    def ApplyPoints(self, nHome, nAway, nHomeGoals, nAwayGoals):
+    def applyPoints(self, home, away, homeGoals, awayGoals):
         ''' Apply the points to the league. '''
-        if nHomeGoals == nAwayGoals:
-            self.teams[nHome].pts = self.teams[nHome].pts + 1
-            self.teams[nAway].pts = self.teams[nAway].pts + 1
-            self.teams[nHome].draw = self.teams[nHome].draw + 1
-            self.teams[nAway].draw = self.teams[nAway].draw + 1
+        if homeGoals == awayGoals:
+            self.teams[home].pts += 1
+            self.teams[away].pts += 1
+            self.teams[home].draw += 1
+            self.teams[away].draw += 1
         else:
-            if nHomeGoals > nAwayGoals:
-                self.teams[nHome].pts = self.teams[nHome].pts + 3
-                self.teams[nHome].win  = self.teams[nHome].win  + 1
-                self.teams[nAway].lost = self.teams[nAway].lost + 1
+            if homeGoals > awayGoals:
+                self.teams[home].pts += 3
+                self.teams[home].win += 1
+                self.teams[away].lost += 1
             else:
-                self.teams[nAway].pts = self.teams[nAway].pts + 3
-                self.teams[nHome].lost = self.teams[nHome].lost + 1
-                self.teams[nAway].win  = self.teams[nAway].win + 1
-            self.teams[nHome].difference = self.teams[nHome].difference + nHomeGoals - nAwayGoals
-            self.teams[nAway].difference = self.teams[nAway].difference + nAwayGoals - nHomeGoals
+                self.teams[away].pts += 3
+                self.teams[home].lost += 1
+                self.teams[away].win += 1
+            self.teams[home].difference += homeGoals - awayGoals
+            self.teams[away].difference += awayGoals - homeGoals
 
 
 
-    def PlayerEngergy(self):
+    def playerEngergy(self):
         ''' Replacement for PROCRESET (line 3200) in the BBC Basic version. '''
         self.teams[self.teamIndex].energy = 0
-        for oPlayer in self.players:
-            if oPlayer.inSquad:
-                if oPlayer.inTeam:
-                    oPlayer.energy = oPlayer.energy - random.randint(1, 2)
-                    if oPlayer.energy < 1:
-                        oPlayer.energy = 1
-                    self.teams[self.teamIndex].energy = self.teams[self.teamIndex].energy + oPlayer.energy
-                    oPlayer.caps = oPlayer.caps + 1
+        for player in self.players:
+            if player.inSquad:
+                if player.inTeam:
+                    player.energy -= random.randint(1, 2)
+                    if player.energy < 1:
+                        player.energy = 1
+                    self.teams[self.teamIndex].energy += player.energy
+                    player.caps += 1
                 else:
-                    oPlayer.energy = oPlayer.energy + 9
-                    if oPlayer.energy > 20:
-                        oPlayer.energy = 20
+                    player.energy += 5 + random.randint(0, 4)
+                    if player.energy > 20:
+                        player.energy = 20
 
 
 
@@ -315,24 +315,24 @@ class Game:
 
 
 
-    def PlayerFit(self):
+    def playerFit(self):
         ''' This was part of PROCPROGRESS in the BBC Basic version. '''
-        for oPlayer in self.players:
-            if oPlayer.injured:
+        for player in self.players:
+            if player.injured:
                 if random.randint(1, 3) == 1:
-                    oPlayer.injured = False
-                    if oPlayer.inSquad:
+                    player.injured = False
+                    if player.inSquad:
                         print('{}{} is fit.{}'.format(ansi.GREEN, oPlayer.name, ansi.RESET_ALL))
-                        self.numInjured = self.numInjured - 1
+                        self.numInjured -= 1
 
 
 
     def displaySquad(self):
         ''' Replacement for PROCPTEAM (line 2130) in the BBC Basic version. '''
         print('   Player        Skill Energy')
-        for oPlayer in self.players:
-            if oPlayer.inSquad:
-                oPlayer.writeRow()
+        for player in self.players:
+            if player.inSquad:
+                player.writeRow()
 
 
 
@@ -342,7 +342,7 @@ class Game:
             ansi.doCls()
             self.displaySquad()
             if self.numTeam <= 11:
-                number = self.EnterNumber('>')
+                number = self.enterNumber('>')
                 if number == 0:
                     break;
                 if number >= 1 and number <= 26:
@@ -353,7 +353,7 @@ class Game:
                         else:
                             self.addPlayer(number)
             else:
-                number = self.EnterNumber('Enter Player to Drop ')
+                number = self.enterNumber('Enter Player to Drop ')
                 if number >= 1 and number <= 26:
                     self.dropPlayer(number - 1)
 
@@ -403,7 +403,7 @@ class Game:
         self.displaySquad()
         print('Enter <RETURN> to return to menu.')
         print('Else enter player number to be sold')
-        nPlayerNumber = self.EnterNumber('>')
+        nPlayerNumber = self.enterNumber('>')
         if nPlayerNumber >= 1 and nPlayerNumber <= 26:
             nPlayerNumber = nPlayerNumber - 1
             if self.players[nPlayerNumber].inSquad:
@@ -443,7 +443,7 @@ class Game:
                 print('Attack')
             self.players[nPlayer].writeRow(5000 * (5 - self.division))
             print('You have £{:,.2f}'.format(self.money))
-            nBid = self.EnterNumber('Enter your bid: ')
+            nBid = self.enterNumber('Enter your bid: ')
             if nBid <= 0:
                 return
             nPrice = self.players[nPlayer].skill * (5000 * (5 - self.division)) + random.randint(1, 10000) - 5000
@@ -504,7 +504,7 @@ class Game:
 
 
 
-    def Bank(self):
+    def bank(self):
         ''' Replacement for PROCLEND ( line 4170 ) in the BBC Basic version. '''
         ansi.doCls()
         print('Bank')
@@ -521,7 +521,7 @@ class Game:
             print('Deposit')
         else:
             print('Withdraw')
-        amount = self.EnterNumber('Enter the amount >')
+        amount = self.enterNumber('Enter the amount >')
         if keyPress == 'd':
             amount = -amount
         self.money += amount
@@ -576,17 +576,17 @@ class Game:
 
 
 
-    def DisplayMatch(self, nHome, nAway):
+    def displayMatch(self, home, away):
         ''' Replacement for PROCDISPLAY in the BBC Basic version. '''
-        print('   {}{:^18}{}{:^18}{}'.format(self.teams[nHome].colour, self.teams[nHome].name, self.teams[nAway].colour, self.teams[nAway].name, ansi.RESET_ALL))
+        print('   {}{:^18}{}{:^18}{}'.format(self.teams[home].colour, self.teams[home].name, self.teams[away].colour, self.teams[away].name, ansi.RESET_ALL))
         if True:
-            print('Pos{:^18}{:^18}'.format(self.teams[nHome].position, self.teams[nAway].position))
-        print('Eng{:^18}{:^18}'.format(self.teams[nHome].energy, self.teams[nAway].energy))
-        print('Mor{:^18}{:^18}'.format(self.teams[nHome].moral, self.teams[nAway].moral))
-        print('For{:^18}{:^18}'.format(self.teams[nHome].formation, self.teams[nAway].formation))
-        print('Def{:^18}{:^18}'.format(self.teams[nHome].defence, self.teams[nAway].defence))
-        print('Mid{:^18}{:^18}'.format(self.teams[nHome].midfield, self.teams[nAway].midfield))
-        print('Att{:^18}{:^18}'.format(self.teams[nHome].attack, self.teams[nAway].attack))
+            print('Pos{:^18}{:^18}'.format(self.teams[home].position, self.teams[away].position))
+        print('Eng{:^18}{:^18}'.format(self.teams[home].energy, self.teams[away].energy))
+        print('Mor{:^18}{:^18}'.format(self.teams[home].moral, self.teams[away].moral))
+        print('For{:^18}{:^18}'.format(self.teams[home].formation, self.teams[away].formation))
+        print('Def{:^18}{:^18}'.format(self.teams[home].defence, self.teams[away].defence))
+        print('Mid{:^18}{:^18}'.format(self.teams[home].midfield, self.teams[away].midfield))
+        print('Att{:^18}{:^18}'.format(self.teams[home].attack, self.teams[away].attack))
         print()
         print('{} Picked, {} Squad, {} Injured.'.format(self.numTeam, self.numSquad, self.numInjured))
         print('Press C to change team')
@@ -689,17 +689,17 @@ class Game:
             if oTeam.name != '':
                 sExistingNames.append(oTeam.name)
 
-        nNewTeam = 1
+        newTeam = 1
         for oTeam in self.teams:
             if oTeam.name == '':
-                oTeam.getTeam(nDivision, nNewTeam)
+                oTeam.getTeam(nDivision, newTeam)
                 # Check that this team is unique.
                 while oTeam.name in sExistingNames:
-                    nNewTeam += 1
-                    oTeam.getTeam(nDivision, nNewTeam)
+                    newTeam += 1
+                    oTeam.getTeam(nDivision, newTeam)
 
                 sExistingNames.append(oTeam.name)
-                nNewTeam += 1
+                newTeam += 1
 
             if oTeam.name == self.teamName:
                 # Initialise the players team.
@@ -730,18 +730,18 @@ class Game:
 
     def PickTeam(self):
         ''' Replacement for PROCPICKTEAM in the BBC Basic version. '''
-        nDivision = 1
+        division = 1
         while True:
             ansi.doCls()
             print(' 0 More Teams')
             print(' 1 Own Team')
             for nIndex in range(2, 17):
                 oTeam = Team()
-                oTeam.getTeam(nDivision, nIndex - 1)
+                oTeam.getTeam(division, nIndex - 1)
                 print('{:2} {}'.format(nIndex, oTeam.getColouredName()))
-            nNumber = self.EnterNumber('Enter Team Number ')
+            nNumber = self.enterNumber('Enter Team Number ')
             if nNumber >= 2 and nNumber <= 17:
-                oTeam.getTeam(nDivision, nNumber - 1)
+                oTeam.getTeam(division, nNumber - 1)
                 self.teamName = oTeam.name
                 self.teamColour = oTeam.colour
                 break;
@@ -749,19 +749,19 @@ class Game:
                 self.teamName = input('Enter Team name ')
                 self.teamColour = ansi.CYAN
                 break;
-            nDivision = 1 + (nDivision & 3)
+            division = 1 + (division & 3)
         print('You manage {}{}{}'.format(self.teamColour, self.teamName, ansi.RESET_ALL))
 
 
 
-    def EnterNumber(self, sMessage):
+    def enterNumber(self, message):
         ''' Enter a number at the keyboard. '''
-        nNumber = 0
+        number = 0
         try:
-            nNumber = int(input(sMessage))
+            number = int(input(message))
         except:
-            nNumber = 0
-        return nNumber
+            number = 0
+        return number
 
 
 
@@ -924,7 +924,7 @@ class Game:
 
             nHomeGoals, nAwayGoals = self.Match(nHome, nAway, 0.5, 0)
             print('{}{:>17}{} {} - {} {}'.format(self.teams[nHome].colour, self.teams[nHome].name, ansi.RESET_ALL, nHomeGoals, nAwayGoals, self.teams[nAway].getColouredName()))
-            self.ApplyPoints(nHome, nAway, nHomeGoals, nAwayGoals)
+            self.applyPoints(nHome, nAway, nHomeGoals, nAwayGoals)
 
 
 
