@@ -190,24 +190,24 @@ class Game:
         self.team.isPlayedHome = True
         self.team.isPlayedAway = True
         while True:
-            nOpponent = random.randint(0, 15)
+            opponent = random.randint(0, 15)
             isHomeMatch = (self.match & 1) == 1
             if isHomeMatch:
-                if self.teams[nOpponent].isPlayedHome == False:
-                    self.teams[nOpponent].isPlayedHome = True
+                if self.teams[opponent].isPlayedHome == False:
+                    self.teams[opponent].isPlayedHome = True
                     break;
             else:
-                if self.teams[nOpponent].isPlayedAway == False:
-                    self.teams[nOpponent].isPlayedAway = True
+                if self.teams[opponent].isPlayedAway == False:
+                    self.teams[opponent].isPlayedAway = True
                     break;
 
         # Let the player select the players for the team.
         while True:
             ansi.doCls()
             if isHomeMatch:
-                self.displayMatch(self.teamIndex, nOpponent)
+                self.displayMatch(self.teamIndex, opponent)
             else:
-                self.displayMatch(nOpponent, self.teamIndex)
+                self.displayMatch(opponent, self.teamIndex)
             keyPress = self.getKeyboardCharacter(['c', '\t'])
             if keyPress == '\t':
                 break;
@@ -220,25 +220,25 @@ class Game:
 
         # Play the match.
         if isHomeMatch:
-            nPlayerGoals, nOpponentGoals = self.PlayMatch(self.teamIndex, nOpponent, 0.5, 0)
-            self.applyPoints(self.teamIndex, nOpponent, nPlayerGoals, nOpponentGoals)
+            playerGoals, opponentGoals = self.PlayMatch(self.teamIndex, opponent, 0.5, 0)
+            self.applyPoints(self.teamIndex, opponent, playerGoals, opponentGoals)
         else:
-            nOpponentGoals, nPlayerGoals = self.PlayMatch(nOpponent, self.teamIndex, 0.5, 0)
-            self.applyPoints(nOpponent, self.teamIndex, nOpponentGoals, nPlayerGoals)
+            opponentGoals, playerGoals = self.PlayMatch(opponent, self.teamIndex, 0.5, 0)
+            self.applyPoints(opponent, self.teamIndex, opponentGoals, playerGoals)
 
         # Calculate the gate money.
         if isHomeMatch:
-            self.gate_money = (9000 + (15 - self.teamIndex - nOpponent) * 500) * (5 - self.division) + random.randint(0, 1000)
-            if abs(self.teams[self.teamIndex].pts - self.teams[nOpponent].pts) < 4:
-                self.gate_money += (5 - self.division) * 3000
+            self.gateMoney = (9000 + (15 - self.teamIndex - opponent) * 500) * (5 - self.division) + random.randint(0, 1000)
+            if abs(self.teams[self.teamIndex].pts - self.teams[opponent].pts) < 4:
+                self.gateMoney += (5 - self.division) * 3000
         else:
-            self.gate_money = 0
+            self.gateMoney = 0
 
         # PROCPLAYERS
         self.playerEngergy()
         self.PlayerInjured()
         # Decided the fixtures for the league was at half time of the playmatch.
-        self.Fixtures(nOpponent)
+        self.Fixtures(opponent)
 
         self.wait()
 
@@ -322,7 +322,7 @@ class Game:
                 if random.randint(1, 3) == 1:
                     player.injured = False
                     if player.inSquad:
-                        print('{}{} is fit.{}'.format(ansi.GREEN, oPlayer.name, ansi.RESET_ALL))
+                        print('{}{} is fit.{}'.format(ansi.GREEN, player.name, ansi.RESET_ALL))
                         self.numInjured -= 1
 
 
@@ -415,7 +415,7 @@ class Game:
                     self.dropPlayer(nPlayerNumber)
                     self.players[nPlayerNumber].inSquad = False
                     self.money = self.money + nPrice
-                    self.moneyMessage = self.moneyMessage + self.FinancialLine(self.players[nPlayerNumber].name + ' sold', nPrice, 0) + "\n";
+                    self.moneyMessage = self.moneyMessage + self.financialLine(self.players[nPlayerNumber].name + ' sold', nPrice, 0) + "\n";
             else:
                 print('On range')
             self.wait()
@@ -454,7 +454,7 @@ class Game:
                 self.numSquad = self.numSquad + 1
                 self.players[nPlayer].inSquad = True
                 self.money = self.money - nBid
-                self.moneyMessage = self.moneyMessage + self.FinancialLine(self.players[nPlayer].name + ' bought', 0, nBid) + "\n";
+                self.moneyMessage = self.moneyMessage + self.financialLine(self.players[nPlayer].name + ' bought', 0, nBid) + "\n";
 
             else:
                 if nBid > 0:
@@ -465,26 +465,26 @@ class Game:
 
     def Report(self):
         ''' Replacement for PROCREPORT ( line 3970 ) in the BBC Basic version. '''
-        if self.gate_money > 0:
-            print(self.FinancialLine('Gate Money', self.gate_money, 0))
-            self.money += self.gate_money
-        print(self.FinancialLine('Paid to Squad', 0, self.numSquad * 500 * (5 - self.division)))
+        if self.gateMoney > 0:
+            print(self.financialLine('Gate Money', self.gateMoney, 0))
+            self.money += self.gateMoney
+        print(self.financialLine('Paid to Squad', 0, self.numSquad * 500 * (5 - self.division)))
         self.money -= self.numSquad * 500 * (5 - self.division)
         if self.moneyMessage != '':
             print(self.moneyMessage, end = '')
         if self.debt > 0:
             nInterest = int (self.debt * 0.005)
-            print(self.FinancialLine('Interest', 0, nInterest))
+            print(self.financialLine('Interest', 0, nInterest))
             self.money = self.money - nInterest
         print('━' * 40)
         if self.money - self.debt >= self.moneyStart:
-            print(self.FinancialLine('Profit', self.money - self.debt - self.moneyStart, 0))
+            print(self.financialLine('Profit', self.money - self.debt - self.moneyStart, 0))
         else:
-            print(self.FinancialLine('Loss', 0, self.moneyStart - self.money + self.debt))
+            print(self.financialLine('Loss', 0, self.moneyStart - self.money + self.debt))
         print('━' * 40)
 
-        print(self.FinancialLine('Cash', self.money, 0))
-        print(self.FinancialLine('Debt', 0, self.debt))
+        print(self.financialLine('Cash', self.money, 0))
+        print(self.financialLine('Debt', 0, self.debt))
 
         # Reset the counters.
         self.moneyStart = self.money - self.debt
@@ -494,13 +494,13 @@ class Game:
 
 
 
-    def FinancialLine(self, sTitle, fProfit, fLoss):
+    def financialLine(self, title, profit, loss):
         ''' Build a line of financial information. '''
-        if fProfit - fLoss >= 0:
-            sProfit = '£{:,.0f}'.format(fProfit - fLoss)
-            return '{}{:<25} {:>13} {}'.format(ansi.GREEN, sTitle, sProfit, ansi.RESET_ALL)
-        sLoss = '(£{:,.0f})'.format(fLoss - fProfit)
-        return '{}{:<25}{:>15}{}'.format(ansi.RED, sTitle, sLoss, ansi.RESET_ALL)
+        if profit - loss >= 0:
+            description = '£{:,.0f}'.format(profit - loss)
+            return '{}{:<25} {:>13} {}'.format(ansi.GREEN, title, description, ansi.RESET_ALL)
+        description = '(£{:,.0f})'.format(loss - profit)
+        return '{}{:<25}{:>15}{}'.format(ansi.RED, title, description, ansi.RESET_ALL)
 
 
 
@@ -887,24 +887,24 @@ class Game:
 
 
 
-    def Fixtures(self, nOpponent):
+    def Fixtures(self, opponent):
         ''' Replacement for PROCFIXTURES (line 247) in the BBC Basic version. '''
-        for oTeam in self.teams:
-            oTeam.fixture = 0
+        for team in self.teams:
+            team.fixture = 0
 
         self.teams[self.teamIndex].fixture = -1
-        self.teams[nOpponent].fixture = -1
-        for nMatch in range(1, 8):
+        self.teams[opponent].fixture = -1
+        for match in range(1, 8):
             while True:
                 nHome = random.randint(0, 15)
                 if self.teams[nHome].fixture == 0:
                     break;
-            self.teams[nHome].fixture = nMatch * 2 - 1
+            self.teams[nHome].fixture = match * 2 - 1
             while True:
                 nAway = random.randint(0, 15)
                 if self.teams[nAway].fixture == 0:
                     break;
-            self.teams[nAway].fixture = nMatch * 2
+            self.teams[nAway].fixture = match * 2
 
             # Swap if the away team has fewer month matches.
 
@@ -915,11 +915,11 @@ class Game:
         Replacement for DEFPROCREST (line 2710) in the BBC Basic version.
         This is play and display the rest of the matches in the league.
         '''
-        for nMatch in range(1, 8):
+        for match in range(1, 8):
             for nIndex in range(16):
-                if self.teams[nIndex].fixture == 2 * nMatch -1:
+                if self.teams[nIndex].fixture == 2 * match -1:
                     nHome = nIndex
-                if self.teams[nIndex].fixture == 2 * nMatch:
+                if self.teams[nIndex].fixture == 2 * match:
                     nAway = nIndex
 
             nHomeGoals, nAwayGoals = self.Match(nHome, nAway, 0.5, 0)
