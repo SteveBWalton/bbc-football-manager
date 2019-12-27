@@ -25,7 +25,7 @@ class Game:
 
 
 
-    def __init__(self):
+    def __init__(self, args):
         ''' Class constructor for the BBC Football manager game. '''
         self.player_name = ''
         self.level = 1
@@ -36,7 +36,7 @@ class Game:
         self.numTeam = 0
         self.numInjured = 0
         self.formation = [0, 0, 0]
-
+        self.args = args
 
 
     def run(self):
@@ -66,6 +66,10 @@ class Game:
             print('No')
             self.newGame()
 
+        MATCHES_PER_SEASON = 30
+        if self. args.debug:
+            MATCHES_PER_SEASON = 3
+
         # Play the game.
         nYear = 0
         while True:
@@ -73,7 +77,7 @@ class Game:
             self.moneyMessage = ''
 
             # Play a season.
-            while self.match < 30:
+            while self.numMatches < MATCHES_PER_SEASON:
                 ansi.doCls()
                 print('{} MANAGER: {}'.format(self.team.getColouredName(), self.player_name))
                 print('LEVEL: {}'.format(self.level))
@@ -163,18 +167,18 @@ class Game:
             self.numInjured = 0
             self.formation = [0, 0, 0]
             nSkillBonus = 1 if self.division <= 2 else 0
-            for oPlayer in self.players:
-                oPlayer.skill = random.randint(1, 5) + nSkillBonus
-                oPlayer.energy = random.randint(1, 20)
-                oPlayer.inTeam = False
-                oPlayer.injured = False
-                oPlayer.caps = 0
-                oPlayer.goals = 0
+            for player in self.players:
+                player.skill = random.randint(1, 5) + nSkillBonus
+                player.energy = random.randint(1, 20)
+                player.inTeam = False
+                player.injured = False
+                player.caps = 0
+                player.goals = 0
             for nIndex in range(4):
                 nPlayer = random.randint(0, 25)
                 self.players[nPlayer].skill = 5 + nSkillBonus
 
-            self.match = 0
+            self.numMatches = 0
 
             self.wait()
 
@@ -182,7 +186,7 @@ class Game:
 
     def playWeek(self):
         ''' This is the block of code that was after the menu in the week loop of the BBC Basic version. Line 740 onward.'''
-        self.match += 1
+        self.numMatches += 1
 
         # Decide and play any cup matches.
 
@@ -191,7 +195,7 @@ class Game:
         self.team.isPlayedAway = True
         while True:
             opponent = random.randint(0, 15)
-            isHomeMatch = (self.match & 1) == 1
+            isHomeMatch = (self.numMatches & 1) == 1
             if isHomeMatch:
                 if self.teams[opponent].isPlayedHome == False:
                     self.teams[opponent].isPlayedHome = True
@@ -220,10 +224,10 @@ class Game:
 
         # Play the match.
         if isHomeMatch:
-            playerGoals, opponentGoals = self.PlayMatch(self.teamIndex, opponent, 0.5, 0)
+            playerGoals, opponentGoals = self.playMatch(self.teamIndex, opponent, 0.5, 0)
             self.applyPoints(self.teamIndex, opponent, playerGoals, opponentGoals)
         else:
-            opponentGoals, playerGoals = self.PlayMatch(opponent, self.teamIndex, 0.5, 0)
+            opponentGoals, playerGoals = self.playMatch(opponent, self.teamIndex, 0.5, 0)
             self.applyPoints(opponent, self.teamIndex, opponentGoals, playerGoals)
 
         # Calculate the gate money.
@@ -238,7 +242,7 @@ class Game:
         self.playerEngergy()
         self.PlayerInjured()
         # Decided the fixtures for the league was at half time of the playmatch.
-        self.Fixtures(opponent)
+        self.decideFixtures(opponent)
 
         self.wait()
 
@@ -250,7 +254,7 @@ class Game:
         self.showLeague()
         self.wait()
 
-        self.Market()
+        self.market()
         self.Report()
         # PROCPROGRESS
         ansi.doCls()
@@ -423,41 +427,41 @@ class Game:
 
 
 
-    def Market(self):
+    def market(self):
         ''' Replacement for PROCMARKET (line 3330) in the BBC Basic version. '''
         if self.numSquad >= 18:
             # ansi.doCls()
             print('{}F.A. rules state that one team may not have more that 18 players. You already have 18 players therefore you may not buy another.{}'.format(ansi.RED, ansi.RESET_ALL))
         else:
             while True:
-                nPlayer = random.randint(0, 25)
-                if self.players[nPlayer].inSquad == False:
+                player = random.randint(0, 25)
+                if self.players[player].inSquad == False:
                     break;
             # ansi.doCls()
-            self.players[nPlayer].skill = max(self.players[nPlayer].skill, random.randint(1, 5) + (1 if self.division <= 2 else 0))
-            if self.players[nPlayer].position == Player.DEFENSE:
+            self.players[player].skill = max(self.players[player].skill, random.randint(1, 5) + (1 if self.division <= 2 else 0))
+            if self.players[player].position == Player.DEFENSE:
                 print('Defence')
-            elif self.players[nPlayer].position == Player.MIDFIELD:
+            elif self.players[player].position == Player.MIDFIELD:
                 print('Mid-field')
             else:
                 print('Attack')
-            self.players[nPlayer].writeRow(5000 * (5 - self.division))
+            self.players[player].writeRow(5000 * (5 - self.division))
             print('You have £{:,.2f}'.format(self.money))
-            nBid = self.enterNumber('Enter your bid: ')
-            if nBid <= 0:
+            bid = self.enterNumber('Enter your bid: ')
+            if bid <= 0:
                 return
-            nPrice = self.players[nPlayer].skill * (5000 * (5 - self.division)) + random.randint(1, 10000) - 5000
-            if nBid > self.money:
+            price = self.players[player].skill * (5000 * (5 - self.division)) + random.randint(1, 10000) - 5000
+            if bid > self.money:
                 print('{}You do not have enough money{}'.format(ansi.RED, ansi.RESET_ALL))
-            elif nBid > nPrice:
-                print('{}{} is added to your squad.{}'.format(ansi.GREEN, self.players[nPlayer].name, ansi.RESET_ALL))
-                self.numSquad = self.numSquad + 1
-                self.players[nPlayer].inSquad = True
-                self.money = self.money - nBid
-                self.moneyMessage = self.moneyMessage + self.financialLine(self.players[nPlayer].name + ' bought', 0, nBid) + "\n";
+            elif bid > price:
+                print('{}{} is added to your squad.{}'.format(ansi.GREEN, self.players[player].name, ansi.RESET_ALL))
+                self.numSquad += 1
+                self.players[player].inSquad = True
+                self.money -= bid
+                self.moneyMessage += self.financialLine(self.players[player].name + ' bought', 0, bid) + "\n";
 
             else:
-                if nBid > 0:
+                if bid > 0:
                     print('{}Your bid is turned down.{}'.format(ansi.RED, ansi.RESET_ALL))
         self.wait()
 
@@ -608,7 +612,7 @@ class Game:
         print('   Team             W  D  L Pts Dif')
         for oTeam in self.teams:
             oTeam.writeTableRow()
-        print('Matches Played: {}'.format(self.match))
+        print('Matches Played: {}'.format(self.numMatches))
         print('{} position: {}'.format(self.team.getColouredName(), self.teamIndex+1))
 
 
@@ -628,10 +632,10 @@ class Game:
 
     def newGame(self):
         ''' Initialise a new game. '''
-        self.PickTeam()
+        self.pickTeam()
 
         # Initialise variables
-        self.match = 0
+        self.numMatches = 0
         self.money = 50000
         self.debt = 200000
 
@@ -728,24 +732,24 @@ class Game:
 
 
 
-    def PickTeam(self):
+    def pickTeam(self):
         ''' Replacement for PROCPICKTEAM in the BBC Basic version. '''
         division = 1
         while True:
             ansi.doCls()
             print(' 0 More Teams')
             print(' 1 Own Team')
-            for nIndex in range(2, 17):
-                oTeam = Team()
-                oTeam.getTeam(division, nIndex - 1)
-                print('{:2} {}'.format(nIndex, oTeam.getColouredName()))
-            nNumber = self.enterNumber('Enter Team Number ')
-            if nNumber >= 2 and nNumber <= 17:
-                oTeam.getTeam(division, nNumber - 1)
-                self.teamName = oTeam.name
-                self.teamColour = oTeam.colour
+            for index in range(2, 17):
+                team = Team()
+                team.getTeam(division, index - 1)
+                print('{:2} {}'.format(index, team.getColouredName()))
+            selectedNumber = self.enterNumber('Enter Team Number ')
+            if selectedNumber >= 2 and selectedNumber <= 17:
+                team.getTeam(division, selectedNumber - 1)
+                self.teamName = team.name
+                self.teamColour = team.colour
                 break;
-            if nNumber == 1:
+            if selectedNumber == 1:
                 self.teamName = input('Enter Team name ')
                 self.teamColour = ansi.CYAN
                 break;
@@ -808,7 +812,7 @@ class Game:
         ''' Implementation of DEFPROCSAVE (5420) from the BBC Basic version. '''
         outputFile = open('save.game', 'w')
 
-        json.dump(self.match, outputFile)
+        json.dump(self.numMatches, outputFile)
         outputFile.write('\n')
         json.dump(self.money, outputFile)
         outputFile.write('\n')
@@ -849,7 +853,7 @@ class Game:
         inputFile = open('save.game', 'r')
 
         sLine = inputFile.readline()
-        self.match = json.loads(sLine)
+        self.numMatches = json.loads(sLine)
         sLine = inputFile.readline()
         self.money = json.loads(sLine)
         sLine = inputFile.readline()
@@ -887,7 +891,7 @@ class Game:
 
 
 
-    def Fixtures(self, opponent):
+    def decideFixtures(self, opponent):
         ''' Replacement for PROCFIXTURES (line 247) in the BBC Basic version. '''
         for team in self.teams:
             team.fixture = 0
@@ -896,17 +900,20 @@ class Game:
         self.teams[opponent].fixture = -1
         for match in range(1, 8):
             while True:
-                nHome = random.randint(0, 15)
-                if self.teams[nHome].fixture == 0:
+                home = random.randint(0, 15)
+                if self.teams[home].fixture == 0:
                     break;
-            self.teams[nHome].fixture = match * 2 - 1
+            self.teams[home].fixture = match * 2 - 1
             while True:
-                nAway = random.randint(0, 15)
-                if self.teams[nAway].fixture == 0:
+                away = random.randint(0, 15)
+                if self.teams[away].fixture == 0:
                     break;
-            self.teams[nAway].fixture = match * 2
+            self.teams[away].fixture = match * 2
 
-            # Swap if the away team has fewer month matches.
+            # Swap if the away team has fewer home matches.
+            # Are we counting home matches currently.
+            #if self.teams[home].homeMatches > self.teams[away].homeMatches:
+            #    swap home, away
 
 
 
@@ -917,105 +924,103 @@ class Game:
         '''
         for match in range(1, 8):
             for nIndex in range(16):
-                if self.teams[nIndex].fixture == 2 * match -1:
+                if self.teams[nIndex].fixture == 2 * match - 1:
                     nHome = nIndex
                 if self.teams[nIndex].fixture == 2 * match:
                     nAway = nIndex
 
-            nHomeGoals, nAwayGoals = self.Match(nHome, nAway, 0.5, 0)
-            print('{}{:>17}{} {} - {} {}'.format(self.teams[nHome].colour, self.teams[nHome].name, ansi.RESET_ALL, nHomeGoals, nAwayGoals, self.teams[nAway].getColouredName()))
-            self.applyPoints(nHome, nAway, nHomeGoals, nAwayGoals)
+            homeGoals, awayGoals = self.match(nHome, nAway, 0.5, 0)
+            print('{}{:>17}{} {} - {} {}'.format(self.teams[nHome].colour, self.teams[nHome].name, ansi.RESET_ALL, homeGoals, awayGoals, self.teams[nAway].getColouredName()))
+            self.applyPoints(nHome, nAway, homeGoals, awayGoals)
 
 
 
-    def PlayMatch(self, nHomeTeam, nAwayTeam, dHomeBonus, dAwayBonus):
+    def playMatch(self, homeTeam, awayTeam, homeBonus, awayBonus):
         ''' Replacement for DEFPROCPLAYMATCH (Line 1680) in the BBC Basic version. '''
-        nHomeGoals, nAwayGoals = self.Match(nHomeTeam, nAwayTeam, dHomeBonus, dAwayBonus)
+        homeGoals, awayGoals = self.match(homeTeam, awayTeam, homeBonus, awayBonus)
         # Not implemented yet.
 
         # Decide when the goals are scored.
-        naHomeGoals = []
-        for nGoal in range(nHomeGoals):
-            nGoalTime = random.randint(1, 90)
-            if not (nGoalTime in naHomeGoals):
-                naHomeGoals.append(nGoalTime)
-        naAwayGoals = []
-        for nGoal in range(nAwayGoals):
-            nGoalTime = random.randint(1, 90)
-            if not (nGoalTime in naAwayGoals):
-                naAwayGoals.append(nGoalTime)
+        homeGoalsTimes = []
+        for goal in range(homeGoals):
+            goalTime = random.randint(1, 90)
+            if not (goalTime in homeGoalsTimes):
+                homeGoalsTimes.append(goalTime)
+        awayGoalsTimes = []
+        for goal in range(awayGoals):
+            goalTime = random.randint(1, 90)
+            if not (goalTime in awayGoalsTimes):
+                awayGoalsTimes.append(goalTime)
 
         # Decide who might score.
-        naScorers = []
-        for oPlayer in self.players:
-            if oPlayer.inTeam:
-                if oPlayer.position == Player.DEFENSE:
-                    naScorers.append(oPlayer)
-                elif oPlayer.position == Player.MIDFIELD:
-                    for nCount in range(oPlayer.skill):
-                        naScorers.append(oPlayer)
+        goalScorers = []
+        for player in self.players:
+            if player.inTeam:
+                if player.position == Player.DEFENSE:
+                    goalScorers.append(player)
+                elif player.position == Player.MIDFIELD:
+                    for count in range(player.skill):
+                        goalScorers.append(player)
                 else:
-                    for nCount in range(oPlayer.skill * 3):
-                        naScorers.append(oPlayer)
+                    for count in range(player.skill * 3):
+                        goalScorers.append(player)
 
-        nHomeScore = 0
-        nAwayScore = 0
-        # print('{} {} - {} {}'.format(self.teams[nHomeTeam].getColouredName(), nHomeScore, nAwayScore, self.teams[nAwayTeam].getColouredName()))
-        print('{}{:>17}{} {} - {} {}'.format(self.teams[nHomeTeam].colour, self.teams[nHomeTeam].name, ansi.RESET_ALL, nHomeScore, nAwayScore, self.teams[nAwayTeam].getColouredName()))
-        for nTime in range(91):
-            fRealTime = time.time()
+        homeScore = 0
+        awayScore = 0
+        # print('{} {} - {} {}'.format(self.teams[homeTeam].getColouredName(), homeScore, awayScore, self.teams[awayTeam].getColouredName()))
+        print('{}{:>17}{} {} - {} {}'.format(self.teams[homeTeam].colour, self.teams[homeTeam].name, ansi.RESET_ALL, homeScore, awayScore, self.teams[awayTeam].getColouredName()))
+        for goalTime in range(91):
+            realTime = time.time()
 
-            if nTime in naHomeGoals:
-                nHomeScore = nHomeScore + 1
+            if goalTime in homeGoalsTimes:
+                homeScore += 1
                 ansi.doCursorUp(1)
-                # print('{} {} - {} {}'.format(self.teams[nHomeTeam].getColouredName(), nHomeScore, nAwayScore, self.teams[nAwayTeam].getColouredName()))
-                print('{}{:>17}{} {} - {} {}'.format(self.teams[nHomeTeam].colour, self.teams[nHomeTeam].name, ansi.RESET_ALL, nHomeScore, nAwayScore, self.teams[nAwayTeam].getColouredName()))
-                nTotalScore = nHomeScore + nAwayScore
-                if nHomeTeam == self.teamIndex:
-                    ansi.doCursorDown(nTotalScore)
-                    nScorer = random.randint(0, len(naScorers)-1)
-                    print('{} {}'.format(nTime, naScorers[nScorer].name), end = '\r')
-                    naScorers[nScorer].goals = naScorers[nScorer].goals + 1
-                    ansi.doCursorUp(nTotalScore)
+                print('{}{:>17}{} {} - {} {}'.format(self.teams[homeTeam].colour, self.teams[homeTeam].name, ansi.RESET_ALL, homeScore, awayScore, self.teams[awayTeam].getColouredName()))
+                totalScore = homeScore + awayScore
+                if homeTeam == self.teamIndex:
+                    ansi.doCursorDown(totalScore)
+                    goalScorer = random.randint(0, len(goalScorers)-1)
+                    print('{} {}'.format(goalTime, goalScorers[goalScorer].name), end = '\r')
+                    goalScorers[goalScorer].goals += 1
+                    ansi.doCursorUp(totalScore)
                 else:
-                    ansi.doCursorDown(nTotalScore)
-                    print('{} Goal'.format(nTime), end = '\r')
-                    ansi.doCursorUp(nTotalScore)
+                    ansi.doCursorDown(totalScore)
+                    print('{} Goal'.format(goalTime), end = '\r')
+                    ansi.doCursorUp(totalScore)
 
-            if nTime in naAwayGoals:
-                nAwayScore = nAwayScore + 1
+            if goalTime in awayGoalsTimes:
+                awayScore += 1
                 ansi.doCursorUp(1)
-                # print('{} {} - {} {}'.format(self.teams[nHomeTeam].getColouredName(), nHomeScore, nAwayScore, self.teams[nAwayTeam].getColouredName()))
-                print('{}{:>17}{} {} - {} {}'.format(self.teams[nHomeTeam].colour, self.teams[nHomeTeam].name, ansi.RESET_ALL, nHomeScore, nAwayScore, self.teams[nAwayTeam].getColouredName()))
-                nTotalScore = nHomeScore + nAwayScore
-                if nAwayTeam == self.teamIndex:
-                    ansi.doCursorDown(nTotalScore)
-                    nScorer = random.randint(0, len(naScorers)-1)
-                    print('{}{} {}'.format(' ' * 22, nTime, naScorers[nScorer].name), end = '\r')
-                    naScorers[nScorer].goals = naScorers[nScorer].goals + 1
-                    ansi.doCursorUp(nTotalScore)
+                print('{}{:>17}{} {} - {} {}'.format(self.teams[homeTeam].colour, self.teams[homeTeam].name, ansi.RESET_ALL, homeScore, awayScore, self.teams[awayTeam].getColouredName()))
+                totalScore = homeScore + awayScore
+                if awayTeam == self.teamIndex:
+                    ansi.doCursorDown(totalScore)
+                    goalScorer = random.randint(0, len(goalScorers)-1)
+                    print('{}{} {}'.format(' ' * 22, goalTime, goalScorers[goalScorer].name), end = '\r')
+                    goalScorers[goalScorer].goals += 1
+                    ansi.doCursorUp(totalScore)
                 else:
-                    ansi.doCursorDown(nTotalScore)
-                    print('{}{} Goal'.format(' ' * 22, nTime), end = '\r')
-                    ansi.doCursorUp(nTotalScore)
+                    ansi.doCursorDown(totalScore)
+                    print('{}{} Goal'.format(' ' * 22, goalTime), end = '\r')
+                    ansi.doCursorUp(totalScore)
 
 
-            print('{}Time {}   '.format(' ' * 17, nTime), end = '\r')
+            print('{}Time {}   '.format(' ' * 17, goalTime), end = '\r')
             sys.stdout.flush()
-            time.sleep(fRealTime + 0.3 - time.time())
+            time.sleep(realTime + 0.3 - time.time())
 
-            if nTime == 45:
-                print('{}Half Time.'.format(' ' * 16, nTime), end = '\r')
+            if goalTime == 45:
+                print('{}Half Time.'.format(' ' * 16, goalTime), end = '\r')
                 sys.stdout.flush()
                 # Did the fixture calculations here in the BBC Basic version.
                 time.sleep(4)
 
         # Move down.
-        ansi.doCursorDown(nHomeGoals + nAwayGoals + 1)
+        ansi.doCursorDown(homeGoals + awayGoals + 1)
         print('Final Score')
-        # print('{} {} - {} {}'.format(self.teams[nHomeTeam].getColouredName(), nHomeGoals, nAwayGoals, self.teams[nAwayTeam].getColouredName()))
-        print('{}{:>17}{} {} - {} {}'.format(self.teams[nHomeTeam].colour, self.teams[nHomeTeam].name, ansi.RESET_ALL, nHomeGoals, nAwayGoals, self.teams[nAwayTeam].getColouredName()))
-        return nHomeGoals, nAwayGoals
+        # print('{} {} - {} {}'.format(self.teams[homeTeam].getColouredName(), homeGoals, awayGoals, self.teams[awayTeam].getColouredName()))
+        print('{}{:>17}{} {} - {} {}'.format(self.teams[homeTeam].colour, self.teams[homeTeam].name, ansi.RESET_ALL, homeGoals, awayGoals, self.teams[awayTeam].getColouredName()))
+        return homeGoals, awayGoals
 
 
 
@@ -1036,28 +1041,28 @@ class Game:
 
 
 
-    def Match(self, nHomeTeam, nAwayTeam, dHomeBonus, dAwayBonus):
+    def match(self, homeTeam, awayTeam, homeBonus, awayBonus):
         ''' Replacement for DEFPROCMATCH (Line 6920) in the BBC Basic version. '''
-        oHome = self.teams[nHomeTeam]
-        oAway = self.teams[nAwayTeam]
-        dHomeAverageGoals = dHomeBonus + (4.0 * oHome.attack / oAway.defence) * oHome.midfield / (oHome.midfield + oAway.midfield) + (oHome.moral - 10.0) / 40.0 - (oAway.energy - 100.0) / 400.0
-        dAwayAverageGoals = dAwayBonus + (4.0 * oAway.attack / oHome.defence) * oAway.midfield / (oAway.midfield + oHome.midfield) + (oAway.moral - 10.0) / 40.0 - (oHome.energy - 100.0) / 400.0
-        nHomeGoals = self.Pois(dHomeAverageGoals, self.multiRandom(1, 2) / 2)
-        nAwayGoals = self.Pois(dAwayAverageGoals, self.multiRandom(1, 2) / 2)
+        home = self.teams[homeTeam]
+        away = self.teams[awayTeam]
+        homeAverageGoals = homeBonus + (4.0 * home.attack / away.defence) * home.midfield / (home.midfield + away.midfield) + (home.moral - 10.0) / 40.0 - (away.energy - 100.0) / 400.0
+        awayAverageGoals = awayBonus + (4.0 * away.attack / home.defence) * away.midfield / (away.midfield + home.midfield) + (away.moral - 10.0) / 40.0 - (home.energy - 100.0) / 400.0
+        homeGoals = self.Pois(homeAverageGoals, self.multiRandom(1, 2) / 2)
+        awayGoals = self.Pois(awayAverageGoals, self.multiRandom(1, 2) / 2)
 
         # Set the moral for the teams.
-        if nHomeGoals == nAwayGoals:
-            oHome.moral = 10
-            oAway.moral = 10
+        if homeGoals == awayGoals:
+            home.moral = 10
+            away.moral = 10
         else:
-            if nHomeGoals > nAwayGoals:
-                oHome.moral = max(oHome.moral, 10)
-                oAway.moral = min(oAway.moral, 10)
-                oHome.moral = min(oHome.moral + nHomeGoals - nAwayGoals, 20)
-                oAway.moral = max(oAway.moral + nAwayGoals - nHomeGoals, 1)
+            if homeGoals > awayGoals:
+                home.moral = max(home.moral, 10)
+                away.moral = min(away.moral, 10)
+                home.moral = min(home.moral + homeGoals - awayGoals, 20)
+                away.moral = max(away.moral + awayGoals - homeGoals, 1)
             else:
-                oHome.moral = min(oHome.moral, 10)
-                oAway.moral = max(oAway.moral, 10)
-                oHome.moral = max(oHome.moral + nHomeGoals - nAwayGoals, 1)
-                oAway.moral = min(oAway.moral + nAwayGoals - nHomeGoals, 20)
-        return nHomeGoals, nAwayGoals
+                home.moral = min(home.moral, 10)
+                away.moral = max(away.moral, 10)
+                home.moral = max(home.moral + homeGoals - awayGoals, 1)
+                away.moral = min(away.moral + awayGoals - homeGoals, 20)
+        return homeGoals, awayGoals

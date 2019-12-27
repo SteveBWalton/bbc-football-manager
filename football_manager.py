@@ -24,10 +24,10 @@ from game import Game
 
 
 
-def run():
+def run(args):
     ''' Main entry point for the program. '''
     # Create a game object.
-    game = Game()
+    game = Game(args)
     game.run()
 
 
@@ -36,6 +36,7 @@ if __name__ == '__main__':
     # Process the command line arguments.
     # This might end the program (--help).
     argParse = argparse.ArgumentParser(prog='football_manager', description='Convertion of the BBC Basic Football Manager program.')
+    argParse.add_argument('-d', '--debug', help='Run the program in debug mode.', action='store_true')
     args = argParse.parse_args()
 
     # Welcome message.
@@ -45,6 +46,6 @@ if __name__ == '__main__':
     print('Operating System is "{}".  Desktop is "{}".'.format(platform.system(), os.environ.get('DESKTOP_SESSION')))
 
     # Main loop.
-    run()
+    run(args)
 
     print('Goodbye from the {}BBC Football Manager{} program.'.format(ansi.RED, ansi.RESET_ALL))
