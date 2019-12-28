@@ -258,7 +258,7 @@ class Game:
         self.Report()
         # PROCPROGRESS
         ansi.doCls()
-        self.PlayerCaps()
+        self.playerCaps()
         self.playerFit()
         self.wait()
 
@@ -547,35 +547,35 @@ class Game:
 
 
 
-    def PlayerCaps(self):
+    def playerCaps(self):
         ''' This was part of PROCPROGRESS in the BBC Basic version. '''
-        oPlayersByCaps = sorted(self.players, key=lambda CPlayer: CPlayer.caps, reverse=True)
+        playersByCaps = sorted(self.players, key=lambda Player: Player.caps, reverse=True)
         print('{}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓{}'.format(ansi.MAGENTA, ansi.RESET_ALL))
         print('{}┃{}   Player        Position  Caps Goals {}┃{}'.format(ansi.MAGENTA, ansi.RESET_ALL, ansi.MAGENTA, ansi.RESET_ALL))
-        for nIndex in range(11):
-            oPlayer = oPlayersByCaps[nIndex]
-            if oPlayer.injured:
-                sPlayerColour = ansi.RED
-            elif oPlayer.inTeam:
-                sPlayerColour = ansi.GREEN
+        for index in range(11):
+            player = playersByCaps[index]
+            if player.injured:
+                playerColour = ansi.RED
+            elif player.inTeam:
+                playerColour = ansi.GREEN
             else:
-                sPlayerColour = ansi.RESET_ALL
-            print('{}┃{}{:>2} {:<14}{:<9}{:>5}{:>6} {}┃{}'.format(ansi.MAGENTA, sPlayerColour, nIndex + 1, oPlayer.name, oPlayer.getPosition(), oPlayer.caps, oPlayer.goals, ansi.MAGENTA, ansi.RESET_ALL))
+                playerColour = ansi.RESET_ALL
+            print('{}┃{}{:>2} {:<14}{:<9}{:>5}{:>6} {}┃{}'.format(ansi.MAGENTA, playerColour, index + 1, player.name, player.getPosition(), player.caps, player.goals, ansi.MAGENTA, ansi.RESET_ALL))
 
         # Top Scorers.
-        oPlayersByGoals = sorted(self.players, key=lambda CPlayer: CPlayer.goals, reverse=True)
+        playersByGoals = sorted(self.players, key=lambda Player: Player.goals, reverse=True)
         print('{}┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫{}'.format(ansi.MAGENTA, ansi.RESET_ALL))
         print('{}┃{}   Player        Position  Caps Goals {}┃{}'.format(ansi.MAGENTA, ansi.RESET_ALL, ansi.MAGENTA, ansi.RESET_ALL))
-        for nIndex in range(5):
-            oPlayer = oPlayersByGoals[nIndex]
-            if oPlayer.injured:
-                sPlayerColour = ansi.RED
-            elif oPlayer.inTeam:
-                sPlayerColour = ansi.GREEN
+        for index in range(5):
+            player = playersByGoals[index]
+            if player.injured:
+                playerColour = ansi.RED
+            elif player.inTeam:
+                playerColour = ansi.GREEN
             else:
-                sPlayerColour = ansi.RESET_ALL
-            if oPlayer.goals > 0:
-                print('{}┃{}{:>2} {:<14}{:<9}{:>5}{:>6} {}┃{}'.format(ansi.MAGENTA, sPlayerColour, nIndex + 1, oPlayer.name, oPlayer.getPosition(), oPlayer.caps, oPlayer.goals, ansi.MAGENTA, ansi.RESET_ALL))
+                playerColour = ansi.RESET_ALL
+            if player.goals > 0:
+                print('{}┃{}{:>2} {:<14}{:<9}{:>5}{:>6} {}┃{}'.format(ansi.MAGENTA, playerColour, index + 1, player.name, player.getPosition(), player.caps, player.goals, ansi.MAGENTA, ansi.RESET_ALL))
         print('{}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛{}'.format(ansi.MAGENTA, ansi.RESET_ALL))
 
 
