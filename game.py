@@ -240,7 +240,7 @@ class Game:
 
         # PROCPLAYERS
         self.playerEngergy()
-        self.PlayerInjured()
+        self.playerInjured()
         # Decided the fixtures for the league was at half time of the playmatch.
         self.decideFixtures(opponent)
 
@@ -303,19 +303,19 @@ class Game:
 
 
 
-    def PlayerInjured(self):
+    def playerInjured(self):
         '''
         Replacement for PROCINJ (line 5100) in the BBC Basic version.
         This gives players an injury.
         '''
-        nPlayer = random.randint(0, 25)
-        if self.players[nPlayer].injured:
+        player = random.randint(0, 25)
+        if self.players[player].injured:
             return
-        self.dropPlayer(nPlayer)
-        self.players[nPlayer].injured = True
-        if self.players[nPlayer].inSquad:
-            print('{}{} has been injured.{}'.format(ansi.RED, self.players[nPlayer].name, ansi.RESET_ALL))
-            self.numInjured = self.numInjured + 1
+        self.dropPlayer(player)
+        self.players[player].injured = True
+        if self.players[player].inSquad:
+            print('{}{} has been injured.{}'.format(ansi.RED, self.players[player].name, ansi.RESET_ALL))
+            self.numInjured += 1
 
 
 
