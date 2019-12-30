@@ -255,7 +255,7 @@ class Game:
         self.wait()
 
         self.market()
-        self.Report()
+        self.report()
         # PROCPROGRESS
         ansi.doCls()
         self.playerCaps()
@@ -467,7 +467,7 @@ class Game:
 
 
 
-    def Report(self):
+    def report(self):
         ''' Replacement for PROCREPORT ( line 3970 ) in the BBC Basic version. '''
         if self.gateMoney > 0:
             print(self.financialLine('Gate Money', self.gateMoney, 0))
