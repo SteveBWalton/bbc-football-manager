@@ -27,7 +27,7 @@ class Game:
 
     def __init__(self, args):
         ''' Class constructor for the BBC Football manager game. '''
-        self.player_name = ''
+        self.playerName = ''
         self.level = 1
         self.teamName = ''
         self.teamColour = ansi.WHITE
@@ -49,7 +49,7 @@ class Game:
 
         # Get the player settings.
         print()
-        self.player_name = input('Please enter your name: ')
+        self.playerName = input('Please enter your name: ')
 
         # Select the level.
         print('Enter level [1-4]')
@@ -79,7 +79,7 @@ class Game:
             # Play a season.
             while self.numMatches < MATCHES_PER_SEASON:
                 ansi.doCls()
-                print('{} MANAGER: {}'.format(self.team.getColouredName(), self.player_name))
+                print('{} MANAGER: {}'.format(self.team.getColouredName(), self.playerName))
                 print('LEVEL: {}'.format(self.level))
                 print()
                 print('1 .. Sell Players / View Squad')
@@ -160,7 +160,7 @@ class Game:
                     for nIndex in range(13, 16):
                         sExclued.append(self.teams[nIndex].name)
                         self.teams[nIndex].name = ''
-            self.SetTeamsForDivision(sExclued)
+            self.setTeamsForDivision(sExclued)
 
             # Reskill the players.
             self.numTeam = 0
@@ -246,7 +246,7 @@ class Game:
 
         self.wait()
 
-        self.Rest()
+        self.rest()
         self.sortDivision()
         self.wait()
 
@@ -266,6 +266,7 @@ class Game:
 
     def applyPoints(self, home, away, homeGoals, awayGoals):
         ''' Apply the points to the league. '''
+        self.teams[home].numHomeGames += 1
         if homeGoals == awayGoals:
             self.teams[home].pts += 1
             self.teams[away].pts += 1
@@ -610,8 +611,8 @@ class Game:
         ''' Replacement for PROCLEAGUE in the BBC Basic version. '''
         print('Division {}'.format(self.division))
         print('   Team             W  D  L Pts Dif')
-        for oTeam in self.teams:
-            oTeam.writeTableRow()
+        for team in self.teams:
+            team.writeTableRow(self.args.debug)
         print('Matches Played: {}'.format(self.numMatches))
         print('{} position: {}'.format(self.team.getColouredName(), self.teamIndex+1))
 
@@ -621,11 +622,11 @@ class Game:
         ''' Replacement for PROCSORT in the BBC Basic version. '''
         self.teams = sorted(self.teams, key=lambda Team: (Team.pts, Team.difference), reverse=True)
         position = 1
-        for oTeam in self.teams:
-            oTeam.position = position
-            if oTeam.name == self.teamName:
+        for team in self.teams:
+            team.position = position
+            if team.name == self.teamName:
                 self.teamIndex = position-1
-                self.team = oTeam
+                self.team = team
             position += 1
 
 
@@ -662,7 +663,7 @@ class Game:
         # Initialise the teams.
         self.teams = None
         self.division = 4
-        self.SetTeamsForDivision([])
+        self.setTeamsForDivision([])
         self.sortDivision()
 
         # Pick a default selection of players.
@@ -675,42 +676,42 @@ class Game:
 
 
 
-    def SetTeamsForDivision(self, sExistingNames):
+    def setTeamsForDivision(self, existingNames):
         ''' Replacement for PROCDIVISON (line 3520) in the BBC Basic version. '''
         if self.teams == None:
             self.teams = []
             for nTeam in range(16):
-                oTeam = Team()
-                oTeam.name = ''
-                self.teams.append(oTeam)
+                team = Team()
+                team.name = ''
+                self.teams.append(team)
             self.teams[0].name = self.teamName
             self.teams[0].colour = self.teamColour
             self.teams[0].position = 1
-        nDivision = self.division
+        division = self.division
 
         # Record the existing team names.
-        for oTeam in self.teams:
-            if oTeam.name != '':
-                sExistingNames.append(oTeam.name)
+        for team in self.teams:
+            if team.name != '':
+                existingNames.append(team.name)
 
         newTeam = 1
-        for oTeam in self.teams:
-            if oTeam.name == '':
-                oTeam.getTeam(nDivision, newTeam)
+        for team in self.teams:
+            if team.name == '':
+                team.getTeam(division, newTeam)
                 # Check that this team is unique.
-                while oTeam.name in sExistingNames:
+                while team.name in existingNames:
                     newTeam += 1
-                    oTeam.getTeam(nDivision, newTeam)
+                    team.getTeam(division, newTeam)
 
-                sExistingNames.append(oTeam.name)
+                existingNames.append(team.name)
                 newTeam += 1
 
-            if oTeam.name == self.teamName:
+            if team.name == self.teamName:
                 # Initialise the players team.
-                oTeam.zero()
+                team.zero()
             else:
                 # Initialise the opponent team.
-                oTeam.initialise(self.division)
+                team.initialise(self.division)
 
 
 
@@ -838,8 +839,8 @@ class Game:
             oPlayer.dump(outputFile)
 
         # Save the teams.
-        for oTeam in self.teams:
-            oTeam.dump(outputFile)
+        for team in self.teams:
+            team.dump(outputFile)
 
         outputFile.close()
 
@@ -883,9 +884,9 @@ class Game:
         # Load the teams.
         self.teams = []
         for nIndex in range(16):
-            oTeam = Team()
-            oTeam.load(inputFile)
-            self.teams.append(oTeam)
+            team = Team()
+            team.load(inputFile)
+            self.teams.append(team)
 
         inputFile.close()
 
@@ -911,13 +912,14 @@ class Game:
             self.teams[away].fixture = match * 2
 
             # Swap if the away team has fewer home matches.
-            # Are we counting home matches currently.
-            #if self.teams[home].homeMatches > self.teams[away].homeMatches:
-            #    swap home, away
+            if self.teams[home].numHomeGames > self.teams[away].numHomeGames:
+                home, away = away, home
+                self.teams[home].fixture = match * 2 - 1
+                self.teams[away].fixture = match * 2
 
 
 
-    def Rest(self):
+    def rest(self):
         '''
         Replacement for DEFPROCREST (line 2710) in the BBC Basic version.
         This is play and display the rest of the matches in the league.
@@ -1024,20 +1026,25 @@ class Game:
 
 
 
-    def Pois(self, U, C):
-        ''' Replacement for DEFNPOIS (Line 7040) in the BBC Basic version. '''
-        nT = 0
-        P = math.exp(-U)
-        if C < P:
-            return 0
-        S = P
+    def poisson(self, mean, probability):
+        ''' Replacement for DEFNPOIS (Line 7040) in the BBC Basic version.
+
+        :param double mean: Specifies the mean value of the poisson distribution.
+        :param double probability: Specifies the point on the cumulative distribution function (cdf) to return the value from.
+        '''
+        answer = 0
+        # 'pdf' is the probability distribution function at this 'answer'.
+        pdf = math.exp(-mean)
+        if probability < pdf:
+            return answer
+        cdf = pdf
         while True:
-            nT = nT + 1
-            P = P * U / nT
-            S = S + P
-            if C < S:
+            answer += 1
+            pdf *= mean / answer
+            cdf += pdf
+            if probability < cdf:
                 break;
-        return nT
+        return answer
 
 
 
@@ -1047,8 +1054,8 @@ class Game:
         away = self.teams[awayTeam]
         homeAverageGoals = homeBonus + (4.0 * home.attack / away.defence) * home.midfield / (home.midfield + away.midfield) + (home.moral - 10.0) / 40.0 - (away.energy - 100.0) / 400.0
         awayAverageGoals = awayBonus + (4.0 * away.attack / home.defence) * away.midfield / (away.midfield + home.midfield) + (away.moral - 10.0) / 40.0 - (home.energy - 100.0) / 400.0
-        homeGoals = self.Pois(homeAverageGoals, self.multiRandom(1, 2) / 2)
-        awayGoals = self.Pois(awayAverageGoals, self.multiRandom(1, 2) / 2)
+        homeGoals = self.poisson(homeAverageGoals, self.multiRandom(1, 2) / 2)
+        awayGoals = self.poisson(awayAverageGoals, self.multiRandom(1, 2) / 2)
 
         # Set the moral for the teams.
         if homeGoals == awayGoals:

@@ -38,6 +38,7 @@ class Team:
         self.win = 0
         self.draw = 0
         self.lost = 0
+        self.numHomeGames = 0
 
 
 
@@ -62,6 +63,7 @@ class Team:
         self.win = 0
         self.draw = 0
         self.lost = 0
+        self.numHomeGames = 0
 
 
 
@@ -81,14 +83,17 @@ class Team:
         self.win = 0
         self.draw = 0
         self.lost = 0
+        self.numHomeGames = 0
 
 
 
-
-    def writeTableRow(self):
+    def writeTableRow(self, isDebug):
         ''' Write this team into the league table. '''
-        # print('{:>2} {}{:<15}{:>3}{:>3}{:>3}{:>4}{:>4} {} {} {}'.format(self.position, self.colour, self.name, self.win, self.draw, self.lost, self.pts, self.difference, 'Y' if self.isPlayedHome else 'N', 'Y' if self.isPlayedAway else 'N', ansi.RESET_ALL))
-        print('{:>2} {}{:<15}{:>3}{:>3}{:>3}{:>4}{:>4}{}'.format(self.position, self.colour, self.name, self.win, self.draw, self.lost, self.pts, self.difference, ansi.RESET_ALL))
+        if isDebug:
+            name = '{}({})'.format(self.name, self.numHomeGames)
+        else:
+            name = self.name
+        print('{:>2} {}{:<15}{:>3}{:>3}{:>3}{:>4}{:>4}{}'.format(self.position, self.colour, name, self.win, self.draw, self.lost, self.pts, self.difference, ansi.RESET_ALL))
 
 
 

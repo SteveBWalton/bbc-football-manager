@@ -100,5 +100,15 @@ ENV/
 # mypy
 .mypy_cache/
 
+# Ignore these folders.
+_build/
+
 # Ignore these file types.
 *.game
+
+# Ignore these files.
+conf.py
+index.rst
+make.bat
+makefile
+
