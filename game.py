@@ -75,6 +75,7 @@ class Game:
         while True:
             self.moneyStart = self.money - self.debt
             self.moneyMessage = ''
+            self.weeks = []
 
             # Play a season.
             while self.numMatches < MATCHES_PER_SEASON:
@@ -126,8 +127,8 @@ class Game:
                 print('Qualify for Europe')
             else:
                 print('Promotion')
-            for nIndex in range(0, 3):
-                print(self.teams[nIndex].getColouredName())
+            for index in range(0, 3):
+                print(self.teams[index].getColouredName())
             if self.division != 4:
                 print('Relegation')
                 for nIndex in range(13, 16):
@@ -248,6 +249,19 @@ class Game:
 
         self.rest()
         self.sortDivision()
+
+        # Store the data for progress.
+        if isHomeMatch:
+            week = 0
+        else:
+            week = 256
+        if playerGoals == opponentGoals:
+            week |= 64
+        elif playerGoals > opponentGoals:
+            week |= 128
+        week += self.teamIndex
+        self.weeks.append(week)
+
         self.wait()
 
         ansi.doCls()
@@ -256,7 +270,7 @@ class Game:
 
         self.market()
         self.report()
-        # PROCPROGRESS
+        self.progress()
         ansi.doCls()
         self.playerCaps()
         self.playerFit()
@@ -549,7 +563,7 @@ class Game:
 
 
     def playerCaps(self):
-        ''' This was part of PROCPROGRESS in the BBC Basic version. '''
+        ''' This was part of PROCPROGRESS (line 6190) in the BBC Basic version. '''
         playersByCaps = sorted(self.players, key=lambda Player: Player.caps, reverse=True)
         print('{}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓{}'.format(ansi.MAGENTA, ansi.RESET_ALL))
         print('{}┃{}   Player        Position  Caps Goals {}┃{}'.format(ansi.MAGENTA, ansi.RESET_ALL, ansi.MAGENTA, ansi.RESET_ALL))
@@ -625,7 +639,7 @@ class Game:
         for team in self.teams:
             team.position = position
             if team.name == self.teamName:
-                self.teamIndex = position-1
+                self.teamIndex = position - 1
                 self.team = team
             position += 1
 
@@ -1020,7 +1034,6 @@ class Game:
         # Move down.
         ansi.doCursorDown(homeGoals + awayGoals + 1)
         print('Final Score')
-        # print('{} {} - {} {}'.format(self.teams[homeTeam].getColouredName(), homeGoals, awayGoals, self.teams[awayTeam].getColouredName()))
         print('{}{:>17}{} {} - {} {}'.format(self.teams[homeTeam].colour, self.teams[homeTeam].name, ansi.RESET_ALL, homeGoals, awayGoals, self.teams[awayTeam].getColouredName()))
         return homeGoals, awayGoals
 
@@ -1073,3 +1086,33 @@ class Game:
                 home.moral = max(home.moral + homeGoals - awayGoals, 1)
                 away.moral = min(away.moral + awayGoals - homeGoals, 20)
         return homeGoals, awayGoals
+
+
+
+    def progress(self):
+        ''' Replacement for DEFPROCPROGRESS (line 5790) in the BBC Basic version. '''
+        ansi.doCls()
+        print("{}'s progress in division {}".format(self.team.getColouredName(), self.division))
+        # Display FA Cup status.
+        # Display League Cup status.
+        # Display European Cup status.
+
+        # Show league results summary.
+        print(' [--- Home ---] [--- Away ---]')
+        print('  W  D  L  F  A  W  D  L  F  A Pts')
+
+        # Show league results details.
+        for week in self.weeks:
+            if week & 256 == 0:
+                homeAway = 'Home'
+            else:
+                homeAway = 'Away'
+            if week & 192 == 0:
+                result = 'Lost '
+            elif week & 192 == 128:
+                result = 'Won  '
+            else:
+                result = 'Drawn'
+            print('{} {} {}'.format(homeAway, result, week & 63))
+        # Wait for the user.
+        self.wait()
