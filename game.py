@@ -656,23 +656,23 @@ class Game:
 
         # Initialise the players.
         self.players = []
-        for nIndex in range(1, 27):
-            oPlayer = Player()
-            oPlayer.getPlayer(nIndex)
-            oPlayer.skill = random.randint(1, 5)
-            oPlayer.energy = random.randint(1, 20)
-            self.players.append(oPlayer)
-        for nIndex in range(4):
-            nPlayer = random.randint(0, 25)
-            self.players[nPlayer].skill = 5
+        for index in range(1, 27):
+            player = Player()
+            player.getPlayer(nIndex)
+            player.skill = random.randint(1, 5)
+            player.energy = random.randint(1, 20)
+            self.players.append(player)
+        for index in range(4):
+            player = random.randint(0, 25)
+            self.players[player].skill = 5
 
         # Pick 12 players.
         self.numSquad = 12
-        for nIndex in range(self.numSquad):
-            nPlayer = random.randint(0, 25)
-            while self.players[nPlayer].inSquad:
-                nPlayer = random.randint(0, 25)
-            self.players[nPlayer].inSquad = True
+        for index in range(self.numSquad):
+            player = random.randint(0, 25)
+            while self.players[player].inSquad:
+                player = random.randint(0, 25)
+            self.players[player].inSquad = True
 
         # Initialise the teams.
         self.teams = None
@@ -683,10 +683,10 @@ class Game:
         # Pick a default selection of players.
         self.numTeam = 0
         self.numInjured = 0
-        for nIndex in range(26):
-            if self.players[nIndex].inSquad:
+        for index in range(26):
+            if self.players[index].inSquad:
                 if self.numTeam < 11:
-                    self.addPlayer(nIndex)
+                    self.addPlayer(index)
 
 
 
