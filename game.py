@@ -92,7 +92,7 @@ class Game:
                 print('8 .. Quit')
                 keyPress = self.getKeyboardCharacter(['1', '2', '3', '4', '5', '6', '7', '8'])
                 if keyPress == '1':
-                    self.SellPlayer()
+                    self.sellPlayer()
                 elif keyPress == '2':
                     self.bank()
                 elif keyPress == '3':
@@ -401,25 +401,25 @@ class Game:
 
 
 
-    def SellPlayer(self):
+    def sellPlayer(self):
         ''' Replacement for PROCSELL (line 1950) in the BBC Basic version. '''
         ansi.doCls()
         self.displaySquad()
         print('Enter <RETURN> to return to menu.')
         print('Else enter player number to be sold')
-        nPlayerNumber = self.enterNumber('>')
-        if nPlayerNumber >= 1 and nPlayerNumber <= 26:
-            nPlayerNumber = nPlayerNumber - 1
-            if self.players[nPlayerNumber].inSquad:
-                nPrice = int((self.players[nPlayerNumber].skill + random.uniform(0, 1)) * 5000 * (5 - self.division))
-                print('You are offered £{:,.2f}'.format(nPrice))
+        playerNumber = self.enterNumber('>')
+        if playerNumber >= 1 and playerNumber <= 26:
+            playerNumber -= 1
+            if self.players[playerNumber].inSquad:
+                price = int((self.players[playerNumber].skill + random.uniform(0, 1)) * 5000 * (5 - self.division))
+                print('You are offered £{:,.2f}'.format(price))
                 print('Do you accept (Y/N)?')
                 if self.getYesNo():
-                    self.numSquad = self.numSquad - 1
-                    self.dropPlayer(nPlayerNumber)
-                    self.players[nPlayerNumber].inSquad = False
-                    self.money = self.money + nPrice
-                    self.moneyMessage = self.moneyMessage + self.financialLine(self.players[nPlayerNumber].name + ' sold', nPrice, 0) + "\n";
+                    self.numSquad -= 1
+                    self.dropPlayer(playerNumber)
+                    self.players[playerNumber].inSquad = False
+                    self.money += price
+                    self.moneyMessage = self.moneyMessage + self.financialLine(self.players[playerNumber].name + ' sold', price, 0) + "\n";
             else:
                 print('On range')
             self.wait()
@@ -923,15 +923,15 @@ class Game:
         This is play and display the rest of the matches in the league.
         '''
         for match in range(1, 8):
-            for nIndex in range(16):
-                if self.teams[nIndex].fixture == 2 * match - 1:
-                    nHome = nIndex
-                if self.teams[nIndex].fixture == 2 * match:
-                    nAway = nIndex
+            for index in range(16):
+                if self.teams[index].fixture == 2 * match - 1:
+                    home = index
+                if self.teams[index].fixture == 2 * match:
+                    away = index
 
-            homeGoals, awayGoals = self.match(nHome, nAway, 0.5, 0)
-            print('{}{:>17}{} {} - {} {}'.format(self.teams[nHome].colour, self.teams[nHome].name, ansi.RESET_ALL, homeGoals, awayGoals, self.teams[nAway].getColouredName()))
-            self.applyPoints(nHome, nAway, homeGoals, awayGoals)
+            homeGoals, awayGoals = self.match(home, away, 0.5, 0)
+            print('{}{:>17}{} {} - {} {}'.format(self.teams[home].colour, self.teams[home].name, ansi.RESET_ALL, homeGoals, awayGoals, self.teams[away].getColouredName()))
+            self.applyPoints(home, away, homeGoals, awayGoals)
 
 
 
