@@ -658,7 +658,7 @@ class Game:
         self.players = []
         for index in range(1, 27):
             player = Player()
-            player.getPlayer(nIndex)
+            player.getPlayer(index)
             player.skill = random.randint(1, 5)
             player.energy = random.randint(1, 20)
             self.players.append(player)
