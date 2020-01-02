@@ -1102,17 +1102,38 @@ class Game:
         print('  W  D  L  F  A  W  D  L  F  A Pts')
 
         # Show league results details.
-        for week in self.weeks:
-            if week & 256 == 0:
-                homeAway = 'Home'
-            else:
-                homeAway = 'Away'
-            if week & 192 == 0:
-                result = 'Lost '
-            elif week & 192 == 128:
-                result = 'Won  '
-            else:
-                result = 'Drawn'
-            print('{} {} {}'.format(homeAway, result, week & 63))
+        count = 0
+        for week in reversed(self.weeks):
+            count += 1
+            if count <= 10:
+                if week & 256 == 0:
+                    homeAway = 'Home'
+                else:
+                    homeAway = 'Away'
+                if week & 192 == 0:
+                    result = ansi.LIGHT_RED + 'Lost ' + ansi.RESET_ALL
+                elif week & 192 == 128:
+                    result = ansi.LIGHT_GREEN + 'Won  ' + ansi.RESET_ALL
+                else:
+                    result = ansi.LIGHT_YELLOW + 'Drawn' + ansi.RESET_ALL
+                # There are positions 1 to 16. 16-14, 13-4, 3-2, 1
+                position = 1 + (week & 63)
+                bar = ''
+                if position < 14:
+                    bar = ansi.BACKGROUND_LIGHT_RED + '  ' * 3
+                    if position < 4:
+                        bar += ansi.BACKGROUND_LIGHT_MAGENTA + '  ' * 10
+                        if position == 3:
+                            bar += ansi.BACKGROUND_LIGHT_GREEN + '  '
+                        elif position == 2:
+                            bar += ansi.BACKGROUND_LIGHT_GREEN + '    '
+                        else:
+                            bar += ansi.BACKGROUND_LIGHT_GREEN + '    ' + ansi.BACKGROUND_YELLOW + '  '
+                    else:
+                        bar += ansi.BACKGROUND_LIGHT_MAGENTA + '  ' * (14 - position)
+                else:
+                    bar = ansi.BACKGROUND_LIGHT_RED + '  ' * (17 - position)
+                print('{} {} {:>2} {}{}'.format(homeAway, result, 1 + week & 63, bar, ansi.BACKGROUND_DEFAULT))
+
         # Wait for the user.
         self.wait()
