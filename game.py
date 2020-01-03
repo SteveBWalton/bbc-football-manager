@@ -1118,22 +1118,26 @@ class Game:
                     result = ansi.LIGHT_YELLOW + 'Drawn' + ansi.RESET_ALL
                 # There are positions 1 to 16. 16-14, 13-4, 3-2, 1
                 position = 1 + (week & 63)
+                # The bar is one element short because the number is the final element.
                 bar = ''
                 if position < 14:
                     bar = ansi.BACKGROUND_LIGHT_RED + '  ' * 3
                     if position < 4:
                         bar += ansi.BACKGROUND_LIGHT_MAGENTA + '  ' * 10
                         if position == 3:
-                            bar += ansi.BACKGROUND_LIGHT_GREEN + '  '
+                            bar += ansi.BACKGROUND_LIGHT_GREEN + ansi.DARK_GRAY
                         elif position == 2:
-                            bar += ansi.BACKGROUND_LIGHT_GREEN + '    '
+                            bar += ansi.BACKGROUND_LIGHT_GREEN + '  ' + ansi.DARK_GRAY
                         else:
-                            bar += ansi.BACKGROUND_LIGHT_GREEN + '    ' + ansi.BACKGROUND_YELLOW + '  '
+                            bar += ansi.BACKGROUND_LIGHT_GREEN + '    ' + ansi.BACKGROUND_YELLOW
                     else:
-                        bar += ansi.BACKGROUND_LIGHT_MAGENTA + '  ' * (14 - position)
+                        bar += ansi.BACKGROUND_LIGHT_MAGENTA + '  ' * (13 - position)
                 else:
-                    bar = ansi.BACKGROUND_LIGHT_RED + '  ' * (17 - position)
-                print('{} {} {:>2} {}{}'.format(homeAway, result, 1 + week & 63, bar, ansi.BACKGROUND_DEFAULT))
+                    bar = ansi.BACKGROUND_LIGHT_RED + '  ' * (16 - position)
+
+                # Add the final element as the number.
+                bar = '{}{:>2}'.format(bar, 1 + week & 63)
+                print('{} {} {}{}'.format(homeAway, result, bar, ansi.RESET_ALL))
 
         # Wait for the user.
         self.wait()
