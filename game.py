@@ -75,7 +75,6 @@ class Game:
         while True:
             self.moneyStart = self.money - self.debt
             self.moneyMessage = ''
-            self.weeks = []
 
             # Play a season.
             while self.numMatches < MATCHES_PER_SEASON:
@@ -131,37 +130,37 @@ class Game:
                 print(self.teams[index].getColouredName())
             if self.division != 4:
                 print('Relegation')
-                for nIndex in range(13, 16):
-                    print(self.teams[nIndex].getColouredName())
+                for index in range(13, 16):
+                    print(self.teams[index].getColouredName())
 
             # Rebuild the new league.
-            sExclued = []
+            exclued = []
             if self.division != 1 and self.teamIndex <= 2:
                 # Promotion.
                 self.division = self.division - 1
                 print('{} are promoted to division {}'.format(self.teams[self.teamIndex].getColouredName(), self.division))
-                for nIndex in range(3, 13):
-                    sExclued.append(self.teams[nIndex].name)
-                    self.teams[nIndex].name = ''
+                for index in range(3, 13):
+                    exclued.append(self.teams[index].name)
+                    self.teams[index].name = ''
             elif self.division != 4 and self.teamIndex >= 13:
                 # Relegation.
                 self.division = self.division + 1
                 print('{} are relegated to division {}'.format(self.teams[self.teamIndex].getColouredName(), self.division))
-                for nIndex in range(0, 13):
-                    sExclued.append(self.teams[nIndex].name)
-                    self.teams[nIndex].name = ''
+                for index in range(0, 13):
+                    exclued.append(self.teams[index].name)
+                    self.teams[index].name = ''
             else:
                 # Same division.
                 print('{} stay in division {}'.format(self.teams[self.teamIndex].getColouredName(), self.division))
                 if self.division != 1:
-                    for nIndex in range(0, 3):
-                        sExclued.append(self.teams[nIndex].name)
-                        self.teams[nIndex].name = ''
+                    for index in range(0, 3):
+                        exclued.append(self.teams[index].name)
+                        self.teams[index].name = ''
                 if self.division != 4:
-                    for nIndex in range(13, 16):
-                        sExclued.append(self.teams[nIndex].name)
-                        self.teams[nIndex].name = ''
-            self.setTeamsForDivision(sExclued)
+                    for index in range(13, 16):
+                        exclued.append(self.teams[index].name)
+                        self.teams[index].name = ''
+            self.setTeamsForDivision(exclued)
 
             # Reskill the players.
             self.numTeam = 0
@@ -175,11 +174,12 @@ class Game:
                 player.injured = False
                 player.caps = 0
                 player.goals = 0
-            for nIndex in range(4):
+            for index in range(4):
                 nPlayer = random.randint(0, 25)
                 self.players[nPlayer].skill = 5 + nSkillBonus
 
             self.numMatches = 0
+            self.weeks = []
 
             self.wait()
 
@@ -653,6 +653,7 @@ class Game:
         self.numMatches = 0
         self.money = 50000
         self.debt = 200000
+        self.week = []
 
         # Initialise the players.
         self.players = []
@@ -819,7 +820,7 @@ class Game:
         print('┃   ┗━┛ ┗━┛  ┃  ┗━┛ ┗━┛ ┃ ┃   ┃   ┃ ┗━┛  ┃ ┃ ┗━┛ ┗━┫ ┗━━ ┃')
         print('                                                   ┃')
         print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛')
-        print('By Steve Walton BBC BASIC 1982-1989, 2000, Python 2018-2019.')
+        print('By Steve Walton BBC BASIC 1982-1989, 2000, Python 2018-2020.')
 
 
 
@@ -848,9 +849,13 @@ class Game:
         json.dump(self.formation, outputFile)
         outputFile.write('\n')
 
+        # Save the weeks.
+        json.dump(self.weeks, outputFile)
+        outputFile.write('\n')
+
         # Save the players.
-        for oPlayer in self.players:
-            oPlayer.dump(outputFile)
+        for player in self.players:
+            player.dump(outputFile)
 
         # Save the teams.
         for team in self.teams:
@@ -867,37 +872,41 @@ class Game:
         ''' Implementation of DEFPROCLOAD (line 5530) from the BBC Basic version. '''
         inputFile = open('save.game', 'r')
 
-        sLine = inputFile.readline()
-        self.numMatches = json.loads(sLine)
-        sLine = inputFile.readline()
-        self.money = json.loads(sLine)
-        sLine = inputFile.readline()
-        self.debt = json.loads(sLine)
-        sLine = inputFile.readline()
-        self.numSquad = json.loads(sLine)
-        sLine = inputFile.readline()
-        self.numTeam = json.loads(sLine)
-        sLine = inputFile.readline()
-        self.numInjured = json.loads(sLine)
-        sLine = inputFile.readline()
-        self.division = json.loads(sLine)
-        sLine = inputFile.readline()
-        self.teamName = json.loads(sLine)
-        sLine = inputFile.readline()
-        self.teamColour = json.loads(sLine)
-        sLine = inputFile.readline()
-        self.formation= json.loads(sLine)
+        line = inputFile.readline()
+        self.numMatches = json.loads(line)
+        line = inputFile.readline()
+        self.money = json.loads(line)
+        line = inputFile.readline()
+        self.debt = json.loads(line)
+        line = inputFile.readline()
+        self.numSquad = json.loads(line)
+        line = inputFile.readline()
+        self.numTeam = json.loads(line)
+        line = inputFile.readline()
+        self.numInjured = json.loads(line)
+        line = inputFile.readline()
+        self.division = json.loads(line)
+        line = inputFile.readline()
+        self.teamName = json.loads(line)
+        line = inputFile.readline()
+        self.teamColour = json.loads(line)
+        line = inputFile.readline()
+        self.formation= json.loads(line)
+
+        # Load the weeks.
+        line = inputFile.readline()
+        self.weeks = json.loads(line)
 
         # Load the players.
         self.players = []
-        for nIndex in range(26):
-            oPlayer = Player()
-            oPlayer.load(inputFile)
-            self.players.append(oPlayer)
+        for index in range(26):
+            player = Player()
+            player.load(inputFile)
+            self.players.append(player)
 
         # Load the teams.
         self.teams = []
-        for nIndex in range(16):
+        for index in range(16):
             team = Team()
             team.load(inputFile)
             self.teams.append(team)
