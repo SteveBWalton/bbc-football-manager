@@ -343,6 +343,8 @@ class Game:
                     if player.inSquad:
                         print('{}{} is fit.{}'.format(ansi.GREEN, player.name, ansi.RESET_ALL))
                         self.numInjured -= 1
+                        if self.numInjured < 0:
+                            self.numInjured = 0
 
 
 
