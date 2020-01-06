@@ -476,7 +476,8 @@ class Game:
                 self.players[player].inSquad = True
                 self.money -= bid
                 self.moneyMessage += self.financialLine(self.players[player].name + ' bought', 0, bid) + "\n";
-
+                if self.players[player].injured:
+                    self.numInjured += 1
             else:
                 if bid > 0:
                     print('{}Your bid is turned down.{}'.format(ansi.RED, ansi.RESET_ALL))
@@ -655,7 +656,7 @@ class Game:
         self.numMatches = 0
         self.money = 50000
         self.debt = 200000
-        self.week = []
+        self.weeks = []
 
         # Initialise the players.
         self.players = []
