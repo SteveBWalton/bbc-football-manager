@@ -4,9 +4,10 @@
 '''
 Module to provide the BBC Basic function INKEY.
 Scan for a keyboard button press but do not block if no key is available.
+
 Under Windows.
-    This works under winpty ( but colours do not work in winpty).
-    This does not work under minitty.
+This works under winpty ( but colours do not work in winpty).
+This does not work under minitty.
 '''
 
 # System Libraries.

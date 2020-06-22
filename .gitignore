@@ -107,8 +107,5 @@ _build/
 *.game
 
 # Ignore these files.
-conf.py
-index.rst
 make.bat
-makefile
 
