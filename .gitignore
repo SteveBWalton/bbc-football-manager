@@ -107,5 +107,6 @@ _build/
 *.game
 
 # Ignore these files.
-make.bat
+docs/make.bat
+permissions.sh
 
