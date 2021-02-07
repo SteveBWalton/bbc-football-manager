@@ -39,8 +39,26 @@ class Game:
         self.args = args
 
 
+
     def run(self):
         ''' Execute the football manager game. '''
+        if self.args.graphical:
+            self.runGraphical()
+        else:
+            self.runConsole()
+
+
+
+    def runGraphical(self):
+        ''' Execute the football manager game in a wx window. '''
+        import main_window
+        graphical = main_window.WxApp(self)
+        graphical.runMainLoop()
+
+
+
+    def runConsole(self):
+        ''' Execute the football manager game in the console. '''
         self.keyboard = InKey()
         random.seed()
 

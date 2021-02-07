@@ -37,12 +37,13 @@ if __name__ == '__main__':
     # This might end the program (--help).
     argParse = argparse.ArgumentParser(prog='football_manager', description='Convertion of the BBC Basic Football Manager program.')
     argParse.add_argument('-d', '--debug', help='Run the program in debug mode.', action='store_true')
+    argParse.add_argument('-g', '--graphical', help='Run the program in a graphical wx window.', action='store_true')
     args = argParse.parse_args()
 
     # Welcome message.
     print('{}BBC Football Manager{} by Steve Walton.'.format(ansi.RED, ansi.RESET_ALL))
-    print('Developed 2018-2019.  Original BBC Basic verison developed 1982-1989, 2000')
-    print('Python Version {}.{}.{} (expecting Python 3).'.format(sys.version_info.major, sys.version_info.minor, sys.version_info.micro))
+    print('Developed 2018-2021.  Original BBC Basic verison developed 1982-1989, 2000')
+    print('Python Version {}·{}·{} (expecting Python 3).'.format(sys.version_info.major, sys.version_info.minor, sys.version_info.micro))
     print('Operating System is "{}".  Desktop is "{}".'.format(platform.system(), os.environ.get('DESKTOP_SESSION')))
 
     # Main loop.
