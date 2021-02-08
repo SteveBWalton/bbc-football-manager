@@ -50,6 +50,7 @@ class WxMainWindow(wx.Frame):
 
         # Intialise the application.
         self.noEvents = 0
+        self.timer = None
 
         # Build the menu bar.
         menuBar = wx.MenuBar()
@@ -68,7 +69,7 @@ class WxMainWindow(wx.Frame):
         self.SetSize((700, 700))
 
         # Display the current page.
-        self.displayCurrentPage()
+        self.displayNextPage('')
 
         # Positive to ignore signals.
         self.noEvents = 0
@@ -97,8 +98,8 @@ class WxMainWindow(wx.Frame):
         oFilter.add_pattern('*.html')
         dialogSelectFile.add_filter(oFilter)
 
-        nResponse = dialogSelectFile.run()
-        if nResponse == gtk.RESPONSE_OK:
+        response = dialogSelectFile.run()
+        if response == gtk.RESPONSE_OK:
             self.application.render.html.Open(dialogSelectFile.get_filename())
 
         dialogSelectFile.destroy()
@@ -127,8 +128,8 @@ class WxMainWindow(wx.Frame):
         oFilter.add_pattern('*.html')
         dialogSelectFile.add_filter(oFilter)
 
-        nResponse = dialogSelectFile.run()
-        if nResponse == gtk.RESPONSE_OK:
+        response = dialogSelectFile.run()
+        if response == gtk.RESPONSE_OK:
             self.saveDocument(dialogSelectFile.get_filename())
 
         dialogSelectFile.destroy()
@@ -190,6 +191,35 @@ class WxMainWindow(wx.Frame):
 
 
 
+    def _onTimer(self, event):
+        ''' Signal handler for the timer. '''
+        self.timer.Stop()
+        self.displayNextPage('')
+
+
+
+    def displayNextPage(self, response):
+        '''
+        Display the next page on the window.
+        Send the response to the game to get the next page.
+        '''
+        # Generate the next page from the game.
+        responses = self.game.getNextPage(response)
+
+        # Display the current page.
+        self.displayCurrentPage()
+
+        # Get ready to catch the response.
+        if responses == 'delay:':
+            if self.timer == None:
+                self.timer = wx.Timer(self)
+                self.Bind(wx.EVT_TIMER, self._onTimer, self.timer)
+            self.timer.Start(500)
+
+
+
+
+
     def displayCurrentPage(self):
         '''
         Display the current content on the window.
@@ -204,7 +234,7 @@ class WxMainWindow(wx.Frame):
         self.noEvents += 1
 
         # Display the html content on the wx.html2.WebView control.
-        self.browser.SetPage('Hello World.', 'file:///')
+        self.browser.SetPage(self.game.html, 'file:///')
 
         # Remove the wait cursor.
 

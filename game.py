@@ -38,6 +38,10 @@ class Game:
         self.formation = [0, 0, 0]
         self.args = args
 
+        self.status = 0
+        self.subStatus = 0
+        self.html = 'Hello World'
+
 
 
     def run(self):
@@ -200,6 +204,20 @@ class Game:
             self.weeks = []
 
             self.wait()
+
+
+
+    def getNextPage(self, response):
+        ''' Advance the game to the next user response. '''
+        if self.subStatus < 90:
+            self.subStatus += 1
+            self.html = '<p>Game</p><p>Time{}</p>'.format(self.subStatus)
+            responseOptions = 'delay:'
+        else:
+            self.html = '<p>Game</p><p>Finished</p>'
+            responseOptions = ' '
+
+        return responseOptions
 
 
 
