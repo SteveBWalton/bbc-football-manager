@@ -177,11 +177,11 @@ class WxMainWindow(wx.Frame):
 
         uri = event.GetURL()
 
-        # print 'Navigation Request url: ', uri
+        print('Navigation Request url: ', uri)
         if uri.startswith('app:'):
             # Follow the local link.
             event.Veto()
-            self.followLocalLink(uri[4:], True)
+            self.displayNextPage(uri[4:])
         # Open Links externally.
         if uri.startswith('http:') or uri.startswith('https:'):
             # Open the specified link with the default handler.  Previously this was fixed as firefox.

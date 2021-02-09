@@ -11,6 +11,7 @@ import math
 import json
 import time
 import sys
+from typing import Dict     # This is for type hinting only.
 
 # Application Libraries.
 import ansi
@@ -207,15 +208,102 @@ class Game:
 
 
 
+    def decodeParameters(self, parameters: str) -> Dict[str, str]:
+        '''
+        :param string parameters: Specifies the parameters as a string. eg. "id=1&name=steve".
+        :returns: A dictionary of the parameters and their values.
+
+        Decode the parameters from a link into a dictionary object.
+        '''
+        # Create an empty dictionary.
+        dictionary = {}
+
+        # Split into Key Value pairs by the '&' character.
+        items = parameters.split('&')
+        for item in items:
+            if item != '':
+                key, value = item.split('=')
+                dictionary[key] = value
+
+        # Return the dictionary object built.
+        return dictionary
+
+
+
     def getNextPage(self, response):
         ''' Advance the game to the next user response. '''
-        if self.subStatus < 90:
-            self.subStatus += 1
-            self.html = '<p>Game</p><p>Time{}</p>'.format(self.subStatus)
-            responseOptions = 'delay:'
+        # Deal with the response.
+        if self.status == 0:
+            print(response)
+            if response != '':
+                if response[0] == '?':
+                    parameters = self.decodeParameters(response[1:])
+                    if 'name' in parameters:
+                        self.playerName = parameters['name']
+                        self.status = 1
+                    self.level = 1
+                    if 'level' in parameters:
+                        self.level = parameters['level']
+        elif self.status == 1:
+            if response != '':
+                if response[0] == '?':
+                    parameters = self.decodeParameters(response[1:])
+                    if 'team' in parameters:
+                        teamIndex = int(parameters['team'])
+                        if teamIndex == 0:
+                            self.status = 2
+                        else:
+                            team = Team()
+                            team.getTeam(teamIndex // 100, teamIndex % 100)
+                            self.teamName = team.name
+                            self.teamColour = team.colour
+                            self.status = 100
+
+
+
+
+
+        # Defaults.
+        responseOptions = ''
+
+        # Render the next page.
+        if self.status == 0:
+            # Initial page.  Get player name and level.
+            self.html = ''
+            self.football()
+            self.html += '<form action="app:" method="get"><p>Please enter your name <input type="text" name="name" /></p>'
+            self.html += '<p>Please select your level <select name="level"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></p>'
+            self.html += '<p>Do you want to load a game <select name="load"><option value="1">No</option><option value="2">Yes</option></select></p>'
+            self.html += '<p><input type="submit" name="OK" /></p>'
+            self.html += '</form>'
+        elif self.status == 1:
+            # Second initial page.  Get the players team.
+            self.html = '<form action="app:" method="get">'
+            self.html += '<p>Please select your team <select name="team">'
+            self.html += '<option value="0">Own Team</option>'
+            for division in range(1, 4):
+                for index in range(1, 16):
+                    team = Team()
+                    team.getTeam(division, index)
+                    self.html += '<option value="{}">{}</option>'.format(100 * division + index, team.name)
+            self.html += '</select>'
+            self.html += '<p><input type="submit" name="OK" /></p>'
+            self.html += '</form>'
+        elif self.status == 100:
+            self.html = '<p>{}</p><p>Manager {}</p>'.format(self.teamName, self.playerName)
+        elif self.status == 78:
+            if self.subStatus < 90:
+                self.subStatus += 1
+                self.html = '<p>Game</p><p>Time{}</p>'.format(self.subStatus)
+                responseOptions = 'delay:'
+            else:
+                self.html = '<p>Game</p><p>Finished</p>'
+                responseOptions = ' '
         else:
-            self.html = '<p>Game</p><p>Finished</p>'
-            responseOptions = ' '
+            self.html = '<p>Error Help.</p><p>status = {}</p>'.format(self.status)
+
+
+
 
         return responseOptions
 
@@ -803,11 +891,11 @@ class Game:
                 team.getTeam(division, selectedNumber - 1)
                 self.teamName = team.name
                 self.teamColour = team.colour
-                break;
+                break
             if selectedNumber == 1:
                 self.teamName = input('Enter Team name ')
                 self.teamColour = ansi.CYAN
-                break;
+                break
             division = 1 + (division & 3)
         print('You manage {}{}{}'.format(self.teamColour, self.teamName, ansi.RESET_ALL))
 
@@ -859,7 +947,18 @@ class Game:
         print('┃   ┗━┛ ┗━┛  ┃  ┗━┛ ┗━┛ ┃ ┃   ┃   ┃ ┗━┛  ┃ ┃ ┗━┛ ┗━┫ ┗━━ ┃')
         print('                                                   ┃')
         print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛')
-        print('By Steve Walton BBC BASIC 1982-1989, 2000, Python 2018-2020.')
+        print('By Steve Walton BBC BASIC 1982-1989, 2000, Python 2018-2021.')
+
+        self.html += '<p>'
+        self.html += '┏━━             ┃       ┃ ┃   ┏━┳━┓<br />'
+        self.html += '┃            ┃  ┃       ┃ ┃   ┃ ┃ ┃<br />'
+        self.html += '┣━━ ┏━┓ ┏━┓ ━╋━ ┣━┓ ━━┓ ┃ ┃   ┃   ┃ ━━┓ ━┳━┓ ━━┓ ┏━┓ ┏━┓ ┏━<br />'
+        self.html += '┃   ┃ ┃ ┃ ┃  ┃  ┃ ┃ ┏━┫ ┃ ┃   ┃   ┃ ┏━┃  ┃ ┃ ┏━┫ ┃ ┃ ┣━┛ ┃<br />'
+        self.html += '┃   ┗━┛ ┗━┛  ┃  ┗━┛ ┗━┛ ┃ ┃   ┃   ┃ ┗━┛  ┃ ┃ ┗━┛ ┗━┫ ┗━━ ┃<br />'
+        self.html += '                                                   ┃<br />'
+        self.html += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛<br />'
+        self.html += '</p>'
+        self.html += '<p>By Steve Walton BBC BASIC 1982-1989, 2000, Python 2018-2021.</p>'
 
 
 
