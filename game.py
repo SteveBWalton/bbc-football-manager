@@ -262,14 +262,39 @@ class Game:
                     self.teamName = team.name
                     self.teamColour = team.colour
                     self.status = 100
+                    self.newGame(True)
         elif self.status == 2:
             # Enter own team name.
             if 'name' in parameters:
                 self.teamName = parameters['name']
                 self.teamColour = ansi.CYAN
                 self.status = 100
+                self.newGame(True)
+        elif self.status == 100:
+            if 'response' in parameters:
+                response = int(parameters['response'])
+                print(response)
+                if response == 4:
+                    # Decide if a cup match.
 
-
+                    # League match.
+                    self.findLeagueOpponent()
+                    self.status = 300
+        elif self.status == 300:
+            if 'response' in parameters:
+                if parameters['response'] == 'c':
+                    self.status = 310
+        elif self.status == 310:
+            if 'player' in parameters:
+                playerIndex = int(parameters['player']) - 1
+                if self.players[playerIndex].inSquad:
+                    if self.players[playerIndex].inTeam:
+                        self.dropPlayer(playerIndex)
+                    else:
+                        self.addPlayer(playerIndex)
+            if 'response' in parameters:
+                if parameters['response'] == 'b':
+                    self.status = 300
 
 
 
@@ -306,7 +331,22 @@ class Game:
             self.html += '<p><input type="submit" name="OK" /></p>'
             self.html += '</form>'
         elif self.status == 100:
-            self.html = '<p>{}</p><p>Manager {}</p>'.format(self.teamName, self.playerName)
+            self.html = '<p>{} Manager {}</p>'.format(self.teamName, self.playerName)
+            self.html += '<p>Level {}</p>'.format(self.level)
+            self.html += '<p style="margin-top:10px;"><a href="app:?response=1">1 .. Sell Players / View Squad</a><br />'
+            self.html += '<a href="app:?response=2">2 .. Bank</a><br />'
+            self.html += '<a href="app:?response=3">3 .. Rename Player</a><br />'
+            self.html += '<a href="app:?response=4">4 .. Continue</a><br />'
+            self.html += '<a href="app:?response=5">5 .. Save Game</a><br />'
+            self.html += '<a href="app:?response=6">6 .. Restart</a><br />'
+            self.html += '<a href="app:?response=7">7 .. League Table</a><br />'
+        elif self.status == 300:
+            if self.isHomeMatch:
+                self.displayMatch(self.teamIndex, self.opponentIndex)
+            else:
+                self.displayMatch(self.opponentIndex, self.teamIndex)
+        elif self.status == 310:
+            self.pickPlayers(True)
         elif self.status == 78:
             if self.subStatus < 90:
                 self.subStatus += 1
@@ -325,6 +365,24 @@ class Game:
 
 
 
+    def findLeagueOpponent(self):
+        ''' Find the opponent for the next league match. '''
+        self.team.isPlayedHome = True
+        self.team.isPlayedAway = True
+        while True:
+            self.opponentIndex = random.randint(0, 15)
+            self.isHomeMatch = (self.numMatches & 1) == 1
+            if self.isHomeMatch:
+                if self.teams[self.opponentIndex].isPlayedHome == False:
+                    self.teams[self.opponentIndex].isPlayedHome = True
+                    break;
+            else:
+                if self.teams[self.opponentIndex].isPlayedAway == False:
+                    self.teams[self.opponentIndex].isPlayedAway = True
+                    break;
+
+
+
     def playWeek(self):
         ''' This is the block of code that was after the menu in the week loop of the BBC Basic version. Line 740 onward.'''
         self.numMatches += 1
@@ -332,27 +390,15 @@ class Game:
         # Decide and play any cup matches.
 
         # Choose an opponent for the league match.
-        self.team.isPlayedHome = True
-        self.team.isPlayedAway = True
-        while True:
-            opponent = random.randint(0, 15)
-            isHomeMatch = (self.numMatches & 1) == 1
-            if isHomeMatch:
-                if self.teams[opponent].isPlayedHome == False:
-                    self.teams[opponent].isPlayedHome = True
-                    break;
-            else:
-                if self.teams[opponent].isPlayedAway == False:
-                    self.teams[opponent].isPlayedAway = True
-                    break;
+        self.findLeagueOpponent()
 
         # Let the player select the players for the team.
         while True:
             ansi.doCls()
-            if isHomeMatch:
-                self.displayMatch(self.teamIndex, opponent)
+            if self.isHomeMatch:
+                self.displayMatch(self.teamIndex, self.opponentIndex)
             else:
-                self.displayMatch(opponent, self.teamIndex)
+                self.displayMatch(self.opponentIndex, self.teamIndex)
             keyPress = self.getKeyboardCharacter(['c', '\t'])
             if keyPress == '\t':
                 break;
@@ -364,17 +410,17 @@ class Game:
         print(ansi.ERASE_LINE)
 
         # Play the match.
-        if isHomeMatch:
-            playerGoals, opponentGoals = self.playMatch(self.teamIndex, opponent, 0.5, 0)
-            self.applyPoints(self.teamIndex, opponent, playerGoals, opponentGoals)
+        if self.isHomeMatch:
+            playerGoals, opponentGoals = self.playMatch(self.teamIndex, self.opponentIndex, 0.5, 0)
+            self.applyPoints(self.teamIndex, self.opponentIndex, playerGoals, opponentGoals)
         else:
-            opponentGoals, playerGoals = self.playMatch(opponent, self.teamIndex, 0.5, 0)
-            self.applyPoints(opponent, self.teamIndex, opponentGoals, playerGoals)
+            opponentGoals, playerGoals = self.playMatch(self.opponentIndex, self.teamIndex, 0.5, 0)
+            self.applyPoints(self.opponentIndex, self.teamIndex, opponentGoals, playerGoals)
 
         # Calculate the gate money.
-        if isHomeMatch:
-            self.gateMoney = (9000 + (15 - self.teamIndex - opponent) * 500) * (5 - self.division) + random.randint(0, 1000)
-            if abs(self.teams[self.teamIndex].pts - self.teams[opponent].pts) < 4:
+        if self.isHomeMatch:
+            self.gateMoney = (9000 + (15 - self.teamIndex - self.opponentIndex) * 500) * (5 - self.division) + random.randint(0, 1000)
+            if abs(self.teams[self.teamIndex].pts - self.teams[self.opponentIndex].pts) < 4:
                 self.gateMoney += (5 - self.division) * 3000
         else:
             self.gateMoney = 0
@@ -391,7 +437,7 @@ class Game:
         self.sortDivision()
 
         # Store the data for progress.
-        if isHomeMatch:
+        if self.isHomeMatch:
             week = 0
         else:
             week = 256
@@ -491,32 +537,44 @@ class Game:
     def displaySquad(self):
         ''' Replacement for PROCPTEAM (line 2130) in the BBC Basic version. '''
         print('   Player        Skill Energy')
+        self.html = '<table>'
+        self.html += '<tr><td colspan="2">Player</td><td>Skill</td><td>Energy</td>'
         for player in self.players:
             if player.inSquad:
                 player.writeRow()
+                self.html += player.writeHtmlRow()
+        self.html += '</table>'
 
 
 
-    def pickPlayers(self):
+    def pickPlayers(self, isGraphical=False):
         ''' Replacement for PROCPICK (line 2260) in the BBC Basic version. '''
-        while True:
-            ansi.doCls()
+        if isGraphical:
             self.displaySquad()
             if self.numTeam <= 11:
-                number = self.enterNumber('>')
-                if number == 0:
-                    break;
-                if number >= 1 and number <= 26:
-                    number -= 1
-                    if self.players[number].inSquad:
-                        if self.players[number].inTeam:
-                            self.dropPlayer(number)
-                        else:
-                            self.addPlayer(number)
+                self.html += '<p>{} Picked, {} Squad, {} Injured.</p>'.format(self.numTeam, self.numSquad, self.numInjured)
+                self.html += '<p><a href="app:?response=b">Back to Match</a></p>'
             else:
-                number = self.enterNumber('Enter Player to Drop ')
-                if number >= 1 and number <= 26:
-                    self.dropPlayer(number - 1)
+                self.html += '<p>Select Player to drop.</a>'
+        else:
+            while True:
+                ansi.doCls()
+                self.displaySquad()
+                if self.numTeam <= 11:
+                    number = self.enterNumber('>')
+                    if number == 0:
+                        break;
+                    if number >= 1 and number <= 26:
+                        number -= 1
+                        if self.players[number].inSquad:
+                            if self.players[number].inTeam:
+                                self.dropPlayer(number)
+                            else:
+                                self.addPlayer(number)
+                else:
+                    number = self.enterNumber('Enter Player to Drop ')
+                    if number >= 1 and number <= 26:
+                        self.dropPlayer(number - 1)
 
 
 
@@ -754,6 +812,21 @@ class Game:
         print('Press C to change team')
         print('Press TAB to play match.')
 
+        self.html = '<table>'
+        self.html += '<tr><td style="text-align: center;"></td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(self.teams[home].name, self.teams[away].name)
+        if True:
+            self.html += '<tr><td style="text-align: center;">Position</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(self.teams[home].position, self.teams[away].position)
+        self.html += '<tr><td style="text-align: center;">Energy</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(self.teams[home].energy, self.teams[away].energy)
+        self.html += '<tr><td style="text-align: center;">Moral</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(self.teams[home].energy, self.teams[away].energy)
+        self.html += '<tr><td style="text-align: center;">Formation</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(self.teams[home].formation, self.teams[away].formation)
+        self.html += '<tr><td style="text-align: center;">Defence</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(self.teams[home].defence, self.teams[away].defence)
+        self.html += '<tr><td style="text-align: center;">Midfield</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(self.teams[home].midfield, self.teams[away].midfield)
+        self.html += '<tr><td style="text-align: center;">Attack</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(self.teams[home].attack, self.teams[away].attack)
+        self.html += '</table>'
+        self.html += '<p>{} Picked, {} Squad, {} Injured.</p>'.format(self.numTeam, self.numSquad, self.numInjured)
+        self.html += '<p><a href="app:?response=c">Press C to change team.</a></p>'
+        self.html += '<p><a href="app:?response=t">Press TAB to play match.</a></p>'
+
 
 
     def wait(self):
@@ -788,11 +861,12 @@ class Game:
 
 
 
-    def newGame(self):
+    def newGame(self, isGraphical=False):
         ''' Initialise a new game. '''
-        self.pickTeam()
+        if isGraphical == False:
+            self.pickTeam()
 
-        # Initialise variables
+        # Initialise variables.
         self.numMatches = 0
         self.money = 50000
         self.debt = 200000

@@ -127,6 +127,26 @@ class Player:
 
 
 
+    def writeHtmlRow(self, exchangeRate=0):
+        ''' Display this player on a html table row. '''
+        if self.position == Player.DEFENSE:
+            html = '<tr style="background-color: blue; color: yellow;">'
+        elif self.position == Player.MIDFIELD:
+            html = '<tr style="background-color: yellow; color: blue;">'
+        else:
+            html = '<tr style="background-color: white; color: blue;">'
+        html += '<td><a href="app:?player={}">{}</a></td><td><a href="app:?player={}">{}</a></td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td>'.format(self.index, self.index, self.index, self.name, self.skill, self.energy)
+        if exchangeRate != 0:
+            html += '<td style="text-align: right;">£{:..0f}</td>'.format(self.skill * exchangeRate)
+        if self.inTeam:
+            html += '<td style="background-color: green; color: yellow; text-align: center; width: 50px;">P</td>';
+        if self.injured:
+            html += '<td style="background-color: red; color: yellow; text-align: center; width: 50px;">I</td>';
+        html += '</tr>'
+        return html
+
+
+
     def getPosition(self):
         ''' Returns the position of the player as a string. '''
         if self.position == Player.DEFENSE:

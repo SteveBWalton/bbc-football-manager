@@ -234,7 +234,8 @@ class WxMainWindow(wx.Frame):
         self.noEvents += 1
 
         # Display the html content on the wx.html2.WebView control.
-        self.browser.SetPage(self.game.html, 'file:///')
+        html = '<html><head><style type="text/css" media="screen">a {{ text-decoration: none; color: inherit; }} a:hover {{ text-decoration: underline; color: inherit; }} a:visited {{ color: inherit; }}</style></head><body style="background: black; color: white;">{}</body></html>'.format(self.game.html)
+        self.browser.SetPage(html, 'file:///')
 
         # Remove the wait cursor.
 
