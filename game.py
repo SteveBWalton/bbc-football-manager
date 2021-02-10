@@ -233,31 +233,41 @@ class Game:
     def getNextPage(self, response):
         ''' Advance the game to the next user response. '''
         # Deal with the response.
+        if response == '':
+            parameters = []
+        elif response[0] == '?':
+            parameters = self.decodeParameters(response[1:])
+        else:
+            parameters = []
+
+        # Deal with the response.
         if self.status == 0:
-            print(response)
+            # Enter player details.
             if response != '':
-                if response[0] == '?':
-                    parameters = self.decodeParameters(response[1:])
-                    if 'name' in parameters:
-                        self.playerName = parameters['name']
-                        self.status = 1
-                    self.level = 1
-                    if 'level' in parameters:
-                        self.level = parameters['level']
+                if 'name' in parameters:
+                    self.playerName = parameters['name']
+                    self.status = 1
+                self.level = 1
+                if 'level' in parameters:
+                    self.level = parameters['level']
         elif self.status == 1:
-            if response != '':
-                if response[0] == '?':
-                    parameters = self.decodeParameters(response[1:])
-                    if 'team' in parameters:
-                        teamIndex = int(parameters['team'])
-                        if teamIndex == 0:
-                            self.status = 2
-                        else:
-                            team = Team()
-                            team.getTeam(teamIndex // 100, teamIndex % 100)
-                            self.teamName = team.name
-                            self.teamColour = team.colour
-                            self.status = 100
+            # Select team.
+            if 'team' in parameters:
+                teamIndex = int(parameters['team'])
+                if teamIndex == 0:
+                    self.status = 2
+                else:
+                    team = Team()
+                    team.getTeam(teamIndex // 100, teamIndex % 100)
+                    self.teamName = team.name
+                    self.teamColour = team.colour
+                    self.status = 100
+        elif self.status == 2:
+            # Enter own team name.
+            if 'name' in parameters:
+                self.teamName = parameters['name']
+                self.teamColour = ansi.CYAN
+                self.status = 100
 
 
 
@@ -287,6 +297,12 @@ class Game:
                     team.getTeam(division, index)
                     self.html += '<option value="{}">{}</option>'.format(100 * division + index, team.name)
             self.html += '</select>'
+            self.html += '<p><input type="submit" name="OK" /></p>'
+            self.html += '</form>'
+        elif self.status == 2:
+            # Optional initialise, name own team.
+            self.html = '<form action="app:" method="get">'
+            self.html += '<p>Please enter your team name <input type="text" name="name"></p>'
             self.html += '<p><input type="submit" name="OK" /></p>'
             self.html += '</form>'
         elif self.status == 100:
