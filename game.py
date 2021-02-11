@@ -284,6 +284,9 @@ class Game:
             if 'response' in parameters:
                 if parameters['response'] == 'c':
                     self.status = 310
+                if parameters['response'] == 't':
+                    self.status = 400
+                    self.subStatus = 0
         elif self.status == 310:
             if 'player' in parameters:
                 playerIndex = int(parameters['player']) - 1
@@ -347,6 +350,12 @@ class Game:
                 self.displayMatch(self.opponentIndex, self.teamIndex)
         elif self.status == 310:
             self.pickPlayers(True)
+        elif self.status == 400:
+            if self.isHomeMatch:
+                responseOptions = self.htmlPlayMatch(self.teamIndex, self.opponentIndex)
+            else:
+                responseOptions = self.htmlPlayMatch(self.opponentIndex, self.teamIndex)
+            # print('responseOptions {}'.format(responseOptions))
         elif self.status == 78:
             if self.subStatus < 90:
                 self.subStatus += 1
@@ -429,7 +438,7 @@ class Game:
         self.playerEngergy()
         self.playerInjured()
         # Decided the fixtures for the league was at half time of the playmatch.
-        self.decideFixtures(opponent)
+        self.decideFixtures(self.opponentIndex)
 
         self.wait()
 
@@ -1188,89 +1197,154 @@ class Game:
 
 
 
-    def playMatch(self, homeTeam, awayTeam, homeBonus, awayBonus):
+    def htmlPlayMatch(self, homeTeam, awayTeam):
+        ''' Display the current match status in html. '''
+        if self.subStatus == 0:
+            # Play the match.
+            homeGoals, awayGoals = self.playMatch(homeTeam, awayTeam, 0.5, 0, True)
+            self.applyPoints(homeTeam, awayTeam, homeGoals, awayGoals)
+            self.homeScore = 0
+            self.awayScore = 0
+            self.homeGoalScorers = ''
+            self.awayGoalScorers = ''
+        else:
+            if self.subStatus in self.homeGoalsTimes:
+                self.homeScore += 1
+                if homeTeam == self.teamIndex:
+                    goalScorer = random.randint(0, len(self.goalScorers)-1)
+                    if self.homeGoalScorers == '':
+                        self.homeGoalScorers = '{} {}'.format(self.subStatus, self.goalScorers[goalScorer].name)
+                    else:
+                        self.homeGoalScorers = '{}<br />{} {}'.format(self.homeGoalScorers, self.subStatus, self.goalScorers[goalScorer].name)
+                    self.goalScorers[goalScorer].goals += 1
+                else:
+                    if self.homeGoalScorers == '':
+                        self.homeGoalScorers = '{} Goal'.format(self.subStatus)
+                    else:
+                        self.homeGoalScorers = '{}<br />{} Goal'.format(self.homeGoalScorers, self.subStatus)
+            if self.subStatus in self.awayGoalsTimes:
+                self.awayScore += 1
+                if awayTeam == self.teamIndex:
+                    goalScorer = random.randint(0, len(self.goalScorers)-1)
+                    if self.awayGoalScorers == '':
+                        self.awayGoalScorers = '{} {}'.format(self.subStatus, self.goalScorers[goalScorer].name)
+                    else:
+                        self.awayGoalScorers = '{}<br />{} {}'.format(self.awayGoalScorers, self.subStatus, self.goalScorers[goalScorer].name)
+                    self.goalScorers[goalScorer].goals += 1
+                else:
+                    if self.awayGoalScorers == '':
+                        self.awayGoalScorers = '{} Goal'.format(self.subStatus)
+                    else:
+                        self.awayGoalScorers = '{}<br />{} Goal'.format(self.awayGoalScorers, self.subStatus)
+
+        self.html = '<table>'
+        self.html += '<tr><td style="text-align: right;">{}</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td><td>{}</td></tr>'.format(self.teams[homeTeam].name, self.homeScore, self.awayScore, self.teams[awayTeam].name)
+        if self.subStatus == 90:
+            self.subStatus = 1000
+        if self.subStatus == 45:
+            self.html += '<tr><td colspan="4" style="text-align: center;">Half Time</td></tr>'.format(self.subStatus)
+            response = 'delay: 2000'
+        elif self.subStatus >= 1000:
+            self.html += '<tr><td colspan="4" style="text-align: center;">Full Time</td></tr>'.format(self.subStatus)
+            response = ''
+        else:
+            self.html += '<tr><td colspan="4" style="text-align: center;">Time {}</td></tr>'.format(self.subStatus)
+            response = 'delay: 200'
+        self.html += '<td style="text-align: right; vertical-align: top;">{}</td><td></td><td></td><td style="vertical-align: top;">{}</td>'.format(self.homeGoalScorers, self.awayGoalScorers)
+        self.html += '</table>'
+        self.subStatus += 1
+
+        if self.subStatus >= 1000:
+            self.html += '<p><a href="app:?response=c">Click to Continue</a></p>'
+
+        return response
+
+
+
+    def playMatch(self, homeTeam, awayTeam, homeBonus, awayBonus, isGraphical=False):
         ''' Replacement for DEFPROCPLAYMATCH (Line 1680) in the BBC Basic version. '''
         homeGoals, awayGoals = self.match(homeTeam, awayTeam, homeBonus, awayBonus)
         # Not implemented yet.
 
         # Decide when the goals are scored.
-        homeGoalsTimes = []
+        self.homeGoalsTimes = []
         for goal in range(homeGoals):
             goalTime = random.randint(1, 90)
-            if not (goalTime in homeGoalsTimes):
-                homeGoalsTimes.append(goalTime)
-        awayGoalsTimes = []
+            if not (goalTime in self.homeGoalsTimes):
+                self.homeGoalsTimes.append(goalTime)
+        self.awayGoalsTimes = []
         for goal in range(awayGoals):
             goalTime = random.randint(1, 90)
-            if not (goalTime in awayGoalsTimes):
-                awayGoalsTimes.append(goalTime)
+            if not (goalTime in self.awayGoalsTimes):
+                self.awayGoalsTimes.append(goalTime)
 
         # Decide who might score.
-        goalScorers = []
+        self.goalScorers = []
         for player in self.players:
             if player.inTeam:
                 if player.position == Player.DEFENSE:
-                    goalScorers.append(player)
+                    self.goalScorers.append(player)
                 elif player.position == Player.MIDFIELD:
                     for count in range(player.skill):
-                        goalScorers.append(player)
+                        self.goalScorers.append(player)
                 else:
                     for count in range(player.skill * 3):
-                        goalScorers.append(player)
+                        self.goalScorers.append(player)
 
-        homeScore = 0
-        awayScore = 0
-        # print('{} {} - {} {}'.format(self.teams[homeTeam].getColouredName(), homeScore, awayScore, self.teams[awayTeam].getColouredName()))
-        print('{}{:>17}{} {} - {} {}'.format(self.teams[homeTeam].colour, self.teams[homeTeam].name, ansi.RESET_ALL, homeScore, awayScore, self.teams[awayTeam].getColouredName()))
-        for goalTime in range(91):
-            realTime = time.time()
+        if isGraphical == False:
+            homeScore = 0
+            awayScore = 0
+            # print('{} {} - {} {}'.format(self.teams[homeTeam].getColouredName(), homeScore, awayScore, self.teams[awayTeam].getColouredName()))
+            print('{}{:>17}{} {} - {} {}'.format(self.teams[homeTeam].colour, self.teams[homeTeam].name, ansi.RESET_ALL, homeScore, awayScore, self.teams[awayTeam].getColouredName()))
+            for goalTime in range(91):
+                realTime = time.time()
 
-            if goalTime in homeGoalsTimes:
-                homeScore += 1
-                ansi.doCursorUp(1)
-                print('{}{:>17}{} {} - {} {}'.format(self.teams[homeTeam].colour, self.teams[homeTeam].name, ansi.RESET_ALL, homeScore, awayScore, self.teams[awayTeam].getColouredName()))
-                totalScore = homeScore + awayScore
-                if homeTeam == self.teamIndex:
-                    ansi.doCursorDown(totalScore)
-                    goalScorer = random.randint(0, len(goalScorers)-1)
-                    print('{} {}'.format(goalTime, goalScorers[goalScorer].name), end = '\r')
-                    goalScorers[goalScorer].goals += 1
-                    ansi.doCursorUp(totalScore)
-                else:
-                    ansi.doCursorDown(totalScore)
-                    print('{} Goal'.format(goalTime), end = '\r')
-                    ansi.doCursorUp(totalScore)
+                if goalTime in self.homeGoalsTimes:
+                    homeScore += 1
+                    ansi.doCursorUp(1)
+                    print('{}{:>17}{} {} - {} {}'.format(self.teams[homeTeam].colour, self.teams[homeTeam].name, ansi.RESET_ALL, homeScore, awayScore, self.teams[awayTeam].getColouredName()))
+                    totalScore = homeScore + awayScore
+                    if homeTeam == self.teamIndex:
+                        ansi.doCursorDown(totalScore)
+                        goalScorer = random.randint(0, len(self.goalScorers)-1)
+                        print('{} {}'.format(goalTime, self.goalScorers[goalScorer].name), end = '\r')
+                        self.goalScorers[goalScorer].goals += 1
+                        ansi.doCursorUp(totalScore)
+                    else:
+                        ansi.doCursorDown(totalScore)
+                        print('{} Goal'.format(goalTime), end = '\r')
+                        ansi.doCursorUp(totalScore)
 
-            if goalTime in awayGoalsTimes:
-                awayScore += 1
-                ansi.doCursorUp(1)
-                print('{}{:>17}{} {} - {} {}'.format(self.teams[homeTeam].colour, self.teams[homeTeam].name, ansi.RESET_ALL, homeScore, awayScore, self.teams[awayTeam].getColouredName()))
-                totalScore = homeScore + awayScore
-                if awayTeam == self.teamIndex:
-                    ansi.doCursorDown(totalScore)
-                    goalScorer = random.randint(0, len(goalScorers)-1)
-                    print('{}{} {}'.format(' ' * 22, goalTime, goalScorers[goalScorer].name), end = '\r')
-                    goalScorers[goalScorer].goals += 1
-                    ansi.doCursorUp(totalScore)
-                else:
-                    ansi.doCursorDown(totalScore)
-                    print('{}{} Goal'.format(' ' * 22, goalTime), end = '\r')
-                    ansi.doCursorUp(totalScore)
+                if goalTime in self.awayGoalsTimes:
+                    awayScore += 1
+                    ansi.doCursorUp(1)
+                    print('{}{:>17}{} {} - {} {}'.format(self.teams[homeTeam].colour, self.teams[homeTeam].name, ansi.RESET_ALL, homeScore, awayScore, self.teams[awayTeam].getColouredName()))
+                    totalScore = homeScore + awayScore
+                    if awayTeam == self.teamIndex:
+                        ansi.doCursorDown(totalScore)
+                        goalScorer = random.randint(0, len(self.goalScorers)-1)
+                        print('{}{} {}'.format(' ' * 22, goalTime, self.goalScorers[goalScorer].name), end = '\r')
+                        self.goalScorers[goalScorer].goals += 1
+                        ansi.doCursorUp(totalScore)
+                    else:
+                        ansi.doCursorDown(totalScore)
+                        print('{}{} Goal'.format(' ' * 22, goalTime), end = '\r')
+                        ansi.doCursorUp(totalScore)
 
 
-            print('{}Time {}   '.format(' ' * 17, goalTime), end = '\r')
-            sys.stdout.flush()
-            time.sleep(realTime + 0.3 - time.time())
-
-            if goalTime == 45:
-                print('{}Half Time.'.format(' ' * 16, goalTime), end = '\r')
+                print('{}Time {}   '.format(' ' * 17, goalTime), end = '\r')
                 sys.stdout.flush()
-                # Did the fixture calculations here in the BBC Basic version.
-                time.sleep(4)
+                time.sleep(realTime + 0.3 - time.time())
 
-        # Move down.
-        ansi.doCursorDown(homeGoals + awayGoals + 1)
-        print('Final Score')
+                if goalTime == 45:
+                    print('{}Half Time.'.format(' ' * 16, goalTime), end = '\r')
+                    sys.stdout.flush()
+                    # Did the fixture calculations here in the BBC Basic version.
+                    time.sleep(4)
+
+            # Move down.
+            ansi.doCursorDown(homeGoals + awayGoals + 1)
+            print('Final Score')
         print('{}{:>17}{} {} - {} {}'.format(self.teams[homeTeam].colour, self.teams[homeTeam].name, ansi.RESET_ALL, homeGoals, awayGoals, self.teams[awayTeam].getColouredName()))
         return homeGoals, awayGoals
 

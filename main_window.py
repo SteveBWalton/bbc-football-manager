@@ -177,7 +177,7 @@ class WxMainWindow(wx.Frame):
 
         uri = event.GetURL()
 
-        print('Navigation Request url: ', uri)
+        # print('Navigation Request url: ', uri)
         if uri.startswith('app:'):
             # Follow the local link.
             event.Veto()
@@ -210,11 +210,13 @@ class WxMainWindow(wx.Frame):
         self.displayCurrentPage()
 
         # Get ready to catch the response.
-        if responses == 'delay:':
+        if responses[:6] == 'delay:':
             if self.timer == None:
                 self.timer = wx.Timer(self)
                 self.Bind(wx.EVT_TIMER, self._onTimer, self.timer)
-            self.timer.Start(500)
+            delay = int(responses[7:])
+            # print('delay {}'.format(delay))
+            self.timer.Start(delay)
 
 
 

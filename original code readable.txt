@@ -26,7 +26,7 @@ But an attempt to make the code readable.
             PRINT"…No"
             S% = 0
   180   PRINT "†DO YOU WANT TO LOAD A 'GAME'";
-  190   IF  FNYES THEN
+  190   IF FNYES THEN
             PRINT "…Yes"
             PROCLOAD
             GOTO 450
