@@ -97,6 +97,17 @@ class Team:
 
 
 
+    def htmlTableRow(self,isDebug):
+        ''' Write this team into the league table. '''
+        if isDebug:
+            name = '{}({})'.format(self.name, self.numHomeGames)
+        else:
+            name = self.name
+        html = '<tr><td style="text-align: right;">{}</td><td>{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td></tr>'.format(self.position, name, self.win, self.draw, self.lost, self.pts, self.difference)
+        return html
+
+
+
     def getColouredName(self):
         ''' Returns the team name wrapped in the colour code. '''
         return '{}{}{}'.format(self.colour, self.name, ansi.RESET_ALL)

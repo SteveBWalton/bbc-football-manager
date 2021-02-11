@@ -271,15 +271,38 @@ class Game:
                 self.status = 100
                 self.newGame(True)
         elif self.status == 100:
+            # This should be at the start of each season.
+            # Write a startSeason() function in due course.
+            self.moneyStart = self.money - self.debt
+            self.moneyMessage = ''
+
             if 'response' in parameters:
                 response = int(parameters['response'])
                 print(response)
-                if response == 4:
+                if response == 2:
+                    # Bank
+                    self.status = 120
+                elif response == 4:
                     # Decide if a cup match.
 
                     # League match.
                     self.findLeagueOpponent()
                     self.status = 300
+        elif self.status == 120:
+            if 'amount' in parameters:
+                amount = int(parameters['amount'])
+                if amount != 0:
+                    self.subStatus = amount
+                    self.status = 125
+            if 'sign' in parameters:
+                print('sign = {}'.format(parameters['sign']))
+                if parameters['sign'] == '1':
+                    self.subStatus = -self.subStatus
+            if 'response' in parameters:
+                if parameters['response'] == 'c':
+                    self.status = 100
+        elif self.status == 125:
+            self.status = 100
         elif self.status == 300:
             if 'response' in parameters:
                 if parameters['response'] == 'c':
@@ -298,7 +321,46 @@ class Game:
             if 'response' in parameters:
                 if parameters['response'] == 'b':
                     self.status = 300
-
+        elif self.status == 400:
+            if 'response' in parameters:
+                if parameters['response'] == 'c':
+                    self.status = 410
+        elif self.status == 410:
+            if 'response' in parameters:
+                if parameters['response'] == 'c':
+                    self.status = 420
+        elif self.status == 420:
+            if 'response' in parameters:
+                if parameters['response'] == 'c':
+                    self.status = 430
+        elif self.status == 430:
+            if 'response' in parameters:
+                if parameters['response'] == 'c':
+                    self.status = 440
+        elif self.status == 440:
+            # Player Market.
+            if 'bid' in parameters:
+                try:
+                    bid = int(parameters['bid'])
+                except:
+                    bid = 0
+                if bid > 0:
+                    self.status = 445
+                    self.subStatus2 = bid
+                else:
+                    status = 450
+            if 'response' in parameters:
+                if parameters['response'] == 'c':
+                    self.status = 450
+        elif self.status == 445:
+            self.status = 450
+        elif self.status == 450:
+            self.status = 460
+        elif self.status == 460:
+            self.status = 470
+        elif self.status == 470:
+            # Back to start of week or end of season.
+            self.status = 100
 
 
         # Defaults.
@@ -343,6 +405,10 @@ class Game:
             self.html += '<a href="app:?response=5">5 .. Save Game</a><br />'
             self.html += '<a href="app:?response=6">6 .. Restart</a><br />'
             self.html += '<a href="app:?response=7">7 .. League Table</a><br />'
+        elif self.status == 120:
+            self.htmlBankPart1()
+        elif self.status == 125:
+            self.htmlBankPart2()
         elif self.status == 300:
             if self.isHomeMatch:
                 self.displayMatch(self.teamIndex, self.opponentIndex)
@@ -356,14 +422,56 @@ class Game:
             else:
                 responseOptions = self.htmlPlayMatch(self.opponentIndex, self.teamIndex)
             # print('responseOptions {}'.format(responseOptions))
-        elif self.status == 78:
-            if self.subStatus < 90:
-                self.subStatus += 1
-                self.html = '<p>Game</p><p>Time{}</p>'.format(self.subStatus)
-                responseOptions = 'delay:'
+        elif self.status == 410:
+            # Calculate the gate money.
+            if self.isHomeMatch:
+                self.gateMoney = (9000 + (15 - self.teamIndex - self.opponentIndex) * 500) * (5 - self.division) + random.randint(0, 1000)
+                if abs(self.teams[self.teamIndex].pts - self.teams[self.opponentIndex].pts) < 4:
+                    self.gateMoney += (5 - self.division) * 3000
             else:
-                self.html = '<p>Game</p><p>Finished</p>'
-                responseOptions = ' '
+                self.gateMoney = 0
+
+            # PROCPLAYERS
+            self.playerEngergy()
+            self.playerInjured()
+            # Decided the fixtures for the league was at half time of the playmatch.
+            self.decideFixtures(self.opponentIndex)
+
+            self.wait(True)
+        elif self.status == 420:
+            self.rest()
+            self.sortDivision()
+
+            # Store the data for progress.
+            if self.isHomeMatch:
+                week = 0
+            else:
+                week = 256
+            if self.homeScore == self.awayScore:
+                week |= 64
+            elif (self.isHomeMatch and self.homeScore > self.awayScore) or (not self.isHomeMatch and self.homeScore < self.awayScore):
+                week |= 128
+            week += self.teamIndex
+            self.weeks.append(week)
+            self.wait(True)
+        elif self.status == 430:
+            self.html = ''
+            self.showLeague()
+            self.wait(True)
+        elif self.status == 440:
+            self.htmlMarketPart1()
+        elif self.status == 445:
+            self.htmlMarketPart2()
+        elif self.status == 450:
+            self.report()
+            self.wait(True)
+        elif self.status == 460:
+            self.progress()
+            self.wait(True)
+        elif self.status == 470:
+            self.playerCaps()
+            self.playerFit()
+            self.wait(True)
         else:
             self.html = '<p>Error Help.</p><p>status = {}</p>'.format(self.status)
 
@@ -465,7 +573,9 @@ class Game:
 
         self.market()
         self.report()
+        self.wait()
         self.progress()
+        self.wait()
         ansi.doCls()
         self.playerCaps()
         self.playerFit()
@@ -551,7 +661,7 @@ class Game:
         for player in self.players:
             if player.inSquad:
                 player.writeRow()
-                self.html += player.writeHtmlRow()
+                self.html += player.htmlRow()
         self.html += '</table>'
 
 
@@ -610,6 +720,8 @@ class Game:
         ''' Replacement for PROCIN (line 1580) in the BBC Basic version. '''
         player = self.players[index]
         if player.inTeam:
+            return
+        if player.injured:
             return
         player.inTeam = True
         if player.position == Player.DEFENSE:
@@ -692,12 +804,65 @@ class Game:
 
 
 
+    def htmlMarketPart1(self):
+        if self.numSquad >= 18:
+            self.html = '<p>F.A. rules state that one team may not have more that 18 players. You already have 18 players therefore you may not buy another.</p>'
+            self.wait(True)
+        else:
+            while True:
+                player = random.randint(0, 25)
+                if self.players[player].inSquad == False:
+                    break;
+            self.players[player].skill = max(self.players[player].skill, random.randint(1, 5) + (1 if self.division <= 2 else 0))
+            if self.players[player].position == Player.DEFENSE:
+                self.html = '<p>Defence</p>'
+            elif self.players[player].position == Player.MIDFIELD:
+                self.html = '<p>Mid-field</p>'
+            else:
+                self.html = '<p>Attack</p>'
+            self.html += '<table>'
+            self.html += self.players[player].htmlRow(5000 * (5 - self.division))
+            self.html += '</table>'
+            self.html += '<p>You have £{:,.2f}</p>'.format(self.money)
+            self.html += '<form action="app:" method="get">'
+            self.html += '<p>Enter your bid <input type="text" name="bid" /></p>'
+            self.html += '<p><input type="submit" name="Bid" /></p>'
+            self.html += '</form>'
+            self.wait(True)
+            self.subStatus = player
+
+
+
+    def htmlMarketPart2(self):
+        player = self.subStatus
+        bid = self.subStatus2
+        price = self.players[player].skill * (5000 * (5 - self.division)) + random.randint(1, 10000) - 5000
+        if bid > self.money:
+            self.html += '<p>You do not have enough money</p>'
+        elif bid > price:
+            self.html += '<p>{} is added to your squad.'.format(self.players[player].name)
+            self.numSquad += 1
+            self.players[player].inSquad = True
+            self.money -= bid
+            self.moneyMessage += self.financialLine(self.players[player].name + ' bought', 0, bid) + "\n";
+            if self.players[player].injured:
+                self.numInjured += 1
+        else:
+            if bid > 0:
+                self.html += '<p>Your bid is turned down.</p>'
+        self.wait(True)
+
+
+
     def report(self):
         ''' Replacement for PROCREPORT ( line 3970 ) in the BBC Basic version. '''
+        self.html = '<table>'
         if self.gateMoney > 0:
             print(self.financialLine('Gate Money', self.gateMoney, 0))
+            self.html += '<tr><td>Gate Money</td><td>{}</td><td></td><tr>'.format(self.gateMoney)
             self.money += self.gateMoney
         print(self.financialLine('Paid to Squad', 0, self.numSquad * 500 * (5 - self.division)))
+        self.html += '<tr><td>Paid to Squad</td><td></td><td>{}</td><tr>'.format(self.numSquad * 500 * (5 - self.division))
         self.money -= self.numSquad * 500 * (5 - self.division)
         if self.moneyMessage != '':
             print(self.moneyMessage, end = '')
@@ -714,12 +879,11 @@ class Game:
 
         print(self.financialLine('Cash', self.money, 0))
         print(self.financialLine('Debt', 0, self.debt))
+        self.html += '</table>'
 
         # Reset the counters.
         self.moneyStart = self.money - self.debt
         self.moneyMessage = ''
-
-        self.wait()
 
 
 
@@ -769,6 +933,42 @@ class Game:
         else:
             print('In Bank £{:,.2f}'.format(-self.debt))
         self.wait()
+
+
+
+    def htmlBankPart1(self):
+        self.html = '<h1>Bank</h1>'
+        self.html += '<form action="app:" method="get">'
+        self.html += '<p>You have £{:,.2f}</p>'.format(self.money)
+        if self.debt > 0:
+            self.html += '<p>You owe £{:,.2f}</p>'.format(self.debt)
+        else:
+            self.html += '<p>In Bank £{:,.2f}</p>'.format(-self.debt)
+        self.html += '<p>Do you want to Deposit or Withdraw? <select name="sign"><option value="0">Withdraw</option><option value="1">Deposit</option></select></p>'
+        self.html += '<p>Enter the amount <input type="text" name="amount" /></p>'
+        self.html += '<p><input type="submit" name="Transact" /></p>'
+        self.wait(True)
+
+
+
+    def htmlBankPart2(self):
+        amount = self.subStatus
+        self.money += amount
+        self.debt += amount
+        MAX_DEBT = 2e6 # 1e6
+        if self.debt > MAX_DEBT:
+            self.html += '<p>You can not have that much.</p>'
+            self.money -= self.debt - MAX_DEBT
+            self.debt = MAX_DEBT
+        if self.money < 0:
+             self.debt -= self.money
+             self.money = 0
+        self.html += '<p>You have £{:,.2f}</p>'.format(self.money)
+        if self.debt > 0:
+            self.html += '<p>You owe £{:,.2f}</p>'.format(self.debt)
+        else:
+            self.html += '<p>In Bank £{:,.2f}</p>'.format(-self.debt)
+        self.wait(True)
 
 
 
@@ -826,7 +1026,7 @@ class Game:
         if True:
             self.html += '<tr><td style="text-align: center;">Position</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(self.teams[home].position, self.teams[away].position)
         self.html += '<tr><td style="text-align: center;">Energy</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(self.teams[home].energy, self.teams[away].energy)
-        self.html += '<tr><td style="text-align: center;">Moral</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(self.teams[home].energy, self.teams[away].energy)
+        self.html += '<tr><td style="text-align: center;">Moral</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(self.teams[home].moral, self.teams[away].moral)
         self.html += '<tr><td style="text-align: center;">Formation</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(self.teams[home].formation, self.teams[away].formation)
         self.html += '<tr><td style="text-align: center;">Defence</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(self.teams[home].defence, self.teams[away].defence)
         self.html += '<tr><td style="text-align: center;">Midfield</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(self.teams[home].midfield, self.teams[away].midfield)
@@ -838,11 +1038,14 @@ class Game:
 
 
 
-    def wait(self):
+    def wait(self, isGraphical=False):
         ''' Replacement for PROCWAIT in the BBC Basic version. '''
-        print('{}{}{} Press SPACE to continue {}{}'.format(ansi.BACKGROUND_BLUE, ansi.YELLOW, '━' * 7, '━' * 8, ansi.RESET_ALL))
-        self.getKeyboardCharacter([' '])
-        print('{}{}'.format(ansi.getCursorUp(1), ansi.ERASE_LINE), end = '\r')
+        if isGraphical:
+            self.html += '<p><a href="app:?response=c">Click to continue</a></p>'
+        else:
+            print('{}{}{} Press SPACE to continue {}{}'.format(ansi.BACKGROUND_BLUE, ansi.YELLOW, '━' * 7, '━' * 8, ansi.RESET_ALL))
+            self.getKeyboardCharacter([' '])
+            print('{}{}'.format(ansi.getCursorUp(1), ansi.ERASE_LINE), end = '\r')
 
 
 
@@ -850,10 +1053,16 @@ class Game:
         ''' Replacement for PROCLEAGUE in the BBC Basic version. '''
         print('Division {}'.format(self.division))
         print('   Team             W  D  L Pts Dif')
+        self.html += '<table>'
+        self.html += '<tr><td></td><td>Team</td><td>Won</td><td>Draw</td><td>Lost</td><td>Pts</td><td>Dif</td><tr>'
         for team in self.teams:
             team.writeTableRow(self.args.debug)
+            self.html += team.htmlTableRow(self.args.debug)
         print('Matches Played: {}'.format(self.numMatches))
         print('{} position: {}'.format(self.team.getColouredName(), self.teamIndex+1))
+        self.html += '</table>'
+        self.html += '<p>Matches Played: {}</p>'.format(self.numMatches)
+        self.html += '<p>{} position: {}</p>'.format(self.team.name, self.teamIndex+1)
 
 
 
@@ -1184,6 +1393,11 @@ class Game:
         Replacement for DEFPROCREST (line 2710) in the BBC Basic version.
         This is play and display the rest of the matches in the league.
         '''
+        self.html = '<table>'
+        if self.isHomeMatch:
+            self.html += '<tr><td style="text-align: right;">{}</td><td style="text-align: center;">{} - {}</td><td>{}</td></tr>'.format(self.teams[self.teamIndex].name, self.homeScore, self.awayScore, self.teams[self.opponentIndex].name)
+        else:
+            self.html += '<tr><td style="text-align: right;">{}</td><td style="text-align: center;">{} - {}</td><td>{}</td></tr>'.format(self.teams[self.opponentIndex].name, self.homeScore, self.awayScore, self.teams[self.teamIndex].name)
         for match in range(1, 8):
             for index in range(16):
                 if self.teams[index].fixture == 2 * match - 1:
@@ -1193,7 +1407,9 @@ class Game:
 
             homeGoals, awayGoals = self.match(home, away, 0.5, 0)
             print('{}{:>17}{} {} - {} {}'.format(self.teams[home].colour, self.teams[home].name, ansi.RESET_ALL, homeGoals, awayGoals, self.teams[away].getColouredName()))
+            self.html += '<tr><td style="text-align: right;">{}</td><td style="text-align: center;">{} - {}</td><td>{}</td></tr>'.format(self.teams[home].name, homeGoals, awayGoals, self.teams[away].name)
             self.applyPoints(home, away, homeGoals, awayGoals)
+        self.html += '</table>'
 
 
 
@@ -1201,6 +1417,7 @@ class Game:
         ''' Display the current match status in html. '''
         if self.subStatus == 0:
             # Play the match.
+            self.numMatches += 1
             homeGoals, awayGoals = self.playMatch(homeTeam, awayTeam, 0.5, 0, True)
             self.applyPoints(homeTeam, awayTeam, homeGoals, awayGoals)
             self.homeScore = 0
@@ -1255,7 +1472,7 @@ class Game:
         self.subStatus += 1
 
         if self.subStatus >= 1000:
-            self.html += '<p><a href="app:?response=c">Click to Continue</a></p>'
+            self.wait(True)
 
         return response
 
@@ -1449,6 +1666,3 @@ class Game:
                 # Add the final element as the number.
                 bar = '{}{:>2}'.format(bar, 1 + week & 63)
                 print('{} {} {}{}'.format(homeAway, result, bar, ansi.RESET_ALL))
-
-        # Wait for the user.
-        self.wait()
