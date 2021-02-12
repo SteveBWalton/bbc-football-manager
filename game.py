@@ -89,10 +89,6 @@ class Game:
             print('No')
             self.newGame()
 
-        MATCHES_PER_SEASON = 30
-        if self. args.debug:
-            MATCHES_PER_SEASON = 3
-
         # Play the game.
         nYear = 0
         while True:
@@ -100,7 +96,7 @@ class Game:
             self.moneyMessage = ''
 
             # Play a season.
-            while self.numMatches < MATCHES_PER_SEASON:
+            while self.numMatches < self.MATCHES_PER_SEASON:
                 ansi.doCls()
                 print('{} MANAGER: {}'.format(self.team.getColouredName(), self.playerName))
                 print('LEVEL: {}'.format(self.level))
@@ -140,71 +136,88 @@ class Game:
                         return
 
             # Season has finished.
-            ansi.doCls()
-            print('Season has finished.')
-            self.showLeague()
+            self.newSeason()
+
+
+
+    def newSeason(self, isGraphical=False):
+        ansi.doCls()
+        print('Season has finished.')
+        self.html = '<h1>Season has finished</h1>'
+        self.showLeague()
+        if isGraphical == False:
             self.wait()
 
-            if self.division == 1:
-                print('Qualify for Europe')
-            else:
-                print('Promotion')
-            for index in range(0, 3):
+        if self.division == 1:
+            print('Qualify for Europe')
+            self.html += '<h2>Qualify for Europe</h2><p>'
+        else:
+            print('Promotion')
+            self.html += '<h2>Promotion</h2><p>'
+        for index in range(0, 3):
+            print(self.teams[index].getColouredName())
+            self.html += '{}<br />'.format(self.teams[index].name)
+        self.html += '</p>'
+        if self.division != 4:
+            print('Relegation')
+            self.html += '<h2>Relegation</h2><p>'
+            for index in range(13, 16):
                 print(self.teams[index].getColouredName())
+                self.html += '{}<br />'.format(self.teams[index].name)
+            self.html += '</p>'
+
+        # Rebuild the new league.
+        exclued = []
+        if self.division != 1 and self.teamIndex <= 2:
+            # Promotion.
+            self.division = self.division - 1
+            print('{} are promoted to division {}'.format(self.teams[self.teamIndex].getColouredName(), self.division))
+            self.html += '<p>{} are promoted to division {}</p>'.format(self.teams[self.teamIndex].name, self.division)
+            for index in range(3, 13):
+                exclued.append(self.teams[index].name)
+                self.teams[index].name = ''
+        elif self.division != 4 and self.teamIndex >= 13:
+            # Relegation.
+            self.division = self.division + 1
+            print('{} are relegated to division {}'.format(self.teams[self.teamIndex].getColouredName(), self.division))
+            self.html += '<p>{} are relegated to division {}</p>'.format(self.teams[self.teamIndex].name, self.division)
+            for index in range(0, 13):
+                exclued.append(self.teams[index].name)
+                self.teams[index].name = ''
+        else:
+            # Same division.
+            print('{} stay in division {}'.format(self.teams[self.teamIndex].getColouredName(), self.division))
+            self.html += '<p>{} stay in division {}</p>'.format(self.teams[self.teamIndex].name, self.division)
+            if self.division != 1:
+                for index in range(0, 3):
+                    exclued.append(self.teams[index].name)
+                    self.teams[index].name = ''
             if self.division != 4:
-                print('Relegation')
                 for index in range(13, 16):
-                    print(self.teams[index].getColouredName())
-
-            # Rebuild the new league.
-            exclued = []
-            if self.division != 1 and self.teamIndex <= 2:
-                # Promotion.
-                self.division = self.division - 1
-                print('{} are promoted to division {}'.format(self.teams[self.teamIndex].getColouredName(), self.division))
-                for index in range(3, 13):
                     exclued.append(self.teams[index].name)
                     self.teams[index].name = ''
-            elif self.division != 4 and self.teamIndex >= 13:
-                # Relegation.
-                self.division = self.division + 1
-                print('{} are relegated to division {}'.format(self.teams[self.teamIndex].getColouredName(), self.division))
-                for index in range(0, 13):
-                    exclued.append(self.teams[index].name)
-                    self.teams[index].name = ''
-            else:
-                # Same division.
-                print('{} stay in division {}'.format(self.teams[self.teamIndex].getColouredName(), self.division))
-                if self.division != 1:
-                    for index in range(0, 3):
-                        exclued.append(self.teams[index].name)
-                        self.teams[index].name = ''
-                if self.division != 4:
-                    for index in range(13, 16):
-                        exclued.append(self.teams[index].name)
-                        self.teams[index].name = ''
-            self.setTeamsForDivision(exclued)
+        self.setTeamsForDivision(exclued)
 
-            # Reskill the players.
-            self.numTeam = 0
-            self.numInjured = 0
-            self.formation = [0, 0, 0]
-            nSkillBonus = 1 if self.division <= 2 else 0
-            for player in self.players:
-                player.skill = random.randint(1, 5) + nSkillBonus
-                player.energy = random.randint(1, 20)
-                player.inTeam = False
-                player.injured = False
-                player.caps = 0
-                player.goals = 0
-            for index in range(4):
-                nPlayer = random.randint(0, 25)
-                self.players[nPlayer].skill = 5 + nSkillBonus
+        # Reskill the players.
+        self.numTeam = 0
+        self.numInjured = 0
+        self.formation = [0, 0, 0]
+        nSkillBonus = 1 if self.division <= 2 else 0
+        for player in self.players:
+            player.skill = random.randint(1, 5) + nSkillBonus
+            player.energy = random.randint(1, 20)
+            player.inTeam = False
+            player.injured = False
+            player.caps = 0
+            player.goals = 0
+        for index in range(4):
+            nPlayer = random.randint(0, 25)
+            self.players[nPlayer].skill = 5 + nSkillBonus
 
-            self.numMatches = 0
-            self.weeks = []
+        self.numMatches = 0
+        self.weeks = []
 
-            self.wait()
+        self.wait(isGraphical)
 
 
 
@@ -246,6 +259,7 @@ class Game:
             if response != '':
                 if 'name' in parameters:
                     self.playerName = parameters['name']
+                    self.playerName = self.playerName.replace('+', ' ')
                     self.status = 1
                 self.level = 1
                 if 'level' in parameters:
@@ -263,22 +277,32 @@ class Game:
                     self.teamColour = team.colour
                     self.status = 100
                     self.newGame(True)
+                    # This should be at the start of each season.
+                    # Write a startSeason() function in due course.
+                    self.moneyStart = self.money - self.debt
+                    self.moneyMessage = ''
+
         elif self.status == 2:
             # Enter own team name.
             if 'name' in parameters:
                 self.teamName = parameters['name']
+                self.teamName = self.teamName.replace('+', ' ')
                 self.teamColour = ansi.CYAN
                 self.status = 100
                 self.newGame(True)
-        elif self.status == 100:
-            # This should be at the start of each season.
-            # Write a startSeason() function in due course.
-            self.moneyStart = self.money - self.debt
-            self.moneyMessage = ''
+                # This should be at the start of each season.
+                # Write a startSeason() function in due course.
+                self.moneyStart = self.money - self.debt
+                self.moneyMessage = ''
 
+
+        elif self.status == 100:
             if 'response' in parameters:
                 response = int(parameters['response'])
-                print(response)
+                # print(response)
+                if response == 1:
+                    # Sell Player
+                    self.status = 110
                 if response == 2:
                     # Bank
                     self.status = 120
@@ -288,14 +312,34 @@ class Game:
                     # League match.
                     self.findLeagueOpponent()
                     self.status = 300
+        elif self.status == 110:
+            # Sell Player.
+            if 'player' in parameters:
+                player = int(parameters['player'])
+                self.subStatus = player
+                self.status = 115
+            if 'response' in parameters:
+                if parameters['response'] == 'c':
+                    self.status = 100
+        elif self.status == 115:
+            if 'response' in parameters:
+                if parameters['response'] == 'y':
+                    self.htmlSellPlayerPart3()
+                    self.status = 100
+                if parameters['response'] == 'n':
+                    self.status = 100
         elif self.status == 120:
+            # Bank.
             if 'amount' in parameters:
-                amount = int(parameters['amount'])
+                try:
+                    amount = int(parameters['amount'])
+                except:
+                    amount = 0
                 if amount != 0:
                     self.subStatus = amount
                     self.status = 125
             if 'sign' in parameters:
-                print('sign = {}'.format(parameters['sign']))
+                # print('sign = {}'.format(parameters['sign']))
                 if parameters['sign'] == '1':
                     self.subStatus = -self.subStatus
             if 'response' in parameters:
@@ -339,6 +383,7 @@ class Game:
                     self.status = 440
         elif self.status == 440:
             # Player Market.
+            self.status = 450
             if 'bid' in parameters:
                 try:
                     bid = int(parameters['bid'])
@@ -347,11 +392,6 @@ class Game:
                 if bid > 0:
                     self.status = 445
                     self.subStatus2 = bid
-                else:
-                    status = 450
-            if 'response' in parameters:
-                if parameters['response'] == 'c':
-                    self.status = 450
         elif self.status == 445:
             self.status = 450
         elif self.status == 450:
@@ -360,6 +400,11 @@ class Game:
             self.status = 470
         elif self.status == 470:
             # Back to start of week or end of season.
+            if self.numMatches < self.MATCHES_PER_SEASON:
+                self.status = 100
+            else:
+                self.status = 1000
+        elif self.status == 1000:
             self.status = 100
 
 
@@ -405,6 +450,10 @@ class Game:
             self.html += '<a href="app:?response=5">5 .. Save Game</a><br />'
             self.html += '<a href="app:?response=6">6 .. Restart</a><br />'
             self.html += '<a href="app:?response=7">7 .. League Table</a><br />'
+        elif self.status == 110:
+            self.htmlSellPlayerPart1()
+        elif self.status == 115:
+            self.htmlSellPlayerPart2()
         elif self.status == 120:
             self.htmlBankPart1()
         elif self.status == 125:
@@ -472,6 +521,8 @@ class Game:
             self.playerCaps()
             self.playerFit()
             self.wait(True)
+        elif self.status == 1000:
+            self.newSeason(True)
         else:
             self.html = '<p>Error Help.</p><p>status = {}</p>'.format(self.status)
 
@@ -630,12 +681,18 @@ class Game:
         '''
         player = random.randint(0, 25)
         if self.players[player].injured:
+            print('{}No injuries.{}'.format(ansi.GREEN, ansi.RESET_ALL))
+            self.html += 'No injuries.'
             return
         self.dropPlayer(player)
         self.players[player].injured = True
         if self.players[player].inSquad:
             print('{}{} has been injured.{}'.format(ansi.RED, self.players[player].name, ansi.RESET_ALL))
+            self.html += '{} has been injured.'.format(self.players[player].name)
             self.numInjured += 1
+        else:
+            print('{}No injuries.{}'.format(ansi.GREEN, ansi.RESET_ALL))
+            self.html += 'No injuries.'
 
 
 
@@ -760,6 +817,35 @@ class Game:
                 print('On range')
             self.wait()
 
+
+
+    def htmlSellPlayerPart1(self):
+        self.displaySquad()
+        self.html += '<p><a href="app:?response=c">Click Here to return to main menu.</a></p>'
+        self.html += '<p>Otherwise click player to be sold.</p>'
+
+
+
+    def htmlSellPlayerPart2(self):
+        playerNumber = self.subStatus - 1
+        if self.players[playerNumber].inSquad:
+            self.html += '<p>{}</p>'.format(self.players[playerNumber].name)
+            price = int((self.players[playerNumber].skill + random.uniform(0, 1)) * 5000 * (5 - self.division))
+            self.subStatus2 = price
+            self.html += '<p>You are offered £{:,.2f}</p>'.format(price)
+            self.html += 'Do you accept ( <a href="app:?response=y">Yes</a> / <a href="app?response=n">No</a> ) ?'
+
+
+
+    def htmlSellPlayerPart3(self):
+        playerNumber = self.subStatus - 1
+        price = self.subStatus2
+
+        self.numSquad -= 1
+        self.dropPlayer(playerNumber)
+        self.players[playerNumber].inSquad = False
+        self.money += price
+        self.moneyMessage = self.moneyMessage + self.financialLine(self.players[playerNumber].name + ' sold', price, 0) + "\n";
 
 
 
@@ -1089,6 +1175,9 @@ class Game:
         self.money = 50000
         self.debt = 200000
         self.weeks = []
+        self.MATCHES_PER_SEASON = 30
+        if self.args.debug:
+            self.MATCHES_PER_SEASON = 2
 
         # Initialise the players.
         self.players = []
