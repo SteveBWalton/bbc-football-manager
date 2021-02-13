@@ -441,7 +441,7 @@ class Game:
             self.html += '<p><input type="submit" name="OK" /></p>'
             self.html += '</form>'
         elif self.status == 100:
-            self.html = '<p>{} Manager {}</p>'.format(self.teamName, self.playerName)
+            self.html = '<h1 style="display: inline">{} </h1><p style="display: inline">Manager {}</p>'.format(self.teamName, self.playerName)
             self.html += '<p>Level {}</p>'.format(self.level)
             self.html += '<p style="margin-top:10px;"><a href="app:?response=1">1 .. Sell Players / View Squad</a><br />'
             self.html += '<a href="app:?response=2">2 .. Bank</a><br />'
@@ -812,7 +812,7 @@ class Game:
                     self.dropPlayer(playerNumber)
                     self.players[playerNumber].inSquad = False
                     self.money += price
-                    self.moneyMessage = self.moneyMessage + self.financialLine(self.players[playerNumber].name + ' sold', price, 0) + "\n";
+                    self.moneyMessage += self.financialLine(self.players[playerNumber].name + ' sold', price, 0) + "\n";
             else:
                 print('On range')
             self.wait()
@@ -845,7 +845,7 @@ class Game:
         self.dropPlayer(playerNumber)
         self.players[playerNumber].inSquad = False
         self.money += price
-        self.moneyMessage = self.moneyMessage + self.financialLine(self.players[playerNumber].name + ' sold', price, 0) + "\n";
+        self.moneyMessage += self.financialLine(self.players[playerNumber].name + ' sold', price, 0) + "\n";
 
 
 
@@ -942,29 +942,48 @@ class Game:
 
     def report(self):
         ''' Replacement for PROCREPORT ( line 3970 ) in the BBC Basic version. '''
-        self.html = '<table>'
+        self.html = '<h1>Financial Report</h1>'
+        self.html += '<table>'
         if self.gateMoney > 0:
             print(self.financialLine('Gate Money', self.gateMoney, 0))
-            self.html += '<tr><td>Gate Money</td><td>{}</td><td></td><tr>'.format(self.gateMoney)
+            self.html += '<tr style="color: green;"><td>Gate Money</td><td style="text-align: right;">£{:,.0f}</td><tr>'.format(self.gateMoney)
             self.money += self.gateMoney
         print(self.financialLine('Paid to Squad', 0, self.numSquad * 500 * (5 - self.division)))
-        self.html += '<tr><td>Paid to Squad</td><td></td><td>{}</td><tr>'.format(self.numSquad * 500 * (5 - self.division))
+        self.html += '<tr style="color: red;"><td>Paid to Squad</td><td style="text-align: right;">(£{:,.0f})</td><tr>'.format(self.numSquad * 500 * (5 - self.division))
         self.money -= self.numSquad * 500 * (5 - self.division)
         if self.moneyMessage != '':
             print(self.moneyMessage, end = '')
+            messages = self.moneyMessage.split('\n')
+            for message in messages:
+                if len(message) >= 39:
+                    if message[:5] == ansi.GREEN:
+                        self.html += '<tr style="color: green">'
+                    else:
+                        self.html += '<tr style="color: red">'
+                    self.html += '<td>{}</td><td style="text-align: right;">{}</td></tr>'.format(message[5:30], message[34:45])
         if self.debt > 0:
             nInterest = int (self.debt * 0.005)
             print(self.financialLine('Interest', 0, nInterest))
+            self.html += '<tr style="color: red;"><td>Interest</td><td style="text-align: right;">(£{:,.0f})</td><tr>'.format(nInterest)
             self.money = self.money - nInterest
         print('━' * 40)
+        self.html += '<tr><td colspan="2"><hr /><td></tr>'
         if self.money - self.debt >= self.moneyStart:
             print(self.financialLine('Profit', self.money - self.debt - self.moneyStart, 0))
+            self.html += '<tr style="color: green;"><td>Profit</td><td style="text-align: right;">£{:,.0f}</td><tr>'.format(self.money - self.debt - self.moneyStart)
         else:
             print(self.financialLine('Loss', 0, self.moneyStart - self.money + self.debt))
+            self.html += '<tr style="color: red;"><td>Loss</td><td style="text-align: right;">(£{:,.0f})</td><tr>'.format(self.moneyStart - self.money + self.debt)
         print('━' * 40)
+        self.html += '<tr><td colspan="2"><hr /><td></tr>'
 
+        if self.money < 0:
+             self.debt -= self.money
+             self.money = 0
         print(self.financialLine('Cash', self.money, 0))
         print(self.financialLine('Debt', 0, self.debt))
+        self.html += '<tr style="color: green;"><td>Cash</td><td style="text-align: right;">£{:,.0f}</td><tr>'.format(self.money)
+        self.html += '<tr style="color: red;"><td>Debt</td><td style="text-align: right;">£{:,.0f}</td><tr>'.format(self.debt)
         self.html += '</table>'
 
         # Reset the counters.
@@ -1346,16 +1365,16 @@ class Game:
         print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛')
         print('By Steve Walton BBC BASIC 1982-1989, 2000, Python 2018-2021.')
 
-        self.html += '<p>'
-        self.html += '┏━━             ┃       ┃ ┃   ┏━┳━┓<br />'
-        self.html += '┃            ┃  ┃       ┃ ┃   ┃ ┃ ┃<br />'
-        self.html += '┣━━ ┏━┓ ┏━┓ ━╋━ ┣━┓ ━━┓ ┃ ┃   ┃   ┃ ━━┓ ━┳━┓ ━━┓ ┏━┓ ┏━┓ ┏━<br />'
-        self.html += '┃   ┃ ┃ ┃ ┃  ┃  ┃ ┃ ┏━┫ ┃ ┃   ┃   ┃ ┏━┃  ┃ ┃ ┏━┫ ┃ ┃ ┣━┛ ┃<br />'
-        self.html += '┃   ┗━┛ ┗━┛  ┃  ┗━┛ ┗━┛ ┃ ┃   ┃   ┃ ┗━┛  ┃ ┃ ┗━┛ ┗━┫ ┗━━ ┃<br />'
-        self.html += '                                                   ┃<br />'
-        self.html += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛<br />'
-        self.html += '</p>'
-        self.html += '<p>By Steve Walton BBC BASIC 1982-1989, 2000, Python 2018-2021.</p>'
+        self.html += '<pre>'
+        self.html += '┏━━             ┃       ┃ ┃   ┏━┳━┓\n'
+        self.html += '┃            ┃  ┃       ┃ ┃   ┃ ┃ ┃\n'
+        self.html += '┣━━ ┏━┓ ┏━┓ ━╋━ ┣━┓ ━━┓ ┃ ┃   ┃   ┃ ━━┓ ━┳━┓ ━━┓ ┏━┓ ┏━┓ ┏━\n'
+        self.html += '┃   ┃ ┃ ┃ ┃  ┃  ┃ ┃ ┏━┫ ┃ ┃   ┃   ┃ ┏━┃  ┃ ┃ ┏━┫ ┃ ┃ ┣━┛ ┃\n'
+        self.html += '┃   ┗━┛ ┗━┛  ┃  ┗━┛ ┗━┛ ┃ ┃   ┃   ┃ ┗━┛  ┃ ┃ ┗━┛ ┗━┫ ┗━━ ┃\n'
+        self.html += '                                                   ┃\n'
+        self.html += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n'
+        self.html += 'By Steve Walton BBC BASIC 1982-1989, 2000, Python 2018-2021.\n'
+        self.html += '</pre>'
 
 
 
@@ -1598,18 +1617,18 @@ class Game:
                         self.goalScorers.append(player)
 
         if isGraphical == False:
-            homeScore = 0
-            awayScore = 0
+            self.homeScore = 0
+            self.awayScore = 0
             # print('{} {} - {} {}'.format(self.teams[homeTeam].getColouredName(), homeScore, awayScore, self.teams[awayTeam].getColouredName()))
-            print('{}{:>17}{} {} - {} {}'.format(self.teams[homeTeam].colour, self.teams[homeTeam].name, ansi.RESET_ALL, homeScore, awayScore, self.teams[awayTeam].getColouredName()))
+            print('{}{:>17}{} {} - {} {}'.format(self.teams[homeTeam].colour, self.teams[homeTeam].name, ansi.RESET_ALL, self.homeScore, self.awayScore, self.teams[awayTeam].getColouredName()))
             for goalTime in range(91):
                 realTime = time.time()
 
                 if goalTime in self.homeGoalsTimes:
-                    homeScore += 1
+                    self.homeScore += 1
                     ansi.doCursorUp(1)
-                    print('{}{:>17}{} {} - {} {}'.format(self.teams[homeTeam].colour, self.teams[homeTeam].name, ansi.RESET_ALL, homeScore, awayScore, self.teams[awayTeam].getColouredName()))
-                    totalScore = homeScore + awayScore
+                    print('{}{:>17}{} {} - {} {}'.format(self.teams[homeTeam].colour, self.teams[homeTeam].name, ansi.RESET_ALL, self.homeScore, self.awayScore, self.teams[awayTeam].getColouredName()))
+                    totalScore = self.homeScore + self.awayScore
                     if homeTeam == self.teamIndex:
                         ansi.doCursorDown(totalScore)
                         goalScorer = random.randint(0, len(self.goalScorers)-1)
@@ -1622,10 +1641,10 @@ class Game:
                         ansi.doCursorUp(totalScore)
 
                 if goalTime in self.awayGoalsTimes:
-                    awayScore += 1
+                    self.awayScore += 1
                     ansi.doCursorUp(1)
-                    print('{}{:>17}{} {} - {} {}'.format(self.teams[homeTeam].colour, self.teams[homeTeam].name, ansi.RESET_ALL, homeScore, awayScore, self.teams[awayTeam].getColouredName()))
-                    totalScore = homeScore + awayScore
+                    print('{}{:>17}{} {} - {} {}'.format(self.teams[homeTeam].colour, self.teams[homeTeam].name, ansi.RESET_ALL, self.homeScore, self.awayScore, self.teams[awayTeam].getColouredName()))
+                    totalScore = self.homeScore + self.awayScore
                     if awayTeam == self.teamIndex:
                         ansi.doCursorDown(totalScore)
                         goalScorer = random.randint(0, len(self.goalScorers)-1)
