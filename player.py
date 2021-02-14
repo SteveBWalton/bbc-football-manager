@@ -131,11 +131,14 @@ class Player:
         ''' Display this player on a html table row. '''
         if self.position == Player.DEFENSE:
             html = '<tr style="background-color: blue; color: yellow;">'
+            style = 'color: yellow;'
         elif self.position == Player.MIDFIELD:
             html = '<tr style="background-color: yellow; color: blue;">'
+            style = 'color: blue;'
         else:
             html = '<tr style="background-color: white; color: blue;">'
-        html += '<td><a href="app:?player={}">{}</a></td><td><a href="app:?player={}">{}</a></td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td>'.format(self.index, self.index, self.index, self.name, self.skill, self.energy)
+            style = 'color: blue;'
+        html += '<td style="text-align: center;"><a style="{}" href="app:?player={}">{}</a></td><td><a style="{}" href="app:?player={}">{}</a></td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td>'.format(style, self.index, self.index, style, self.index, self.name, self.skill, self.energy)
         if exchangeRate != 0:
             html += '<td style="text-align: right;">£{:,.0f}</td>'.format(self.skill * exchangeRate)
         if self.inTeam:

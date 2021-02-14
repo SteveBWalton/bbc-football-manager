@@ -12,6 +12,7 @@ import json
 import time
 import sys
 from typing import Dict     # This is for type hinting only.
+import codecs
 
 # Application Libraries.
 import ansi
@@ -39,6 +40,17 @@ class Game:
         self.formation = [0, 0, 0]
         self.args = args
 
+        self.homeWins = 0
+        self.homeDraws = 0
+        self.homeLoses = 0
+        self.homeFor = 0
+        self.homeAgainst = 0
+        self.awayWins = 0
+        self.awayDraws = 0
+        self.awayLoses = 0
+        self.awayFor = 0
+        self.awayAgainst = 0
+
         self.status = 0
         self.subStatus = 0
         self.html = 'Hello World'
@@ -47,6 +59,10 @@ class Game:
 
     def run(self):
         ''' Execute the football manager game. '''
+        if sys.stdout.encoding != 'UTF-8':
+            print('Switch stdout to UTF-8')
+            sys.stdout.reconfigure(encoding='utf-8')
+
         if self.args.graphical:
             self.runGraphical()
         else:
@@ -217,6 +233,17 @@ class Game:
         self.numMatches = 0
         self.weeks = []
 
+        self.homeWins = 0
+        self.homeDraws = 0
+        self.homeLoses = 0
+        self.homeFor = 0
+        self.homeAgainst = 0
+        self.awayWins = 0
+        self.awayDraws = 0
+        self.awayLoses = 0
+        self.awayFor = 0
+        self.awayAgainst = 0
+
         self.wait(isGraphical)
 
 
@@ -246,6 +273,8 @@ class Game:
     def getNextPage(self, response):
         ''' Advance the game to the next user response. '''
         # Deal with the response.
+        if response != '':
+            print(response)
         if response == '':
             parameters = []
         elif response[0] == '?':
@@ -419,7 +448,7 @@ class Game:
             self.html += '<form action="app:" method="get"><p>Please enter your name <input type="text" name="name" /></p>'
             self.html += '<p>Please select your level <select name="level"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></p>'
             self.html += '<p>Do you want to load a game <select name="load"><option value="1">No</option><option value="2">Yes</option></select></p>'
-            self.html += '<p><input type="submit" name="OK" /></p>'
+            self.html += '<p><input type="submit" name="ok" value="OK" /></p>'
             self.html += '</form>'
         elif self.status == 1:
             # Second initial page.  Get the players team.
@@ -432,13 +461,13 @@ class Game:
                     team.getTeam(division, index)
                     self.html += '<option value="{}">{}</option>'.format(100 * division + index, team.name)
             self.html += '</select>'
-            self.html += '<p><input type="submit" name="OK" /></p>'
+            self.html += '<p><input type="submit" name="ok" value="OK" /></p>'
             self.html += '</form>'
         elif self.status == 2:
             # Optional initialise, name own team.
             self.html = '<form action="app:" method="get">'
             self.html += '<p>Please enter your team name <input type="text" name="name"></p>'
-            self.html += '<p><input type="submit" name="OK" /></p>'
+            self.html += '<p><input type="submit" name="ok" value="OK" /></p>'
             self.html += '</form>'
         elif self.status == 100:
             self.html = '<h1 style="display: inline">{} </h1><p style="display: inline">Manager {}</p>'.format(self.teamName, self.playerName)
@@ -494,8 +523,24 @@ class Game:
             # Store the data for progress.
             if self.isHomeMatch:
                 week = 0
+                if self.homeScore == self.awayScore:
+                    self.homeDraws += 1
+                elif self.homeScore > self.awayScore:
+                    self.homeWins += 1
+                else:
+                    self.homeLoses += 1
+                self.homeFor += self.homeScore
+                self.homeAgainst += self.awayScore
             else:
                 week = 256
+                if self.homeScore == self.awayScore:
+                    self.awayDraws += 1
+                elif self.awayScore > self.homeScore:
+                    self.awayWins += 1
+                else:
+                    self.awayLoses += 1
+                self.awayFor += self.awayScore
+                self.awayAgainst += self.homeScore
             if self.homeScore == self.awayScore:
                 week |= 64
             elif (self.isHomeMatch and self.homeScore > self.awayScore) or (not self.isHomeMatch and self.homeScore < self.awayScore):
@@ -607,8 +652,24 @@ class Game:
         # Store the data for progress.
         if self.isHomeMatch:
             week = 0
+            if self.homeScore == self.awayScore:
+                self.homeDraws += 1
+            elif self.homeScore > self.awayScore:
+                self.homeWins += 1
+            else:
+                self.homeLoses += 1
+            self.homeFor += self.homeScore
+            self.homeAgainst += self.awayScore
         else:
             week = 256
+            if self.homeScore == self.awayScore:
+                self.awayDraws += 1
+            elif self.awayScore > self.homeScore:
+                self.awayWins += 1
+            else:
+                self.awayLoses += 1
+            self.awayFor += self.awayScore
+            self.awayAgainst += self.homeScore
         if playerGoals == opponentGoals:
             week |= 64
         elif playerGoals > opponentGoals:
@@ -860,7 +921,9 @@ class Game:
                 if self.players[player].inSquad == False:
                     break;
             # ansi.doCls()
-            self.players[player].skill = max(self.players[player].skill, random.randint(1, 5) + (1 if self.division <= 2 else 0))
+            # Skill Boost.  This made the game too easy.
+            if random.randint(1, 5) == 1:
+                self.players[player].skill = max(self.players[player].skill, random.randint(1, 5) + (1 if self.division <= 2 else 0))
             if self.players[player].position == Player.DEFENSE:
                 print('Defence')
             elif self.players[player].position == Player.MIDFIELD:
@@ -899,7 +962,9 @@ class Game:
                 player = random.randint(0, 25)
                 if self.players[player].inSquad == False:
                     break;
-            self.players[player].skill = max(self.players[player].skill, random.randint(1, 5) + (1 if self.division <= 2 else 0))
+            # Skill Boost.  This made the game too easy.
+            if random.randint(1, 5) == 1:
+                self.players[player].skill = max(self.players[player].skill, random.randint(1, 5) + (1 if self.division <= 2 else 0))
             if self.players[player].position == Player.DEFENSE:
                 self.html = '<p>Defence</p>'
             elif self.players[player].position == Player.MIDFIELD:
@@ -912,7 +977,7 @@ class Game:
             self.html += '<p>You have £{:,.2f}</p>'.format(self.money)
             self.html += '<form action="app:" method="get">'
             self.html += '<p>Enter your bid <input type="text" name="bid" /></p>'
-            self.html += '<p><input type="submit" name="Bid" /></p>'
+            self.html += '<p><input type="submit" name="button" value="Bid" /></p>'
             self.html += '</form>'
             self.wait(True)
             self.subStatus = player
@@ -925,8 +990,11 @@ class Game:
         price = self.players[player].skill * (5000 * (5 - self.division)) + random.randint(1, 10000) - 5000
         if bid > self.money:
             self.html += '<p>You do not have enough money</p>'
+            print('You do not have enough money.')
         elif bid > price:
             self.html += '<p>{} is added to your squad.'.format(self.players[player].name)
+            print('{} is added to your squad.'.format(self.players[player].name))
+
             self.numSquad += 1
             self.players[player].inSquad = True
             self.money -= bid
@@ -936,6 +1004,9 @@ class Game:
         else:
             if bid > 0:
                 self.html += '<p>Your bid is turned down.</p>'
+                print('Your bid is turned down.')
+            else:
+                print('No bid.')
         self.wait(True)
 
 
@@ -1051,7 +1122,7 @@ class Game:
             self.html += '<p>In Bank £{:,.2f}</p>'.format(-self.debt)
         self.html += '<p>Do you want to Deposit or Withdraw? <select name="sign"><option value="0">Withdraw</option><option value="1">Deposit</option></select></p>'
         self.html += '<p>Enter the amount <input type="text" name="amount" /></p>'
-        self.html += '<p><input type="submit" name="Transact" /></p>'
+        self.html += '<p><input type="submit" name="transact" value="Transact" /></p>'
         self.wait(True)
 
 
@@ -1736,6 +1807,13 @@ class Game:
         # Show league results summary.
         print(' [--- Home ---] [--- Away ---]')
         print('  W  D  L  F  A  W  D  L  F  A Pts')
+        print('{:>3}{:>3}{:>3}{:>3}{:>3}{:>3}{:>3}{:>3}{:>3}{:>3}{:>4}'.format(self.homeWins, self.homeDraws, self.homeLoses, self.homeFor, self.homeAgainst, self.awayWins, self.awayDraws, self.awayLoses, self.awayFor, self.awayAgainst, 3 * (self.homeWins + self.awayWins) + self.homeDraws + self.awayDraws))
+        self.html = '<h1>{} progress in division {}</h1>'.format(self.team.name, self.division)
+        self.html += '<table>'
+        self.html += '<tr><td colspan="5">Home</td><td colspan="5">Away</td></tr>'
+        self.html += '<tr><td style="text-align: right;">Win</td><td style="text-align: right;">Draw</td><td style="text-align: right;">Lose</td><td style="text-align: right;">For</td><td style="text-align: right;">Agn</td><td style="text-align: right;">Win</td><td style="text-align: right;">Draw</td><td style="text-align: right;">Lose</td><td style="text-align: right;">For</td><td style="text-align: right;">Agn</td><td style="text-align: right;">Points</td></tr>'
+        self.html += '<tr><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td></tr>'.format(self.homeWins, self.homeDraws, self.homeLoses, self.homeFor, self.homeAgainst, self.awayWins, self.awayDraws, self.awayLoses, self.awayFor, self.awayAgainst, 3 * (self.homeWins + self.awayWins) + self.homeDraws + self.awayDraws)
+        self.html += '</table>'
 
         # Show league results details.
         count = 0

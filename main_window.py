@@ -225,9 +225,6 @@ class WxMainWindow(wx.Frame):
     def displayCurrentPage(self):
         '''
         Display the current content on the window.
-        This is mainly the html content in the webview widget but also includes updating the toolbar options.
-        This does not reload the page from the render object, use :py:func:`~application.Application.openCurrentPage` for that.
-        Display chain is :py:func:`followLocalLink` -> :py:func:`~application.Application.openCurrentPage` -> :py:func:`displayCurrentPage`.
         '''
         #if self.application.database.debug:
         #    print("displayCurrentPage()")
@@ -235,8 +232,10 @@ class WxMainWindow(wx.Frame):
         # No events / signals until this finishes.
         self.noEvents += 1
 
+        fontSize = 20;
+
         # Display the html content on the wx.html2.WebView control.
-        html = '<html><head><style type="text/css" media="screen">a {{ text-decoration: none; color: inherit; }} a:hover {{ text-decoration: underline; color: inherit; }} a:visited {{ color: inherit; }}</style></head><body style="background: black; color: white;">{}</body></html>'.format(self.game.html)
+        html = '<html><head><style type="text/css" media="screen">body {{ font-family: Arial, Helvetica, sans-serif; font-size: {}px; }} a {{ text-decoration: none; color: inherit; }} a:hover {{ text-decoration: underline; color: inherit; }} a:visited {{ color: inherit; }} td {{ font-family: Arial, Helvetica, sans-serif; font-size: {}px; }} </style></head><body style="background: black; color: white;">{}</body></html>'.format(fontSize, fontSize, self.game.html)
         self.browser.SetPage(html, 'file:///')
 
         # Remove the wait cursor.
