@@ -293,6 +293,15 @@ class Game:
                 self.level = 1
                 if 'level' in parameters:
                     self.level = parameters['level']
+                if 'load' in parameters:
+                    if parameters['load'] == '2':
+                        self.load()
+                        self.sortDivision()
+                        self.status = 100
+                        # This should be at the start of each season.
+                        # Write a startSeason() function in due course.
+                        self.moneyStart = self.money - self.debt
+                        self.moneyMessage = ''
         elif self.status == 1:
             # Select team.
             if 'team' in parameters:
@@ -361,7 +370,9 @@ class Game:
             # Bank.
             if 'amount' in parameters:
                 try:
-                    amount = int(parameters['amount'])
+                    amountString = parameters['amount']
+                    amountString = amountString.replace('k', '000')
+                    amount = int(amountString)
                 except:
                     amount = 0
                 if amount != 0:
@@ -415,7 +426,9 @@ class Game:
             self.status = 450
             if 'bid' in parameters:
                 try:
-                    bid = int(parameters['bid'])
+                    bidAmount = parameters['bid']
+                    bidAmount = bidAmount.replace('k', '000')
+                    bid = int(bidAmount)
                 except:
                     bid = 0
                 if bid > 0:
@@ -953,7 +966,7 @@ class Game:
                     self.numInjured += 1
             else:
                 if bid > 0:
-                    print('{}Your bid is turned down.{}'.format(ansi.RED, ansi.RESET_ALL))
+                    print('{}Your bid of £{:,.2f} is turned down.{}'.format(ansi.RED, bid, ansi.RESET_ALL))
         self.wait()
 
 
@@ -1008,7 +1021,7 @@ class Game:
                 self.numInjured += 1
         else:
             if bid > 0:
-                self.html += '<p>Your bid is turned down.</p>'
+                self.html += '<p>Your bid of £{:,.2f} is turned down.</p>'.format(bid)
                 print('Your bid is turned down.')
             else:
                 print('No bid.')
@@ -1410,6 +1423,8 @@ class Game:
         ''' Enter a number at the keyboard. '''
         number = 0
         try:
+            message = input(message)
+            message = message.replace('k', '000')
             number = int(input(message))
         except:
             number = 0
@@ -1759,7 +1774,14 @@ class Game:
             # Move down.
             ansi.doCursorDown(homeGoals + awayGoals + 1)
             print('Final Score')
-        print('{}{:>17}{} {} - {} {}'.format(self.teams[homeTeam].colour, self.teams[homeTeam].name, ansi.RESET_ALL, homeGoals, awayGoals, self.teams[awayTeam].getColouredName()))
+            print('{}{:>17}{} {} - {} {}'.format(self.teams[homeTeam].colour, self.teams[homeTeam].name, ansi.RESET_ALL, homeGoals, awayGoals, self.teams[awayTeam].getColouredName()))
+        else:
+            # Debuging only.
+            print('{}{:>17}{} {} - {} {}'.format(self.teams[homeTeam].colour, self.teams[homeTeam].name, ansi.RESET_ALL, homeGoals, awayGoals, self.teams[awayTeam].getColouredName()))
+            for time in self.homeGoalsTimes:
+                print(time)
+            for time in self.awayGoalsTimes:
+                print('                               {}'.format(time))
         return homeGoals, awayGoals
 
 
