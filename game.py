@@ -765,9 +765,14 @@ class Game:
                     player.injured = False
                     if player.inSquad:
                         print('{}{} is fit.{}'.format(ansi.GREEN, player.name, ansi.RESET_ALL))
+                        self.html += '<p style="color: green; margin: 0px;">{} is fit.</p>'.format(player.name)
                         self.numInjured -= 1
                         if self.numInjured < 0:
                             self.numInjured = 0
+                else:
+                    if player.inSquad:
+                        print('{}{} is injured.{}'.format(ansi.RED, player.name, ansi.RESET_ALL))
+                        self.html += '<p style="color: red; margin: 0px";>{} is injured.</p>'.format(player.name)
 
 
 
@@ -979,7 +984,7 @@ class Game:
             self.html += '<p>Enter your bid <input type="text" name="bid" /></p>'
             self.html += '<p><input type="submit" name="button" value="Bid" /></p>'
             self.html += '</form>'
-            self.wait(True)
+            # self.wait(True)
             self.subStatus = player
 
 
@@ -1153,31 +1158,44 @@ class Game:
         playersByCaps = sorted(self.players, key=lambda Player: Player.caps, reverse=True)
         print('{}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓{}'.format(ansi.MAGENTA, ansi.RESET_ALL))
         print('{}┃{}   Player        Position  Caps Goals {}┃{}'.format(ansi.MAGENTA, ansi.RESET_ALL, ansi.MAGENTA, ansi.RESET_ALL))
+        self.html = '<h1>Player Appearances</h1>'
+        self.html += '<table>'
+        self.html += '<tr><td></td><td>Player</td><td>Position</td><td>Apperances</td><td>Goals</td></tr>'
         for index in range(11):
             player = playersByCaps[index]
             if player.injured:
                 playerColour = ansi.RED
+                self.html += '<tr style="color: red;">'
             elif player.inTeam:
                 playerColour = ansi.GREEN
+                self.html += '<tr style="color: green;">'
             else:
                 playerColour = ansi.RESET_ALL
+                self.html += '<tr>'
             print('{}┃{}{:>2} {:<14}{:<9}{:>5}{:>6} {}┃{}'.format(ansi.MAGENTA, playerColour, index + 1, player.name, player.getPosition(), player.caps, player.goals, ansi.MAGENTA, ansi.RESET_ALL))
+            self.html += '<td style="text-align: right;">{}</td><td>{}</td><td>{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td></tr>'.format(index + 1, player.name, player.getPosition(), player.caps, player.goals)
 
         # Top Scorers.
         playersByGoals = sorted(self.players, key=lambda Player: Player.goals, reverse=True)
         print('{}┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫{}'.format(ansi.MAGENTA, ansi.RESET_ALL))
+        self.html  += '<tr><td colspan="5"><hr /></td></tr>'
         print('{}┃{}   Player        Position  Caps Goals {}┃{}'.format(ansi.MAGENTA, ansi.RESET_ALL, ansi.MAGENTA, ansi.RESET_ALL))
         for index in range(5):
             player = playersByGoals[index]
             if player.injured:
                 playerColour = ansi.RED
+                self.html += '<tr style="color: red;">'
             elif player.inTeam:
                 playerColour = ansi.GREEN
+                self.html += '<tr style="color: green;">'
             else:
                 playerColour = ansi.RESET_ALL
+                self.html += '<tr>'
             if player.goals > 0:
                 print('{}┃{}{:>2} {:<14}{:<9}{:>5}{:>6} {}┃{}'.format(ansi.MAGENTA, playerColour, index + 1, player.name, player.getPosition(), player.caps, player.goals, ansi.MAGENTA, ansi.RESET_ALL))
+                self.html += '<td style="text-align: right;">{}</td><td>{}</td><td>{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td></tr>'.format(index + 1, player.name, player.getPosition(), player.caps, player.goals)
         print('{}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛{}'.format(ansi.MAGENTA, ansi.RESET_ALL))
+        self.html += '</table>'
 
 
 
@@ -1237,8 +1255,8 @@ class Game:
         print('Matches Played: {}'.format(self.numMatches))
         print('{} position: {}'.format(self.team.getColouredName(), self.teamIndex+1))
         self.html += '</table>'
-        self.html += '<p>Matches Played: {}</p>'.format(self.numMatches)
-        self.html += '<p>{} position: {}</p>'.format(self.team.name, self.teamIndex+1)
+        self.html += '<p style="margin-bottom: 0px;">Matches Played: {}</p>'.format(self.numMatches)
+        self.html += '<p style="margin-top: 0px;">{} position: {}</p>'.format(self.team.name, self.teamIndex+1)
 
 
 
