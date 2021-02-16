@@ -59,8 +59,9 @@ class Game:
 
     def run(self):
         ''' Execute the football manager game. '''
-        if sys.stdout.encoding != 'UTF-8':
-            print('Switch stdout to UTF-8')
+        if sys.stdout.encoding.lower() != 'utf-8':
+            print('sys.stdout.encoding = {}'.format(sys.stdout.encoding))
+            print('Switch stdout to utf-8')
             sys.stdout.reconfigure(encoding='utf-8')
 
         if self.args.graphical:
@@ -138,6 +139,7 @@ class Game:
                     self.playWeek()
                 elif keyPress == '5':
                     self.save(True)
+                    time.sleep(5)
                 elif keyPress == '6':
                     # PROCRESTART
                     pass
@@ -348,8 +350,16 @@ class Game:
                     # Decide if a cup match.
 
                     # League match.
+                    self.numMatches += 1
                     self.findLeagueOpponent()
                     self.status = 300
+                elif response == 5:
+                    # Save game.
+                    self.save(True)
+                    self.status = 150
+                elif response == 7:
+                    # Show League.
+                    self.status = 170
         elif self.status == 110:
             # Sell Player.
             if 'player' in parameters:
@@ -386,6 +396,10 @@ class Game:
                 if parameters['response'] == 'c':
                     self.status = 100
         elif self.status == 125:
+            self.status = 100
+        elif self.status == 150:
+            self.status = 100
+        elif self.status == 170:
             self.status = 100
         elif self.status == 300:
             if 'response' in parameters:
@@ -500,6 +514,13 @@ class Game:
             self.htmlBankPart1()
         elif self.status == 125:
             self.htmlBankPart2()
+        elif self.status == 150:
+            self.html += '<p>Saving game.</p>'
+            responseOptions = 'delay: 2000'
+        elif self.status == 170:
+            self.html = ''
+            self.showLeague()
+            self.wait(True)
         elif self.status == 300:
             if self.isHomeMatch:
                 self.displayMatch(self.teamIndex, self.opponentIndex)
@@ -1260,6 +1281,7 @@ class Game:
         ''' Replacement for PROCLEAGUE in the BBC Basic version. '''
         print('Division {}'.format(self.division))
         print('   Team             W  D  L Pts Dif')
+        self.html += '<h1>Division {}</h1>'.format(self.division)
         self.html += '<table>'
         self.html += '<tr><td></td><td>Team</td><td>Won</td><td>Draw</td><td>Lost</td><td>Pts</td><td>Dif</td><tr>'
         for team in self.teams:
@@ -1425,7 +1447,7 @@ class Game:
         try:
             message = input(message)
             message = message.replace('k', '000')
-            number = int(input(message))
+            number = int(message)
         except:
             number = 0
         return number
@@ -1506,6 +1528,26 @@ class Game:
         outputFile.write('\n')
         json.dump(self.formation, outputFile)
         outputFile.write('\n')
+        json.dump(self.homeWins, outputFile)
+        outputFile.write('\n')
+        json.dump(self.homeDraws, outputFile)
+        outputFile.write('\n')
+        json.dump(self.homeLoses, outputFile)
+        outputFile.write('\n')
+        json.dump(self.homeFor, outputFile)
+        outputFile.write('\n')
+        json.dump(self.homeAgainst, outputFile)
+        outputFile.write('\n')
+        json.dump(self.awayWins, outputFile)
+        outputFile.write('\n')
+        json.dump(self.awayDraws, outputFile)
+        outputFile.write('\n')
+        json.dump(self.awayLoses, outputFile)
+        outputFile.write('\n')
+        json.dump(self.awayFor, outputFile)
+        outputFile.write('\n')
+        json.dump(self.awayAgainst, outputFile)
+        outputFile.write('\n')
 
         # Save the weeks.
         json.dump(self.weeks, outputFile)
@@ -1522,12 +1564,13 @@ class Game:
         outputFile.close()
 
         print('Game Saved.')
-        time.sleep(5)
 
 
 
     def load(self):
         ''' Implementation of DEFPROCLOAD (line 5530) from the BBC Basic version. '''
+        self.MATCHES_PER_SEASON = 30
+
         inputFile = open('save.game', 'r')
 
         line = inputFile.readline()
@@ -1549,7 +1592,27 @@ class Game:
         line = inputFile.readline()
         self.teamColour = json.loads(line)
         line = inputFile.readline()
-        self.formation= json.loads(line)
+        self.formation = json.loads(line)
+        line = inputFile.readline()
+        self.homeWins = json.loads(line)
+        line = inputFile.readline()
+        self.homeDraws = json.loads(line)
+        line = inputFile.readline()
+        self.homeLoses = json.loads(line)
+        line = inputFile.readline()
+        self.homeFor = json.loads(line)
+        line = inputFile.readline()
+        self.homeAgainst = json.loads(line)
+        line = inputFile.readline()
+        self.awayWins = json.loads(line)
+        line = inputFile.readline()
+        self.awayDraws = json.loads(line)
+        line = inputFile.readline()
+        self.awayLoses = json.loads(line)
+        line = inputFile.readline()
+        self.awayFor = json.loads(line)
+        line = inputFile.readline()
+        self.awayAgainst = json.loads(line)
 
         # Load the weeks.
         line = inputFile.readline()
@@ -1629,7 +1692,6 @@ class Game:
         ''' Display the current match status in html. '''
         if self.subStatus == 0:
             # Play the match.
-            self.numMatches += 1
             homeGoals, awayGoals = self.playMatch(homeTeam, awayTeam, 0.5, 0, True)
             self.applyPoints(homeTeam, awayTeam, homeGoals, awayGoals)
             self.homeScore = 0
@@ -1672,7 +1734,7 @@ class Game:
             self.subStatus = 1000
         if self.subStatus == 45:
             self.html += '<tr><td colspan="4" style="text-align: center;">Half Time</td></tr>'.format(self.subStatus)
-            response = 'delay: 2000'
+            response = 'delay: 4000'
         elif self.subStatus >= 1000:
             self.html += '<tr><td colspan="4" style="text-align: center;">Full Time</td></tr>'.format(self.subStatus)
             response = ''
@@ -1699,13 +1761,15 @@ class Game:
         self.homeGoalsTimes = []
         for goal in range(homeGoals):
             goalTime = random.randint(1, 90)
-            if not (goalTime in self.homeGoalsTimes):
-                self.homeGoalsTimes.append(goalTime)
+            while goalTime in self.homeGoalsTimes:
+                goalTime = (goalTime % 90) + 1
+            self.homeGoalsTimes.append(goalTime)
         self.awayGoalsTimes = []
         for goal in range(awayGoals):
             goalTime = random.randint(1, 90)
-            if not (goalTime in self.awayGoalsTimes):
-                self.awayGoalsTimes.append(goalTime)
+            while goalTime in self.awayGoalsTimes:
+                goalTime = (goalTime % 90) + 1
+            self.awayGoalsTimes.append(goalTime)
 
         # Decide who might score.
         self.goalScorers = []
@@ -1763,7 +1827,7 @@ class Game:
 
                 print('{}Time {}   '.format(' ' * 17, goalTime), end = '\r')
                 sys.stdout.flush()
-                time.sleep(realTime + 0.3 - time.time())
+                time.sleep(realTime + 0.2 - time.time())
 
                 if goalTime == 45:
                     print('{}Half Time.'.format(' ' * 16, goalTime), end = '\r')
@@ -1778,10 +1842,10 @@ class Game:
         else:
             # Debuging only.
             print('{}{:>17}{} {} - {} {}'.format(self.teams[homeTeam].colour, self.teams[homeTeam].name, ansi.RESET_ALL, homeGoals, awayGoals, self.teams[awayTeam].getColouredName()))
-            for time in self.homeGoalsTimes:
-                print(time)
-            for time in self.awayGoalsTimes:
-                print('                               {}'.format(time))
+            #for goalTime in self.homeGoalsTimes:
+            #    print(goalTime)
+            #for goalT in self.awayGoalsTimes:
+            #    print('                          {}'.format(goalTime))
         return homeGoals, awayGoals
 
 
