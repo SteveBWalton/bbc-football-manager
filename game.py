@@ -19,6 +19,7 @@ import ansi
 from inkey import InKey
 from team import Team
 from player import Player
+from cup_competition import CupCompetition
 
 
 
@@ -50,6 +51,10 @@ class Game:
         self.awayLoses = 0
         self.awayFor = 0
         self.awayAgainst = 0
+
+        self.faCup = None
+        self.leagueCup = None
+        self.europeanCup = None
 
         self.status = 0
         self.subStatus = 0
@@ -154,11 +159,11 @@ class Game:
                         return
 
             # Season has finished.
-            self.newSeason()
+            self.endSeason()
 
 
 
-    def newSeason(self, isGraphical=False):
+    def endSeason(self, isGraphical=False):
         ansi.doCls()
         print('Season has finished.')
         self.html = '<h1>Season has finished</h1>'
@@ -232,6 +237,20 @@ class Game:
             nPlayer = random.randint(0, 25)
             self.players[nPlayer].skill = 5 + nSkillBonus
 
+        self.newSeason()
+
+        self.wait(isGraphical)
+
+
+
+    def newSeason(self):
+        ''' This is called by endSeason() and before the first season. '''
+        self.moneyStart = self.money - self.debt
+        self.moneyMessage = ''
+
+        self.faCup = CupCompetition('FA Cup', True)
+        self.leagueCup = CupCompetition('League Cup', True)
+
         self.numMatches = 0
         self.weeks = []
 
@@ -245,8 +264,6 @@ class Game:
         self.awayLoses = 0
         self.awayFor = 0
         self.awayAgainst = 0
-
-        self.wait(isGraphical)
 
 
 
@@ -300,10 +317,7 @@ class Game:
                         self.load()
                         self.sortDivision()
                         self.status = 100
-                        # This should be at the start of each season.
-                        # Write a startSeason() function in due course.
-                        self.moneyStart = self.money - self.debt
-                        self.moneyMessage = ''
+                        self.newSeason()
         elif self.status == 1:
             # Select team.
             if 'team' in parameters:
@@ -317,10 +331,7 @@ class Game:
                     self.teamColour = team.colour
                     self.status = 100
                     self.newGame(True)
-                    # This should be at the start of each season.
-                    # Write a startSeason() function in due course.
-                    self.moneyStart = self.money - self.debt
-                    self.moneyMessage = ''
+                    self.newSeason()
 
         elif self.status == 2:
             # Enter own team name.
@@ -330,11 +341,7 @@ class Game:
                 self.teamColour = ansi.CYAN
                 self.status = 100
                 self.newGame(True)
-                # This should be at the start of each season.
-                # Write a startSeason() function in due course.
-                self.moneyStart = self.money - self.debt
-                self.moneyMessage = ''
-
+                self.newSeason()
 
         elif self.status == 100:
             if 'response' in parameters:
@@ -347,12 +354,27 @@ class Game:
                     # Bank
                     self.status = 120
                 elif response == 4:
+                    self.numMatches += 1
+
                     # Decide if a cup match.
+                    if self.numMatches % 6 == 2:
+                        # FA Cup.
+                        if self.leagueCup.isIn:
+                            self.status = 200
+                    if self.numMatches % 6 == 4:
+                        # FA Cup.
+                        if self.faCup.isIn:
+                            self.status = 200
+                    if self.numMatches % 6 == 0:
+                        # European Cup.
+                        if self.europeanCup != None:
+                            if self.europeanCup.isIn:
+                                self.status = 200
 
                     # League match.
-                    self.numMatches += 1
-                    self.findLeagueOpponent()
-                    self.status = 300
+                    if self.status == 100:
+                        self.findLeagueOpponent()
+                        self.status = 300
                 elif response == 5:
                     # Save game.
                     self.save(True)
@@ -402,6 +424,7 @@ class Game:
         elif self.status == 170:
             self.status = 100
         elif self.status == 300:
+            # League Match.
             if 'response' in parameters:
                 if parameters['response'] == 'c':
                     self.status = 310
@@ -499,6 +522,7 @@ class Game:
         elif self.status == 100:
             self.html = '<h1 style="display: inline">{} </h1><p style="display: inline">Manager {}</p>'.format(self.teamName, self.playerName)
             self.html += '<p>Level {}</p>'.format(self.level)
+            self.displayCupStatus()
             self.html += '<p style="margin-top:10px;"><a href="app:?response=1">1 .. Sell Players / View Squad</a><br />'
             self.html += '<a href="app:?response=2">2 .. Bank</a><br />'
             self.html += '<a href="app:?response=3">3 .. Rename Player</a><br />'
@@ -521,7 +545,10 @@ class Game:
             self.html = ''
             self.showLeague()
             self.wait(True)
+        elif self.status == 200:
+            # Cup Match.
         elif self.status == 300:
+            # League Match.
             if self.isHomeMatch:
                 self.displayMatch(self.teamIndex, self.opponentIndex)
             else:
@@ -601,7 +628,7 @@ class Game:
             self.playerFit()
             self.wait(True)
         elif self.status == 1000:
-            self.newSeason(True)
+            self.endSeason(True)
         else:
             self.html = '<p>Error Help.</p><p>status = {}</p>'.format(self.status)
 
@@ -1904,9 +1931,11 @@ class Game:
         ''' Replacement for DEFPROCPROGRESS (line 5790) in the BBC Basic version. '''
         ansi.doCls()
         print("{}'s progress in division {}".format(self.team.getColouredName(), self.division))
+
         # Display FA Cup status.
         # Display League Cup status.
         # Display European Cup status.
+        self.displayCupStatus()
 
         # Show league results summary.
         print(' [--- Home ---] [--- Away ---]')
@@ -1914,9 +1943,9 @@ class Game:
         print('{:>3}{:>3}{:>3}{:>3}{:>3}{:>3}{:>3}{:>3}{:>3}{:>3}{:>4}'.format(self.homeWins, self.homeDraws, self.homeLoses, self.homeFor, self.homeAgainst, self.awayWins, self.awayDraws, self.awayLoses, self.awayFor, self.awayAgainst, 3 * (self.homeWins + self.awayWins) + self.homeDraws + self.awayDraws))
         self.html = '<h1>{} progress in division {}</h1>'.format(self.team.name, self.division)
         self.html += '<table>'
-        self.html += '<tr><td colspan="5">Home</td><td colspan="5">Away</td></tr>'
-        self.html += '<tr><td style="text-align: right;">Win</td><td style="text-align: right;">Draw</td><td style="text-align: right;">Lose</td><td style="text-align: right;">For</td><td style="text-align: right;">Agn</td><td style="text-align: right;">Win</td><td style="text-align: right;">Draw</td><td style="text-align: right;">Lose</td><td style="text-align: right;">For</td><td style="text-align: right;">Agn</td><td style="text-align: right;">Points</td></tr>'
-        self.html += '<tr><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td></tr>'.format(self.homeWins, self.homeDraws, self.homeLoses, self.homeFor, self.homeAgainst, self.awayWins, self.awayDraws, self.awayLoses, self.awayFor, self.awayAgainst, 3 * (self.homeWins + self.awayWins) + self.homeDraws + self.awayDraws)
+        self.html += '<tr><td colspan="5" style="text-align: center; border: 2px solid purple;">Home</td><td colspan="5" style="text-align:center; border: 2px solid purple;">Away</td><td style="border-top: 2px solid purple; border-left: 2px solid purple; border-right: 2px solid purple;"></td></tr>'
+        self.html += '<tr><td style="text-align: right; border-left: 2px solid purple; border-bottom: 2px solid purple;">Win</td><td style="text-align: right; border-bottom: 2px solid purple;">Draw</td><td style="text-align: right; border-bottom: 2px solid purple;">Lose</td><td style="text-align: right; border-bottom: 2px solid purple;">For</td><td style="text-align: right; border-bottom: 2px solid purple; border-right: 2px solid purple;">Agn</td><td style="text-align: right; border-bottom: 2px solid purple; border-left: 2px solid purple;">Win</td><td style="text-align: right; border-bottom: 2px solid purple;">Draw</td><td style="text-align: right; border-bottom: 2px solid purple;">Lose</td><td style="text-align: right; border-bottom: 2px solid purple;">For</td><td style="text-align: right; border-bottom: 2px solid purple; border-right: 2px solid purple;">Agn</td><td style="text-align: right; border-bottom: 2px solid purple; border-left: 2px solid purple; border-right: 2px solid purple;">Points</td></tr>'
+        self.html += '<tr><td style="text-align: right; border-left: 2px solid purple; border-bottom: 2px solid purple;">{}</td><td style="text-align: right; border-bottom: 2px solid purple;">{}</td><td style="text-align: right; border-bottom: 2px solid purple;">{}</td><td style="text-align: right; border-bottom: 2px solid purple;">{}</td><td style="text-align: right; border-bottom: 2px solid purple; border-right: 2px solid purple;">{}</td><td style="text-align: right; border-bottom: 2px solid purple; border-left: 2px solid purple;">{}</td><td style="text-align: right; border-bottom: 2px solid purple;">{}</td><td style="text-align: right; border-bottom: 2px solid purple;">{}</td><td style="text-align: right; border-bottom: 2px solid purple;">{}</td><td style="text-align: right; border-bottom: 2px solid purple; border-right: 2px solid purple;">{}</td><td style="text-align: right; border: 2px solid purple; padding-right: 10px;">{}</td></tr>'.format(self.homeWins, self.homeDraws, self.homeLoses, self.homeFor, self.homeAgainst, self.awayWins, self.awayDraws, self.awayLoses, self.awayFor, self.awayAgainst, 3 * (self.homeWins + self.awayWins) + self.homeDraws + self.awayDraws)
         self.html += '</table>'
 
         # Show league results details.
@@ -1956,3 +1985,29 @@ class Game:
                 # Add the final element as the number.
                 bar = '{}{:>2}'.format(bar, 1 + week & 63)
                 print('{} {} {}{}'.format(homeAway, result, bar, ansi.RESET_ALL))
+
+
+
+    def displayCupStatus(self):
+        ''' Display the status of the cup competitions. '''
+        self.html += '<p>'
+        if self.faCup.isIn:
+            print('FA Cup: In 1st round.')
+            self.html += 'FA Cup: In 1st round.<br />'
+        else:
+            print('FA Cup: Out 1st round.')
+            self.html += 'FA Cup: Out 1st round.<br />'
+        if self.leagueCup.isIn:
+            print('League Cup: In 1st round.')
+            self.html += 'League Cup: In 1st round.'
+        else:
+            print('League Cup: Out 1st round.')
+            self.html += 'Leauge Cup: Out 1st round.'
+        if self.europeanCup != None:
+            if self.europeanCup.isIn:
+                print('{}: In 1st round.'.format(self.europeanCup.name))
+                self.html += '<br />{}: In 1st round.'.format(self.europeanCup.name)
+            else:
+                print('{}: Out 1st round.'.format(self.europeanCup.name))
+                self.html += '<br />{}: Out 1st round.'.format(self.europeanCup.name)
+        self.html += '</p>'
