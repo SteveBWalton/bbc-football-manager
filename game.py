@@ -547,6 +547,7 @@ class Game:
             self.wait(True)
         elif self.status == 200:
             # Cup Match.
+            pass
         elif self.status == 300:
             # League Match.
             if self.isHomeMatch:
@@ -1991,23 +1992,11 @@ class Game:
     def displayCupStatus(self):
         ''' Display the status of the cup competitions. '''
         self.html += '<p>'
-        if self.faCup.isIn:
-            print('FA Cup: In 1st round.')
-            self.html += 'FA Cup: In 1st round.<br />'
-        else:
-            print('FA Cup: Out 1st round.')
-            self.html += 'FA Cup: Out 1st round.<br />'
-        if self.leagueCup.isIn:
-            print('League Cup: In 1st round.')
-            self.html += 'League Cup: In 1st round.'
-        else:
-            print('League Cup: Out 1st round.')
-            self.html += 'Leauge Cup: Out 1st round.'
+        print(self.faCup.getStatus())
+        self.html += self.faCup.getStatus() + '<br />'
+        print(self.leagueCup.getStatus())
+        self.html += self.leagueCup.getStatus()
         if self.europeanCup != None:
-            if self.europeanCup.isIn:
-                print('{}: In 1st round.'.format(self.europeanCup.name))
-                self.html += '<br />{}: In 1st round.'.format(self.europeanCup.name)
-            else:
-                print('{}: Out 1st round.'.format(self.europeanCup.name))
-                self.html += '<br />{}: Out 1st round.'.format(self.europeanCup.name)
+            print(self.europeanCup.getStatus())
+            self.html += '<br />' + self.europeanCup.getStatus()
         self.html += '</p>'

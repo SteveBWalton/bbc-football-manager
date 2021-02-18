@@ -21,8 +21,40 @@ class CupCompetition:
     def __init__(self, label, isEntered):
         ''' Class constructor. '''
         self.name = label
-        self.isIn = isEntered
         self.isEntered = isEntered
+        self.newSeason()
+
+
+
+    def newSeason(self):
+        ''' Reset the competition for a new season. '''
+        self.isIn = True
+        self.round = 1
+
+
+
+    def getRoundName(self):
+        ''' Return the string description of the round. '''
+        if self.round == 1:
+            return '1st Round'
+        elif self.round == 2:
+            return '2nd Round'
+        elif self.round == 3:
+            return 'Quarter Final'
+        elif self.round == 4:
+            return 'Semi Final'
+        elif self.round == 5:
+            return 'Final'
+        return 'Error {}'.format(self.round)
+
+
+
+    def getStatus(self):
+        ''' Return the string describing the current status. '''
+        if self.isIn:
+            return '{}: in {}'.format(self.name, self.getRoundName())
+        return '{}: out {}'.format(self.name, self.getRoundName())
+
 
 
     def dump(self, outputFile):
