@@ -6,6 +6,7 @@ Module to implement the CupCompetition class for the the BBC Football Manager pr
 '''
 
 # System libraries.
+import random
 import json
 
 # Application Libraries.
@@ -18,11 +19,13 @@ class CupCompetition:
 
 
 
-    def __init__(self, label, isEntered):
+    def __init__(self, game, label, isEntered):
         ''' Class constructor. '''
+        self.game = game
         self.name = label
         self.isEntered = isEntered
         self.newSeason()
+        random.seed()
 
 
 
@@ -54,6 +57,20 @@ class CupCompetition:
         if self.isIn:
             return '{}: in {}'.format(self.name, self.getRoundName())
         return '{}: out {}'.format(self.name, self.getRoundName())
+
+
+
+    def getTeam(self):
+        ''' Return the team to play against for the next match.
+        This is not working currently.
+        Only return a team from the current league.
+        This should be a weak team and keep the game easy to debug.
+        '''
+        # Team in same league as team.
+        teamIndex = random.randint(0, len(self.game.teams))
+        while teamIndex == self.game.teamIndex:
+            teamIndex = random.randint(0, len(self.game.teams))
+        return self.game.teams[teamIndex]
 
 
 

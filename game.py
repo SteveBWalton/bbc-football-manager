@@ -248,8 +248,8 @@ class Game:
         self.moneyStart = self.money - self.debt
         self.moneyMessage = ''
 
-        self.faCup = CupCompetition('FA Cup', True)
-        self.leagueCup = CupCompetition('League Cup', True)
+        self.faCup = CupCompetition(self, 'FA Cup', True)
+        self.leagueCup = CupCompetition(self, 'League Cup', True)
 
         self.numMatches = 0
         self.weeks = []
@@ -358,17 +358,20 @@ class Game:
 
                     # Decide if a cup match.
                     if self.numMatches % 6 == 2:
-                        # FA Cup.
+                        # League Cup.
                         if self.leagueCup.isIn:
+                            self.activeCup = self.leagueCup
                             self.status = 200
                     if self.numMatches % 6 == 4:
                         # FA Cup.
                         if self.faCup.isIn:
+                            self.activeCup = self.faCup
                             self.status = 200
                     if self.numMatches % 6 == 0:
                         # European Cup.
                         if self.europeanCup != None:
                             if self.europeanCup.isIn:
+                                self.activeCup = self.europeanCup
                                 self.status = 200
 
                     # League match.
@@ -423,6 +426,25 @@ class Game:
             self.status = 100
         elif self.status == 170:
             self.status = 100
+        elif self.status == 200:
+            # Cup Match.
+            if 'response' in parameters:
+                if parameters['response'] == 'c':
+                    self.status = 210
+                if parameters['response'] == 't':
+                    self.status = 220
+                    self.subStatus = 0
+        elif self.status == 210:
+            if 'player' in parameters:
+                playerIndex = int(parameters['player']) - 1
+                if self.players[playerIndex].inSquad:
+                    if self.players[playerIndex].inTeam:
+                        self.dropPlayer(playerIndex)
+                    else:
+                        self.addPlayer(playerIndex)
+            if 'response' in parameters:
+                if parameters['response'] == 'b':
+                    self.status = 200
         elif self.status == 300:
             # League Match.
             if 'response' in parameters:
@@ -547,14 +569,15 @@ class Game:
             self.wait(True)
         elif self.status == 200:
             # Cup Match.
-            pass
+            self.playCupMatch()
         elif self.status == 300:
             # League Match.
+            self.html = '<h1>League Match</h1>'
             if self.isHomeMatch:
-                self.displayMatch(self.teamIndex, self.opponentIndex)
+                self.displayMatch(False, self.teams[self.teamIndex], self.teams[self.opponentIndex])
             else:
-                self.displayMatch(self.opponentIndex, self.teamIndex)
-        elif self.status == 310:
+                self.displayMatch(False, self.teams[self.opponentIndex], self.teams[self.teamIndex])
+        elif self.status == 210 or self.status == 310:
             self.pickPlayers(True)
         elif self.status == 400:
             if self.isHomeMatch:
@@ -671,9 +694,9 @@ class Game:
         while True:
             ansi.doCls()
             if self.isHomeMatch:
-                self.displayMatch(self.teamIndex, self.opponentIndex)
+                self.displayMatch(False, self.teams[self.teamIndex], self.teams[self.opponentIndex])
             else:
-                self.displayMatch(self.opponentIndex, self.teamIndex)
+                self.displayMatch(False, self.teams[self.opponentIndex], self.teams[self.teamIndex])
             keyPress = self.getKeyboardCharacter(['c', '\t'])
             if keyPress == '\t':
                 break;
@@ -1261,32 +1284,32 @@ class Game:
 
 
 
-    def displayMatch(self, home, away):
+    def displayMatch(self, isCup, homeTeam, awayTeam):
         ''' Replacement for PROCDISPLAY in the BBC Basic version. '''
-        print('   {}{:^18}{}{:^18}{}'.format(self.teams[home].colour, self.teams[home].name, self.teams[away].colour, self.teams[away].name, ansi.RESET_ALL))
-        if True:
-            print('Pos{:^18}{:^18}'.format(self.teams[home].position, self.teams[away].position))
-        print('Eng{:^18}{:^18}'.format(self.teams[home].energy, self.teams[away].energy))
-        print('Mor{:^18}{:^18}'.format(self.teams[home].moral, self.teams[away].moral))
-        print('For{:^18}{:^18}'.format(self.teams[home].formation, self.teams[away].formation))
-        print('Def{:^18}{:^18}'.format(self.teams[home].defence, self.teams[away].defence))
-        print('Mid{:^18}{:^18}'.format(self.teams[home].midfield, self.teams[away].midfield))
-        print('Att{:^18}{:^18}'.format(self.teams[home].attack, self.teams[away].attack))
+        print('   {}{:^18}{}{:^18}{}'.format(homeTeam.colour, homeTeam.name, awayTeam.colour, awayTeam.name, ansi.RESET_ALL))
+        if isCup:
+            print('Pos{:^18}{:^18}'.format(homeTeam.position, awayTeam.position))
+        print('Eng{:^18}{:^18}'.format(homeTeam.energy // 10, awayTeam.energy // 10))
+        print('Mor{:^18}{:^18}'.format(homeTeam.moral, awayTeam.moral))
+        print('For{:^18}{:^18}'.format(homeTeam.formation, awayTeam.formation))
+        print('Def{:^18}{:^18}'.format(homeTeam.defence, awayTeam.defence))
+        print('Mid{:^18}{:^18}'.format(homeTeam.midfield, awayTeam.midfield))
+        print('Att{:^18}{:^18}'.format(homeTeam.attack, awayTeam.attack))
         print()
         print('{} Picked, {} Squad, {} Injured.'.format(self.numTeam, self.numSquad, self.numInjured))
         print('Press C to change team')
         print('Press TAB to play match.')
 
-        self.html = '<table>'
-        self.html += '<tr><td style="text-align: center;"></td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(self.teams[home].name, self.teams[away].name)
+        self.html += '<table>'
+        self.html += '<tr><td style="text-align: center;"></td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(homeTeam.name, awayTeam.name)
         if True:
-            self.html += '<tr><td style="text-align: center;">Position</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(self.teams[home].position, self.teams[away].position)
-        self.html += '<tr><td style="text-align: center;">Energy</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(self.teams[home].energy, self.teams[away].energy)
-        self.html += '<tr><td style="text-align: center;">Moral</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(self.teams[home].moral, self.teams[away].moral)
-        self.html += '<tr><td style="text-align: center;">Formation</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(self.teams[home].formation, self.teams[away].formation)
-        self.html += '<tr><td style="text-align: center;">Defence</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(self.teams[home].defence, self.teams[away].defence)
-        self.html += '<tr><td style="text-align: center;">Midfield</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(self.teams[home].midfield, self.teams[away].midfield)
-        self.html += '<tr><td style="text-align: center;">Attack</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(self.teams[home].attack, self.teams[away].attack)
+            self.html += '<tr><td style="text-align: center;">Position</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(homeTeam.position, awayTeam.position)
+        self.html += '<tr><td style="text-align: center;">Energy</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(homeTeam.energy // 10, awayTeam.energy // 10)
+        self.html += '<tr><td style="text-align: center;">Moral</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(homeTeam.moral, awayTeam.moral)
+        self.html += '<tr><td style="text-align: center;">Formation</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(homeTeam.formation, awayTeam.formation)
+        self.html += '<tr><td style="text-align: center;">Defence</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(homeTeam.defence, awayTeam.defence)
+        self.html += '<tr><td style="text-align: center;">Midfield</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(homeTeam.midfield, awayTeam.midfield)
+        self.html += '<tr><td style="text-align: center;">Attack</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(homeTeam.attack, awayTeam.attack)
         self.html += '</table>'
         self.html += '<p>{} Picked, {} Squad, {} Injured.</p>'.format(self.numTeam, self.numSquad, self.numInjured)
         self.html += '<p><a href="app:?response=c">Press C to change team.</a></p>'
@@ -2000,3 +2023,16 @@ class Game:
             print(self.europeanCup.getStatus())
             self.html += '<br />' + self.europeanCup.getStatus()
         self.html += '</p>'
+
+
+
+    def playCupMatch(self):
+        ''' Play a cup match in the self.activeCup competition. '''
+        self.html = '<h1 style="display: inline">{} </h1><p style="display: inline">{}</p>'.format(self.activeCup.name, self.activeCup.getRoundName())
+
+        opponentTeam = self.activeCup.getTeam()
+
+        self.displayMatch(True, self.teams[self.teamIndex], opponentTeam)
+
+        self.wait(True)
+
