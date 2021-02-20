@@ -362,22 +362,25 @@ class Game:
                         if self.leagueCup.isIn:
                             self.activeCup = self.leagueCup
                             self.status = 200
+                            self.subStatus = -1
                     if self.numMatches % 6 == 4:
                         # FA Cup.
                         if self.faCup.isIn:
                             self.activeCup = self.faCup
                             self.status = 200
+                            self.subStatus = -1
                     if self.numMatches % 6 == 0:
                         # European Cup.
                         if self.europeanCup != None:
                             if self.europeanCup.isIn:
                                 self.activeCup = self.europeanCup
                                 self.status = 200
+                                self.subStatus = -1
 
                     # League match.
                     if self.status == 100:
-                        self.findLeagueOpponent()
                         self.status = 300
+                        self.subStatus = -1
                 elif response == 5:
                     # Save game.
                     self.save(True)
@@ -445,6 +448,15 @@ class Game:
             if 'response' in parameters:
                 if parameters['response'] == 'b':
                     self.status = 200
+        elif self.status == 220:
+            if 'response' in parameters:
+                if parameters['response'] == 'c':
+                    self.status = 230
+        elif self.status == 230:
+            if 'response' in parameters:
+                if parameters['response'] == 'c':
+                    self.status = 300
+                    self.subStatus -1
         elif self.status == 300:
             # League Match.
             if 'response' in parameters:
@@ -469,10 +481,6 @@ class Game:
                 if parameters['response'] == 'c':
                     self.status = 410
         elif self.status == 410:
-            if 'response' in parameters:
-                if parameters['response'] == 'c':
-                    self.status = 420
-        elif self.status == 420:
             if 'response' in parameters:
                 if parameters['response'] == 'c':
                     self.status = 430
@@ -569,8 +577,22 @@ class Game:
             self.wait(True)
         elif self.status == 200:
             # Cup Match.
+            if self.subStatus == -1:
+                self.cupTeam = self.activeCup.getTeam()
+                self.isHomeMatch = True
+                self.subStatus = 0
             self.playCupMatch()
+        elif self.status == 220:
+            if self.isHomeMatch:
+                responseOptions = self.htmlPlayMatch(self.teams[self.teamIndex], self.cupTeam)
+            else:
+                responseOptions = self.htmlPlayMatch(self.cupTeam, self.teams[self.teamIndex])
+        elif self.status == 230:
+            self.reportCupMatch()
         elif self.status == 300:
+            if self.subStatus == -1:
+                self.findLeagueOpponent()
+                self.subStatus = 0
             # League Match.
             self.html = '<h1>League Match</h1>'
             if self.isHomeMatch:
@@ -581,11 +603,16 @@ class Game:
             self.pickPlayers(True)
         elif self.status == 400:
             if self.isHomeMatch:
-                responseOptions = self.htmlPlayMatch(self.teamIndex, self.opponentIndex)
+                responseOptions = self.htmlPlayMatch(self.teams[self.teamIndex], self.teams[self.opponentIndex])
             else:
-                responseOptions = self.htmlPlayMatch(self.opponentIndex, self.teamIndex)
+                responseOptions = self.htmlPlayMatch(self.teams[self.opponentIndex], self.teams[self.teamIndex])
             # print('responseOptions {}'.format(responseOptions))
         elif self.status == 410:
+            if self.isHomeMatch:
+                self.applyPoints(self.teams[self.teamIndex], self.teams[self.opponentIndex], self.homeScore, self.awayScore)
+            else:
+                self.applyPoints(self.teams[self.opponentIndex], self.teams[self.teamIndex], self.homeScore, self.awayScore)
+
             # Calculate the gate money.
             if self.isHomeMatch:
                 self.gateMoney = (9000 + (15 - self.teamIndex - self.opponentIndex) * 500) * (5 - self.division) + random.randint(0, 1000)
@@ -594,14 +621,9 @@ class Game:
             else:
                 self.gateMoney = 0
 
-            # PROCPLAYERS
-            self.playerEngergy()
-            self.playerInjured()
             # Decided the fixtures for the league was at half time of the playmatch.
             self.decideFixtures(self.opponentIndex)
 
-            self.wait(True)
-        elif self.status == 420:
             self.rest()
             self.sortDivision()
 
@@ -709,10 +731,10 @@ class Game:
 
         # Play the match.
         if self.isHomeMatch:
-            playerGoals, opponentGoals = self.playMatch(self.teamIndex, self.opponentIndex, 0.5, 0)
+            playerGoals, opponentGoals = self.playMatch(self.teams[self.teamIndex], self.teams[self.opponentIndex], 0.5, 0)
             self.applyPoints(self.teamIndex, self.opponentIndex, playerGoals, opponentGoals)
         else:
-            opponentGoals, playerGoals = self.playMatch(self.opponentIndex, self.teamIndex, 0.5, 0)
+            opponentGoals, playerGoals = self.playMatch(self.teams[self.opponentIndex], self.teams[self.teamIndex], 0.5, 0)
             self.applyPoints(self.opponentIndex, self.teamIndex, opponentGoals, playerGoals)
 
         # Calculate the gate money.
@@ -782,23 +804,23 @@ class Game:
 
     def applyPoints(self, home, away, homeGoals, awayGoals):
         ''' Apply the points to the league. '''
-        self.teams[home].numHomeGames += 1
+        home.numHomeGames += 1
         if homeGoals == awayGoals:
-            self.teams[home].pts += 1
-            self.teams[away].pts += 1
-            self.teams[home].draw += 1
-            self.teams[away].draw += 1
+            home.pts += 1
+            away.pts += 1
+            home.draw += 1
+            away.draw += 1
         else:
             if homeGoals > awayGoals:
-                self.teams[home].pts += 3
-                self.teams[home].win += 1
-                self.teams[away].lost += 1
+                home.pts += 3
+                home.win += 1
+                away.lost += 1
             else:
-                self.teams[away].pts += 3
-                self.teams[home].lost += 1
-                self.teams[away].win += 1
-            self.teams[home].difference += homeGoals - awayGoals
-            self.teams[away].difference += awayGoals - homeGoals
+                away.pts += 3
+                home.lost += 1
+                away.win += 1
+            home.difference += homeGoals - awayGoals
+            away.difference += awayGoals - homeGoals
 
 
 
@@ -1731,10 +1753,10 @@ class Game:
                 if self.teams[index].fixture == 2 * match:
                     away = index
 
-            homeGoals, awayGoals = self.match(home, away, 0.5, 0)
+            homeGoals, awayGoals = self.match(self.teams[home], self.teams[away], 0.5, 0)
             print('{}{:>17}{} {} - {} {}'.format(self.teams[home].colour, self.teams[home].name, ansi.RESET_ALL, homeGoals, awayGoals, self.teams[away].getColouredName()))
             self.html += '<tr><td style="text-align: right;">{}</td><td style="text-align: center;">{} - {}</td><td>{}</td></tr>'.format(self.teams[home].name, homeGoals, awayGoals, self.teams[away].name)
-            self.applyPoints(home, away, homeGoals, awayGoals)
+            self.applyPoints(self.teams[home], self.teams[away], homeGoals, awayGoals)
         self.html += '</table>'
 
 
@@ -1744,7 +1766,6 @@ class Game:
         if self.subStatus == 0:
             # Play the match.
             homeGoals, awayGoals = self.playMatch(homeTeam, awayTeam, 0.5, 0, True)
-            self.applyPoints(homeTeam, awayTeam, homeGoals, awayGoals)
             self.homeScore = 0
             self.awayScore = 0
             self.homeGoalScorers = ''
@@ -1752,7 +1773,7 @@ class Game:
         else:
             if self.subStatus in self.homeGoalsTimes:
                 self.homeScore += 1
-                if homeTeam == self.teamIndex:
+                if homeTeam.name == self.teamName:
                     goalScorer = random.randint(0, len(self.goalScorers)-1)
                     if self.homeGoalScorers == '':
                         self.homeGoalScorers = '{} {}'.format(self.subStatus, self.goalScorers[goalScorer].name)
@@ -1766,7 +1787,7 @@ class Game:
                         self.homeGoalScorers = '{}<br />{} Goal'.format(self.homeGoalScorers, self.subStatus)
             if self.subStatus in self.awayGoalsTimes:
                 self.awayScore += 1
-                if awayTeam == self.teamIndex:
+                if awayTeam.name == self.teamName:
                     goalScorer = random.randint(0, len(self.goalScorers)-1)
                     if self.awayGoalScorers == '':
                         self.awayGoalScorers = '{} {}'.format(self.subStatus, self.goalScorers[goalScorer].name)
@@ -1780,7 +1801,7 @@ class Game:
                         self.awayGoalScorers = '{}<br />{} Goal'.format(self.awayGoalScorers, self.subStatus)
 
         self.html = '<table>'
-        self.html += '<tr><td style="text-align: right;">{}</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td><td>{}</td></tr>'.format(self.teams[homeTeam].name, self.homeScore, self.awayScore, self.teams[awayTeam].name)
+        self.html += '<tr><td style="text-align: right;">{}</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td><td>{}</td></tr>'.format(homeTeam.name, self.homeScore, self.awayScore, awayTeam.name)
         if self.subStatus == 90:
             self.subStatus = 1000
         if self.subStatus == 45:
@@ -1797,6 +1818,9 @@ class Game:
         self.subStatus += 1
 
         if self.subStatus >= 1000:
+            # PROCPLAYERS
+            self.playerEngergy()
+            self.playerInjured()
             self.wait(True)
 
         return response
@@ -1839,14 +1863,14 @@ class Game:
             self.homeScore = 0
             self.awayScore = 0
             # print('{} {} - {} {}'.format(self.teams[homeTeam].getColouredName(), homeScore, awayScore, self.teams[awayTeam].getColouredName()))
-            print('{}{:>17}{} {} - {} {}'.format(self.teams[homeTeam].colour, self.teams[homeTeam].name, ansi.RESET_ALL, self.homeScore, self.awayScore, self.teams[awayTeam].getColouredName()))
+            print('{}{:>17}{} {} - {} {}'.format(homeTeam.colour, homeTeam.name, ansi.RESET_ALL, self.homeScore, self.awayScore, awayTeam.getColouredName()))
             for goalTime in range(91):
                 realTime = time.time()
 
                 if goalTime in self.homeGoalsTimes:
                     self.homeScore += 1
                     ansi.doCursorUp(1)
-                    print('{}{:>17}{} {} - {} {}'.format(self.teams[homeTeam].colour, self.teams[homeTeam].name, ansi.RESET_ALL, self.homeScore, self.awayScore, self.teams[awayTeam].getColouredName()))
+                    print('{}{:>17}{} {} - {} {}'.format(homeTeam.colour, homeTeam.name, ansi.RESET_ALL, self.homeScore, self.awayScore, awayTeam.getColouredName()))
                     totalScore = self.homeScore + self.awayScore
                     if homeTeam == self.teamIndex:
                         ansi.doCursorDown(totalScore)
@@ -1862,7 +1886,7 @@ class Game:
                 if goalTime in self.awayGoalsTimes:
                     self.awayScore += 1
                     ansi.doCursorUp(1)
-                    print('{}{:>17}{} {} - {} {}'.format(self.teams[homeTeam].colour, self.teams[homeTeam].name, ansi.RESET_ALL, self.homeScore, self.awayScore, self.teams[awayTeam].getColouredName()))
+                    print('{}{:>17}{} {} - {} {}'.format(homeTeam.colour, homeTeam.name, ansi.RESET_ALL, self.homeScore, self.awayScore, awayTeam.getColouredName()))
                     totalScore = self.homeScore + self.awayScore
                     if awayTeam == self.teamIndex:
                         ansi.doCursorDown(totalScore)
@@ -1889,10 +1913,10 @@ class Game:
             # Move down.
             ansi.doCursorDown(homeGoals + awayGoals + 1)
             print('Final Score')
-            print('{}{:>17}{} {} - {} {}'.format(self.teams[homeTeam].colour, self.teams[homeTeam].name, ansi.RESET_ALL, homeGoals, awayGoals, self.teams[awayTeam].getColouredName()))
+            print('{}{:>17}{} {} - {} {}'.format(homeTeam.colour, homeTeam.name, ansi.RESET_ALL, homeGoals, awayGoals, awayTeam.getColouredName()))
         else:
             # Debuging only.
-            print('{}{:>17}{} {} - {} {}'.format(self.teams[homeTeam].colour, self.teams[homeTeam].name, ansi.RESET_ALL, homeGoals, awayGoals, self.teams[awayTeam].getColouredName()))
+            print('{}{:>17}{} {} - {} {}'.format(homeTeam.colour, homeTeam.name, ansi.RESET_ALL, homeGoals, awayGoals, awayTeam.getColouredName()))
             #for goalTime in self.homeGoalsTimes:
             #    print(goalTime)
             #for goalT in self.awayGoalsTimes:
@@ -1923,10 +1947,8 @@ class Game:
 
 
 
-    def match(self, homeTeam, awayTeam, homeBonus, awayBonus):
+    def match(self, home, away, homeBonus, awayBonus):
         ''' Replacement for DEFPROCMATCH (Line 6920) in the BBC Basic version. '''
-        home = self.teams[homeTeam]
-        away = self.teams[awayTeam]
         homeAverageGoals = homeBonus + (4.0 * home.attack / away.defence) * home.midfield / (home.midfield + away.midfield) + (home.moral - 10.0) / 40.0 - (away.energy - 100.0) / 400.0
         awayAverageGoals = awayBonus + (4.0 * away.attack / home.defence) * away.midfield / (away.midfield + home.midfield) + (away.moral - 10.0) / 40.0 - (home.energy - 100.0) / 400.0
         homeGoals = self.poisson(homeAverageGoals, self.multiRandom(1, 2) / 2)
@@ -2030,9 +2052,11 @@ class Game:
         ''' Play a cup match in the self.activeCup competition. '''
         self.html = '<h1 style="display: inline">{} </h1><p style="display: inline">{}</p>'.format(self.activeCup.name, self.activeCup.getRoundName())
 
-        opponentTeam = self.activeCup.getTeam()
+        self.displayMatch(True, self.teams[self.teamIndex], self.cupTeam)
 
-        self.displayMatch(True, self.teams[self.teamIndex], opponentTeam)
 
+
+    def reportCupMatch(self):
+        self.html = '<h1 style="display: inline">{} </h1><p style="display: inline">{}</p>'.format(self.activeCup.name, self.activeCup.getRoundName())
+        self.activeCup.round += 1
         self.wait(True)
-
