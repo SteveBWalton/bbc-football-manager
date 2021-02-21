@@ -11,14 +11,15 @@ In 2021, I started to add support for a version that runs in a wx window.  This 
 To run the program in a wx window.  Clone project and cd into the top level folder.
 ```bash
 ./football.py -g
-
+```
 or (Windows)
 ```bash
 python football.py -g
-
+```
 To run the program in the console.
 ```bash
 ./football.py
+```
 
 Might switch the wx version to be the default and require a command line switch for the console version.
 

@@ -455,8 +455,15 @@ class Game:
         elif self.status == 230:
             if 'response' in parameters:
                 if parameters['response'] == 'c':
-                    self.status = 300
-                    self.subStatus -1
+                    if self.homeScore == self.awayScore:
+                        # Replay
+                        self.status = 200
+                        self.subStatus = 0
+                        self.isHomeMatch = not self.isHomeMatch
+                    else:
+                        # Next step, league match.
+                        self.status = 300
+                        self.subStatus = -1
         elif self.status == 300:
             # League Match.
             if 'response' in parameters:
@@ -590,6 +597,7 @@ class Game:
         elif self.status == 230:
             self.reportCupMatch()
         elif self.status == 300:
+            print('status = {}, subStatus = {}'.format(self.status, self.subStatus))
             if self.subStatus == -1:
                 self.findLeagueOpponent()
                 self.subStatus = 0
@@ -671,7 +679,6 @@ class Game:
             self.wait(True)
         elif self.status == 470:
             self.playerCaps()
-            self.playerFit()
             self.wait(True)
         elif self.status == 1000:
             self.endSeason(True)
@@ -687,6 +694,7 @@ class Game:
 
     def findLeagueOpponent(self):
         ''' Find the opponent for the next league match. '''
+        print('findLeagueOpponent()')
         self.team.isPlayedHome = True
         self.team.isPlayedAway = True
         while True:
@@ -700,6 +708,11 @@ class Game:
                 if self.teams[self.opponentIndex].isPlayedAway == False:
                     self.teams[self.opponentIndex].isPlayedAway = True
                     break;
+        # Debugging only.
+        if self.isHomeMatch:
+            print('Home match against {}'.format(self.teams[self.opponentIndex].name))
+        else:
+            print('Away match against {}'.format(self.teams[self.opponentIndex].name))
 
 
 
@@ -797,7 +810,6 @@ class Game:
         self.wait()
         ansi.doCls()
         self.playerCaps()
-        self.playerFit()
         self.wait()
 
 
@@ -872,14 +884,14 @@ class Game:
                     player.injured = False
                     if player.inSquad:
                         print('{}{} is fit.{}'.format(ansi.GREEN, player.name, ansi.RESET_ALL))
-                        self.html += '<p style="color: green; margin: 0px;">{} is fit.</p>'.format(player.name)
+                        self.html += '<tr><td colspan="4" style="color: green; border-left: 2px solid purple; border-right: 2px solid purple;">{} is fit.</td></tr>'.format(player.name)
                         self.numInjured -= 1
                         if self.numInjured < 0:
                             self.numInjured = 0
                 else:
                     if player.inSquad:
                         print('{}{} is injured.{}'.format(ansi.RED, player.name, ansi.RESET_ALL))
-                        self.html += '<p style="color: red; margin: 0px";>{} is injured.</p>'.format(player.name)
+                        self.html += '<tr><td colspan="4" style="color: red; border-left: 2px solid purple; border-right: 2px solid purple;";>{} is injured.</td></tr>'.format(player.name)
 
 
 
@@ -1267,7 +1279,7 @@ class Game:
         print('{}┃{}   Player        Position  Caps Goals {}┃{}'.format(ansi.MAGENTA, ansi.RESET_ALL, ansi.MAGENTA, ansi.RESET_ALL))
         self.html = '<h1>Player Appearances</h1>'
         self.html += '<table>'
-        self.html += '<tr><td></td><td>Player</td><td>Position</td><td>Apperances</td><td>Goals</td></tr>'
+        self.html += '<tr><td style="border-top: 2px solid purple; border-left: 2px solid purple;"></td><td style="border-top: 2px solid purple;">Player</td><td style="border-top: 2px solid purple;">Position</td><td style="border-top: 2px solid purple;">Apperances</td><td style="border-top: 2px solid purple; border-right: 2px solid purple;">Goals</td></tr>'
         for index in range(11):
             player = playersByCaps[index]
             if player.injured:
@@ -1280,7 +1292,7 @@ class Game:
                 playerColour = ansi.RESET_ALL
                 self.html += '<tr>'
             print('{}┃{}{:>2} {:<14}{:<9}{:>5}{:>6} {}┃{}'.format(ansi.MAGENTA, playerColour, index + 1, player.name, player.getPosition(), player.caps, player.goals, ansi.MAGENTA, ansi.RESET_ALL))
-            self.html += '<td style="text-align: right;">{}</td><td>{}</td><td>{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td></tr>'.format(index + 1, player.name, player.getPosition(), player.caps, player.goals)
+            self.html += '<td style="text-align: right; border-left: 2px solid purple;">{}</td><td>{}</td><td>{}</td><td style="text-align: right;">{}</td><td style="text-align: right; border-right: 2px solid purple;">{}</td></tr>'.format(index + 1, player.name, player.getPosition(), player.caps, player.goals)
 
         # Top Scorers.
         playersByGoals = sorted(self.players, key=lambda Player: Player.goals, reverse=True)
@@ -1300,8 +1312,11 @@ class Game:
                 self.html += '<tr>'
             if player.goals > 0:
                 print('{}┃{}{:>2} {:<14}{:<9}{:>5}{:>6} {}┃{}'.format(ansi.MAGENTA, playerColour, index + 1, player.name, player.getPosition(), player.caps, player.goals, ansi.MAGENTA, ansi.RESET_ALL))
-                self.html += '<td style="text-align: right;">{}</td><td>{}</td><td>{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td></tr>'.format(index + 1, player.name, player.getPosition(), player.caps, player.goals)
+                self.html += '<td style="text-align: right; border-left: 2px solid purple;">{}</td><td>{}</td><td>{}</td><td style="text-align: right;">{}</td><td style="text-align: right; border-right: 2px solid purple;">{}</td></tr>'.format(index + 1, player.name, player.getPosition(), player.caps, player.goals)
         print('{}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛{}'.format(ansi.MAGENTA, ansi.RESET_ALL))
+
+        self.playerFit()
+
         self.html += '</table>'
 
 
@@ -2051,12 +2066,17 @@ class Game:
     def playCupMatch(self):
         ''' Play a cup match in the self.activeCup competition. '''
         self.html = '<h1 style="display: inline">{} </h1><p style="display: inline">{}</p>'.format(self.activeCup.name, self.activeCup.getRoundName())
+        self.html += self.activeCup.displayResults()
 
-        self.displayMatch(True, self.teams[self.teamIndex], self.cupTeam)
+        if self.isHomeMatch:
+            self.displayMatch(False, self.teams[self.teamIndex], self.cupTeam)
+        else:
+            self.displayMatch(False, self.cupTeam, self.teams[self.teamIndex])
 
 
 
     def reportCupMatch(self):
-        self.html = '<h1 style="display: inline">{} </h1><p style="display: inline">{}</p>'.format(self.activeCup.name, self.activeCup.getRoundName())
-        self.activeCup.round += 1
+        self.activeCup.addResult(self.isHomeMatch, self.cupTeam, self.homeScore, self.awayScore)
+        self.html = '<h1>{}</h1>'.format(self.activeCup.name)
+        self.html += self.activeCup.displayResults()
         self.wait(True)

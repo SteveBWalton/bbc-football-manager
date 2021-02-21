@@ -33,6 +33,7 @@ class CupCompetition:
         ''' Reset the competition for a new season. '''
         self.isIn = True
         self.round = 1
+        self.results = []
 
 
 
@@ -74,6 +75,28 @@ class CupCompetition:
 
 
 
+    def addResult(self, isHomeMatch, opponent, homeGoals, awayGoals):
+        ''' Add a match result to the cup. '''
+        cupResult = CupResult(self.getRoundName(), isHomeMatch, opponent.name, homeGoals, awayGoals)
+        self.results.append(cupResult)
+        if isHomeMatch:
+            if homeGoals > awayGoals:
+                self.round += 1
+            elif homeGoals < awayGoals:
+                self.isIn = False
+
+
+
+    def displayResults(self):
+        ''' Show the previous results in this cup. '''
+        html = '<table>'
+        for result in self.results:
+            html += result.display(self.game.teamName)
+        html += '</table>'
+        return html
+
+
+
     def dump(self, outputFile):
         ''' Write the player into the specified file. '''
         json.dump(self.name, outputFile)
@@ -93,3 +116,26 @@ class CupCompetition:
         self.isIn = json.loads(line)
         line = inputFile.readline()
         self.isEntered = json.loads(line)
+
+
+
+class CupResult:
+    ''' Class to represent the results of a single cup match. '''
+
+
+
+    def __init__(self, stage, isHomeMatch, opponent, homeGoals, awayGoals):
+        ''' Class constructor. '''
+        self.stage = stage
+        self.isHomeMatch = isHomeMatch
+        self.opponent = opponent
+        self.homeGoals = homeGoals
+        self.awayGoals = awayGoals
+
+
+
+    def display(self, teamName):
+        ''' Display this result. '''
+        html = '<tr>'
+        html += '<td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>'.format(self.stage, teamName, self.homeGoals, self.awayGoals, self.opponent)
+        return html
