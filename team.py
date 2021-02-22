@@ -103,7 +103,7 @@ class Team:
             name = '{}({})'.format(self.name, self.numHomeGames)
         else:
             name = self.name
-        html = '<tr><td style="text-align: right;">{}</td><td>{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td></tr>'.format(self.position, name, self.win, self.draw, self.lost, self.pts, self.difference)
+        html = '<tr><td style="text-align: right;">{}</td><td>{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{:+d}</td></tr>'.format(self.position, name, self.win, self.draw, self.lost, self.pts, self.difference)
         return html
 
 

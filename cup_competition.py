@@ -61,16 +61,16 @@ class CupCompetition:
 
 
 
-    def getTeam(self):
+    def getTeam(self, division):
         ''' Return the team to play against for the next match.
         This is not working currently.
         Only return a team from the current league.
         This should be a weak team and keep the game easy to debug.
         '''
-        # Team in same league as team.
-        teamIndex = random.randint(0, len(self.game.teams))
+        # Team in same division as team.
+        teamIndex = random.randint(0, len(self.game.teams) - 1)
         while teamIndex == self.game.teamIndex:
-            teamIndex = random.randint(0, len(self.game.teams))
+            teamIndex = random.randint(0, len(self.game.teams) - 1)
         return self.game.teams[teamIndex]
 
 
@@ -83,6 +83,11 @@ class CupCompetition:
             if homeGoals > awayGoals:
                 self.round += 1
             elif homeGoals < awayGoals:
+                self.isIn = False
+        else:
+            if homeGoals < awayGoals:
+                self.round += 1
+            elif homeGoals > awayGoals:
                 self.isIn = False
 
 
@@ -137,5 +142,8 @@ class CupResult:
     def display(self, teamName):
         ''' Display this result. '''
         html = '<tr>'
-        html += '<td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>'.format(self.stage, teamName, self.homeGoals, self.awayGoals, self.opponent)
+        if self.isHomeMatch:
+            html += '<td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>'.format(self.stage, teamName, self.homeGoals, self.awayGoals, self.opponent)
+        else:
+            html += '<td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>'.format(self.stage, self.opponent, self.homeGoals, self.awayGoals, teamName)
         return html
