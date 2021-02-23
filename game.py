@@ -41,6 +41,10 @@ class Game:
         self.formation = [0, 0, 0]
         self.args = args
 
+        self.titles = 0
+        if self.args.debug:
+            self.titles = 8 | 16
+
         self.homeWins = 0
         self.homeDraws = 0
         self.homeLoses = 0
@@ -123,6 +127,8 @@ class Game:
                 print('{} MANAGER: {}'.format(self.team.getColouredName(), self.playerName))
                 print('LEVEL: {}'.format(self.level))
                 print()
+                self.displayTitles(self)
+                print()
                 print('1 .. Sell Players / View Squad')
                 print('2 .. Bank')
                 print('3 .. Rename Player')
@@ -171,6 +177,17 @@ class Game:
         if isGraphical == False:
             self.wait()
 
+        europeanCup = 0
+        self.titles = self.titles & ~7
+        if self.teamIndex == 0:
+            print('{} are division {} champions'.format(self.teamName, self.division))
+            self.html += '<p>{} are division {} champions</p>'.format(self.teamName, self.division)
+            self.titles += self.division
+            if self.division == 1:
+                europeanCup = 3
+        elif self.teamIndex <= 2 and self.division == 1:
+            europeanCup = 1
+
         if self.division == 1:
             print('Qualify for Europe')
             self.html += '<h2>Qualify for Europe</h2><p>'
@@ -189,11 +206,41 @@ class Game:
                 self.html += '{}<br />'.format(self.teams[index].name)
             self.html += '</p>'
 
+        if self.titles & 8 == 8:
+            if europeanCup == 0:
+                europeanCup = 1
+        if self.titles & 16 == 16:
+            if europeanCup != 3:
+                europeanCup = 2
+        if self.titles & 32 == 32:
+            europeanCup = 3
+        if self.titles & 64 == 64:
+            if europeanCup != 3:
+                europeanCup = 2
+        if self.titles & 128 == 128:
+            if europeanCup == 0:
+                europeanCup = 1
+
+        if europeanCup == 3:
+            print('{} qualify for the European Cup.'.format(self.teamName))
+            self.html += '{} qualify for the European Cup.'.format(self.teamName)
+            self.europeanCup = CupCompetition(self, 'European Cup', 32, ~(32|64|128))
+        elif europeanCup == 2:
+            print('{} qualify for the European Cup Winners Cup.'.format(self.teamName))
+            self.html += '{} qualify for the European Cup Winners Cup.'.format(self.teamName)
+            self.europeanCup = CupCompetition(self, 'European Cup Winners Cup', 64, ~(32|64|128))
+        elif europeanCup == 1:
+            print('{} qualify for the UEFA Cup.'.format(self.teamName))
+            self.html += '{} qualify for the UEFA Cup.'.format(self.teamName)
+            self.europeanCup = CupCompetition(self, 'UEFA Cup', 128, ~(32|64|128))
+        else:
+            self.europeanCup = None
+
         # Rebuild the new league.
         exclued = []
         if self.division != 1 and self.teamIndex <= 2:
             # Promotion.
-            self.division = self.division - 1
+            self.division -= 1
             print('{} are promoted to division {}'.format(self.teams[self.teamIndex].getColouredName(), self.division))
             self.html += '<p>{} are promoted to division {}</p>'.format(self.teams[self.teamIndex].name, self.division)
             for index in range(3, 13):
@@ -201,7 +248,7 @@ class Game:
                 self.teams[index].name = ''
         elif self.division != 4 and self.teamIndex >= 13:
             # Relegation.
-            self.division = self.division + 1
+            self.division += 1
             print('{} are relegated to division {}'.format(self.teams[self.teamIndex].getColouredName(), self.division))
             self.html += '<p>{} are relegated to division {}</p>'.format(self.teams[self.teamIndex].name, self.division)
             for index in range(0, 13):
@@ -225,17 +272,17 @@ class Game:
         self.numTeam = 0
         self.numInjured = 0
         self.formation = [0, 0, 0]
-        nSkillBonus = 1 if self.division <= 2 else 0
+        skillBonus = 1 if self.division <= 2 else 0
         for player in self.players:
-            player.skill = random.randint(1, 5) + nSkillBonus
+            player.skill = random.randint(1, 5) + skillBonus
             player.energy = random.randint(1, 20)
             player.inTeam = False
             player.injured = False
             player.caps = 0
             player.goals = 0
         for index in range(4):
-            nPlayer = random.randint(0, 25)
-            self.players[nPlayer].skill = 5 + nSkillBonus
+            player = random.randint(0, 25)
+            self.players[player].skill = 5 + skillBonus
 
         self.newSeason()
 
@@ -248,8 +295,8 @@ class Game:
         self.moneyStart = self.money - self.debt
         self.moneyMessage = ''
 
-        self.faCup = CupCompetition(self, 'FA Cup', True)
-        self.leagueCup = CupCompetition(self, 'League Cup', True)
+        self.faCup = CupCompetition(self, 'FA Cup', 16, ~16)
+        self.leagueCup = CupCompetition(self, 'League Cup', 8, ~8)
 
         self.numMatches = 0
         self.weeks = []
@@ -292,8 +339,8 @@ class Game:
     def getNextPage(self, response):
         ''' Advance the game to the next user response. '''
         # Deal with the response.
-        if response != '':
-            print(response)
+        #if response != '':
+        #    print(response)
         if response == '':
             parameters = []
         elif response[0] == '?':
@@ -308,6 +355,8 @@ class Game:
                 if 'name' in parameters:
                     self.playerName = parameters['name']
                     self.playerName = self.playerName.replace('+', ' ')
+                    if self.playerName == '':
+                        self.playerName = 'Steve'
                     self.status = 1
                 self.level = 1
                 if 'level' in parameters:
@@ -338,6 +387,8 @@ class Game:
             if 'name' in parameters:
                 self.teamName = parameters['name']
                 self.teamName = self.teamName.replace('+', ' ')
+                if self.teamName == '':
+                    self.teamName = 'Racing Warwick'
                 self.teamColour = ansi.CYAN
                 self.status = 100
                 self.newGame(True)
@@ -369,7 +420,7 @@ class Game:
                             self.activeCup = self.faCup
                             self.status = 200
                             self.subStatus = -1
-                    if self.numMatches % 6 == 0:
+                    if self.numMatches % 6 == 0 or (self.numMatches % 6 == 3 and self.args.debug):
                         # European Cup.
                         if self.europeanCup != None:
                             if self.europeanCup.isIn:
@@ -560,6 +611,7 @@ class Game:
             self.html = '<h1 style="display: inline">{} </h1><p style="display: inline">Manager {}</p>'.format(self.teamName, self.playerName)
             self.html += '<p>Level {}</p>'.format(self.level)
             self.displayCupStatus()
+            self.displayTitles()
             self.html += '<p style="margin-top:10px;"><a href="app:?response=1">1 .. Sell Players / View Squad</a><br />'
             self.html += '<a href="app:?response=2">2 .. Bank</a><br />'
             self.html += '<a href="app:?response=3">3 .. Rename Player</a><br />'
@@ -593,16 +645,16 @@ class Game:
         elif self.status == 230:
             self.reportCupMatch()
         elif self.status == 300:
-            print('status = {}, subStatus = {}'.format(self.status, self.subStatus))
+            # print('status = {}, subStatus = {}'.format(self.status, self.subStatus))
             if self.subStatus == -1:
                 self.findLeagueOpponent()
                 self.subStatus = 0
             # League Match.
-            self.html = '<h1>League Match</h1>'
+            self.html = '<h1>Division {}</h1>'.format(self.division)
             if self.isHomeMatch:
-                self.displayMatch(False, self.teams[self.teamIndex], self.teams[self.opponentIndex])
+                self.displayMatch(True, self.teams[self.teamIndex], self.teams[self.opponentIndex])
             else:
-                self.displayMatch(False, self.teams[self.opponentIndex], self.teams[self.teamIndex])
+                self.displayMatch(True, self.teams[self.opponentIndex], self.teams[self.teamIndex])
         elif self.status == 210 or self.status == 310:
             self.pickPlayers(True)
         elif self.status == 400:
@@ -888,7 +940,7 @@ class Game:
                     player.injured = False
                     if player.inSquad:
                         message = '{} is fit.'.format(player.name)
-                        print('{}┃{}{:>2} {:<35}{}┃{}'.format(ansi.MAGENTA, ansi.GREEN, count, message, ansi.MAGENTA, ansi.RESET_ALL))
+                        print('{}┃{}{:>2}{} {:<35}{}┃{}'.format(ansi.MAGENTA, ansi.WHITE, count, ansi.GREEN, message, ansi.MAGENTA, ansi.RESET_ALL))
                         self.html += '<tr><td style="text-align: right; border-left: 3px solid purple;{}";>{}</td><td colspan="4" style="color: green; border-right: 3px solid purple;{}";>{}</td></tr>'.format(extraStyle, count, extraStyle, message)
                         extraStyle = ''
                         self.numInjured -= 1
@@ -897,7 +949,7 @@ class Game:
                 else:
                     if player.inSquad:
                         message = '{} is injured.'.format(player.name)
-                        print('{}┃{}{:>2} {:<35}{}┃{}'.format(ansi.MAGENTA, ansi.RED, count, message, ansi.MAGENTA, ansi.RESET_ALL))
+                        print('{}┃{}{:>2}{} {:<35}{}┃{}'.format(ansi.MAGENTA, ansi.WHITE, count, ansi.RED, message, ansi.MAGENTA, ansi.RESET_ALL))
                         self.html += '<tr><td style="text-align: right; border-left: 3px solid purple;{}";>{}</td><td colspan="4" style="color: red; border-right: 3px solid purple;{}";>{}</td></tr>'.format(extraStyle, count, extraStyle, message)
                         extraStyle = ''
         print('{}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛{}'.format(ansi.MAGENTA, ansi.RESET_ALL))
@@ -1297,15 +1349,15 @@ class Game:
                 extraStyle = ''
             if player.injured:
                 playerColour = ansi.RED
-                self.html += '<tr style="color: red;">'
+                htmlColour = ' color: red;'
             elif player.inTeam:
                 playerColour = ansi.GREEN
-                self.html += '<tr style="color: green;">'
+                htmlColour = ' color: green;'
             else:
                 playerColour = ansi.RESET_ALL
-                self.html += '<tr">'
-            print('{}┃{}{:>2} {:<14}{:<9}{:>5}{:>6} {}┃{}'.format(ansi.MAGENTA, playerColour, index + 1, player.name, player.getPosition(), player.caps, player.goals, ansi.MAGENTA, ansi.RESET_ALL))
-            self.html += '<td style="text-align: right; border-left: 3px solid purple;{}">{}</td><td style="{}">{}</td><td style="{}">{}</td><td style="text-align: right;{}">{}</td><td style="text-align: right; border-right: 3px solid purple;{}">{}</td></tr>'.format(extraStyle, index + 1, extraStyle, player.name, extraStyle, player.getPosition(), extraStyle, player.caps, extraStyle, player.goals)
+                htmlColour = ''
+            print('{}┃{}{:>2}{} {:<14}{:<9}{:>5}{:>6} {}┃{}'.format(ansi.MAGENTA, ansi.WHITE, index + 1, playerColour, player.name, player.getPosition(), player.caps, player.goals, ansi.MAGENTA, ansi.RESET_ALL))
+            self.html += '<tr><td style="text-align: right; border-left: 3px solid purple;{}">{}</td><td style="{}{}">{}</td><td style="{}{}">{}</td><td style="text-align: right;{}{}">{}</td><td style="text-align: right; border-right: 3px solid purple;{}{}">{}</td></tr>'.format(extraStyle, index + 1, extraStyle, htmlColour, player.name, extraStyle, htmlColour, player.getPosition(), extraStyle, htmlColour, player.caps, extraStyle, htmlColour, player.goals)
 
         # Top Scorers.
         playersByGoals = sorted(self.players, key=lambda Player: Player.goals, reverse=True)
@@ -1321,16 +1373,16 @@ class Game:
                 extraStyle = ''
             if player.injured:
                 playerColour = ansi.RED
-                self.html += '<tr style="color: red;">'
+                htmlColour = ' color: red;'
             elif player.inTeam:
                 playerColour = ansi.GREEN
-                self.html += '<tr style="color: green;">'
+                htmlColour = ' color: green;'
             else:
                 playerColour = ansi.RESET_ALL
-                self.html += '<tr>'
+                htmlColour = ''
             if player.goals > 0:
-                print('{}┃{}{:>2} {:<14}{:<9}{:>5}{:>6} {}┃{}'.format(ansi.MAGENTA, playerColour, index + 1, player.name, player.getPosition(), player.caps, player.goals, ansi.MAGENTA, ansi.RESET_ALL))
-                self.html += '<td style="text-align: right; border-left: 3px solid purple;{}">{}</td><td style="{}">{}</td><td style="{}">{}</td><td style="text-align: right;{}">{}</td><td style="text-align: right; border-right: 3px solid purple;{}">{}</td></tr>'.format(extraStyle, index + 1, extraStyle, player.name, extraStyle, player.getPosition(), extraStyle, player.caps, extraStyle, player.goals)
+                print('{}┃{}{:>2}{} {:<14}{:<9}{:>5}{:>6} {}┃{}'.format(ansi.MAGENTA, ansi.WHITE, index + 1, playerColour, player.name, player.getPosition(), player.caps, player.goals, ansi.MAGENTA, ansi.RESET_ALL))
+                self.html += '<tr><td style="text-align: right; border-left: 3px solid purple;{}">{}</td><td style="{}{}">{}</td><td style="{}{}">{}</td><td style="text-align: right;{}{}">{}</td><td style="text-align: right; border-right: 3px solid purple;{}{}">{}</td></tr>'.format(extraStyle, index + 1, extraStyle, htmlColour, player.name, extraStyle, htmlColour, player.getPosition(), extraStyle, htmlColour, player.caps, extraStyle, htmlColour, player.goals)
         print('{}┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫{}'.format(ansi.MAGENTA, ansi.RESET_ALL))
 
         self.playerFit()
@@ -1339,10 +1391,10 @@ class Game:
 
 
 
-    def displayMatch(self, isCup, homeTeam, awayTeam):
+    def displayMatch(self, isLeague, homeTeam, awayTeam):
         ''' Replacement for PROCDISPLAY in the BBC Basic version. '''
         print('   {}{:^18}{}{:^18}{}'.format(homeTeam.colour, homeTeam.name, awayTeam.colour, awayTeam.name, ansi.RESET_ALL))
-        if isCup:
+        if isLeague:
             print('Pos{:^18}{:^18}'.format(homeTeam.position, awayTeam.position))
         print('Eng{:^18}{:^18}'.format(homeTeam.energy // 10, awayTeam.energy // 10))
         print('Mor{:^18}{:^18}'.format(homeTeam.moral, awayTeam.moral))
@@ -1357,7 +1409,7 @@ class Game:
 
         self.html += '<table>'
         self.html += '<tr><td style="text-align: center;"></td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(homeTeam.name, awayTeam.name)
-        if True:
+        if isLeague:
             self.html += '<tr><td style="text-align: center;">Position</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(homeTeam.position, awayTeam.position)
         self.html += '<tr><td style="text-align: center;">Energy</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(homeTeam.energy // 10, awayTeam.energy // 10)
         self.html += '<tr><td style="text-align: center;">Moral</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(homeTeam.moral, awayTeam.moral)
@@ -1426,7 +1478,7 @@ class Game:
         self.weeks = []
         self.MATCHES_PER_SEASON = 30
         if self.args.debug:
-            self.MATCHES_PER_SEASON = 2
+            self.MATCHES_PER_SEASON = 4
 
         # Initialise the players.
         self.players = []
@@ -2067,16 +2119,54 @@ class Game:
 
 
 
+    def displayTitles(self):
+        ''' Display the titles held by the team. '''
+        if self.titles == 0:
+            return
+        print('titles = {}'.format(self.titles))
+        self.html += '<p>'
+        division = self.titles & 7
+        if division != 0:
+            print('Division {} Champions'.format(division))
+            self.html += 'Division {} Champions<br />'.format(division)
+        if self.titles & 8 == 8:
+            print('League Cup Champions')
+            self.html += 'League Cup Champions<br />'
+        if self.titles & 16 == 16:
+            print('FA Cup Champions')
+            self.html += 'FA Cup Champions<br />'
+        if self.titles & 32 == 32:
+            print('European Cup Champions')
+            self.html += 'European Cup Champions<br />'
+        if self.titles & 64 == 64:
+            print('European Cup Winners Cup Champions')
+            self.html += 'European Cup Winners Cup Champions<br />'
+        if self.titles & 128 == 128:
+            print('UEFA Cup Champions')
+            self.html += 'UEFA Cup Champions<br />'
+        self.html += '</p>'
+
+
+
     def displayCupStatus(self):
         ''' Display the status of the cup competitions. '''
         self.html += '<p>'
         print(self.faCup.getStatus())
-        self.html += self.faCup.getStatus() + '<br />'
+        if self.faCup.isIn:
+            self.html += 'FA Cup: <span style="color: green;">in {}</span><br />'.format(self.faCup.getRoundName())
+        else:
+            self.html += 'FA Cup: <span style="color: red;">out {}</span><br />'.format(self.faCup.getRoundName())
         print(self.leagueCup.getStatus())
-        self.html += self.leagueCup.getStatus()
+        if self.leagueCup.isIn:
+            self.html += 'League Cup: <span style="color: green;">in {}</span><br />'.format(self.leagueCup.getRoundName())
+        else:
+            self.html += 'League Cup: <span style="color: red;">out {}</span><br />'.format(self.leagueCup.getRoundName())
         if self.europeanCup != None:
             print(self.europeanCup.getStatus())
-            self.html += '<br />' + self.europeanCup.getStatus()
+            if self.europeanCup.isIn:
+                self.html += '{}: <span style="color: green;">in {}</span><br />'.format(self.europeanCup.name, self.europeanCup.getRoundName())
+            else:
+                self.html += '{}: <span style="color: red;">out {}</span><br />'.format(self.europeanCup.name, self.europeanCup.getRoundName())
         self.html += '</p>'
 
 
@@ -2118,12 +2208,17 @@ class Game:
             self.html += '<p>Replay</p>'
         else:
             cupBonus = 55000 - division * 5000 + random.randint(1, 1000) - random.randint(1, 1000)
+            if self.activeCup.round == 6:
+                cupBonus += 50000
             self.html += '<p>You made £{:,.0f}</p>'.format(cupBonus)
             self.money += cupBonus
             self.moneyMessage += self.financialLine(self.activeCup.name, cupBonus, 0) + "\n";
 
             if self.activeCup.isIn:
-                self.html += '<p>You qualify for the {} of the {}</p>'.format(self.activeCup.getRoundName(), self.activeCup.name)
+                if self.activeCup.round == 6:
+                    self.html += '<p>You have won the {}</p>'.format(self.activeCup.name)
+                else:
+                    self.html += '<p>You qualify for the {} of the {}</p>'.format(self.activeCup.getRoundName(), self.activeCup.name)
             else:
                 self.html += '<p>You are out of the {}</p>'.format(self.activeCup.name)
 

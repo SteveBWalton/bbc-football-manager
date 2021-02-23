@@ -19,11 +19,12 @@ class CupCompetition:
 
 
 
-    def __init__(self, game, label, isEntered):
+    def __init__(self, game, label, mask, notMask):
         ''' Class constructor. '''
         self.game = game
         self.name = label
-        self.isEntered = isEntered
+        self.mask = mask
+        self.notMask = notMask
         self.newSeason()
         random.seed()
 
@@ -34,6 +35,8 @@ class CupCompetition:
         self.isIn = True
         self.round = 1
         self.results = []
+        if self.game.args.debug:
+            self.round = 5
 
 
 
@@ -49,6 +52,8 @@ class CupCompetition:
             return 'Semi Final'
         elif self.round == 5:
             return 'Final'
+        elif self.round == 6:
+            return 'Winner'
         return 'Error {}'.format(self.round)
 
 
@@ -89,7 +94,10 @@ class CupCompetition:
                 self.round += 1
             elif homeGoals > awayGoals:
                 self.isIn = False
-
+        if self.round == 6:
+            self.game.titles = self.game.titles | self.mask
+        if not self.isIn:
+            self.game.titles = self.game.titles & self.notMask
 
 
     def displayResults(self):

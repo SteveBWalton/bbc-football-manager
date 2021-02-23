@@ -235,7 +235,7 @@ class WxMainWindow(wx.Frame):
         fontSize = 20;
 
         # Display the html content on the wx.html2.WebView control.
-        html = '<html><head><style type="text/css" media="screen">body {{ font-family: Arial, Helvetica, sans-serif; font-size: {}px; }} a {{ text-decoration: none; color: inherit; }} a:hover {{ text-decoration: underline; color: inherit; }} a:visited {{ color: inherit; }} table {{ border-spacing: 0px; border-collapse: collapse; }} td {{ font-family: Arial, Helvetica, sans-serif; font-size: {}px; padding: 1px 5px 1px 5px; }} </style></head><body style="background: black; color: white;">{}</body></html>'.format(fontSize, fontSize, self.game.html)
+        html = '<html><head><style type="text/css" media="screen">body {{ font-family: Arial, Helvetica, sans-serif; font-size: {}px; }} a {{ text-decoration: none; color: inherit; }} a:hover {{ text-decoration: underline; color: inherit; }} a:visited {{ color: inherit; }} h1 {{ padding: 0px 5px 0px 5px; }} p {{ padding: 0px 5px 0px 5px; }} table {{ border-spacing: 0px; border-collapse: collapse; }} td {{ font-family: Arial, Helvetica, sans-serif; font-size: {}px; padding: 1px 5px 1px 5px; }} </style></head><body style="background: black; color: white;">{}</body></html>'.format(fontSize, fontSize, self.game.html)
         self.browser.SetPage(html, 'file:///')
 
         # Remove the wait cursor.
