@@ -11,6 +11,7 @@ import json
 
 # Application Libraries.
 import ansi
+from team import Team
 
 
 
@@ -58,25 +59,42 @@ class CupCompetition:
 
 
 
-    def getStatus(self):
-        ''' Return the string describing the current status. '''
-        if self.isIn:
-            return '{}: in {}'.format(self.name, self.getRoundName())
-        return '{}: out {}'.format(self.name, self.getRoundName())
-
-
-
     def getTeam(self, division):
         ''' Return the team to play against for the next match.
         This is not working currently.
         Only return a team from the current league.
         This should be a weak team and keep the game easy to debug.
         '''
-        # Team in same division as team.
-        teamIndex = random.randint(0, len(self.game.teams) - 1)
-        while teamIndex == self.game.teamIndex:
+        if division == self.game.division:
+            # Team in same division as team.
             teamIndex = random.randint(0, len(self.game.teams) - 1)
-        return self.game.teams[teamIndex]
+            # Check not already played this team.
+            while teamIndex == self.game.teamIndex or self.isPlayedBefore(self.game.teams[teamIndex]):
+                teamIndex = random.randint(0, len(self.game.teams) - 1)
+            # Return the team.
+            return self.game.teams[teamIndex]
+
+        # Create a new team for the division.
+        team = Team()
+        teamIndex = random.randint(0, len(self.game.teams) - 1)
+        team.getTeam(division, teamIndex)
+        # Check not already played this team.
+        while self.isPlayedBefore(self.game.teams[teamIndex]):
+            teamIndex = random.randint(0, len(self.game.teams) - 1)
+            team.getTeam(division, teamIndex)
+        # Return the team.
+        team.initialise(division)
+        return team
+
+
+
+    def isPlayedBefore(self, team):
+        ''' Returns true if played against this team already in the cup. '''
+        isResult = False
+        for result in self.results:
+            if result.opponent == team.name:
+                isResult = True
+        return isResult
 
 
 

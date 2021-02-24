@@ -42,8 +42,6 @@ class Game:
         self.args = args
 
         self.titles = 0
-        if self.args.debug:
-            self.titles = 8 | 16
 
         self.homeWins = 0
         self.homeDraws = 0
@@ -2123,7 +2121,7 @@ class Game:
         ''' Display the titles held by the team. '''
         if self.titles == 0:
             return
-        print('titles = {}'.format(self.titles))
+        # print('titles = {}'.format(self.titles))
         self.html += '<p>'
         division = self.titles & 7
         if division != 0:
@@ -2151,21 +2149,24 @@ class Game:
     def displayCupStatus(self):
         ''' Display the status of the cup competitions. '''
         self.html += '<p>'
-        print(self.faCup.getStatus())
         if self.faCup.isIn:
+            print('FA Cup: {}in {}{}.'.format(ansi.GREEN, self.faCup.getRoundName(), ansi.RESET_ALL))
             self.html += 'FA Cup: <span style="color: green;">in {}</span><br />'.format(self.faCup.getRoundName())
         else:
+            print('FA Cup: {}out {}{}.'.format(ansi.RED, self.faCup.getRoundName(), ansi.RESET_ALL))
             self.html += 'FA Cup: <span style="color: red;">out {}</span><br />'.format(self.faCup.getRoundName())
-        print(self.leagueCup.getStatus())
         if self.leagueCup.isIn:
+            print('League Cup: {}in {}{}.'.format(ansi.GREEN, self.leagueCup.getRoundName(), ansi.RESET_ALL))
             self.html += 'League Cup: <span style="color: green;">in {}</span><br />'.format(self.leagueCup.getRoundName())
         else:
+            print('League Cup: {}out {}{}.'.format(ansi.RED, self.leagueCup.getRoundName(), ansi.RESET_ALL))
             self.html += 'League Cup: <span style="color: red;">out {}</span><br />'.format(self.leagueCup.getRoundName())
         if self.europeanCup != None:
-            print(self.europeanCup.getStatus())
             if self.europeanCup.isIn:
+                print('{}: {}in {}{}.'.format(self.europeanCup.name, ansi.GREEN, self.europeanCup.getRoundName(), ansi.RESET_ALL))
                 self.html += '{}: <span style="color: green;">in {}</span><br />'.format(self.europeanCup.name, self.europeanCup.getRoundName())
             else:
+                print('{}: {}out {}{}.'.format(self.europeanCup, ansi.RED, self.europeanCup.getRoundName(), ansi.RESET_ALL))
                 self.html += '{}: <span style="color: red;">out {}</span><br />'.format(self.europeanCup.name, self.europeanCup.getRoundName())
         self.html += '</p>'
 
