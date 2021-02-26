@@ -97,6 +97,8 @@ class Game:
         # Get the player settings.
         print()
         self.playerName = input('Please enter your name: ')
+        if self.playerName == '':
+            self.playerName = 'Steve'
 
         # Select the level.
         print('Enter level [1-4]')
@@ -116,8 +118,7 @@ class Game:
         # Play the game.
         nYear = 0
         while True:
-            self.moneyStart = self.money - self.debt
-            self.moneyMessage = ''
+            self.newSeason()
 
             # Play a season.
             while self.numMatches < self.MATCHES_PER_SEASON:
@@ -125,7 +126,8 @@ class Game:
                 print('{} MANAGER: {}'.format(self.team.getColouredName(), self.playerName))
                 print('LEVEL: {}'.format(self.level))
                 print()
-                self.displayTitles(self)
+                self.displayCupStatus()
+                self.displayTitles()
                 print()
                 print('1 .. Sell Players / View Squad')
                 print('2 .. Bank')
@@ -767,6 +769,50 @@ class Game:
         self.numMatches += 1
 
         # Decide and play any cup matches.
+        self.activeCup = None
+        if self.numMatches % 6 == 2:
+            # League Cup.
+            if self.leagueCup.isIn:
+                self.activeCup = self.leagueCup
+                self.status = 200
+                self.subStatus = -1
+        if self.numMatches % 6 == 4:
+            # FA Cup.
+            if self.faCup.isIn:
+                self.activeCup = self.faCup
+                self.status = 200
+                self.subStatus = -1
+        if self.numMatches % 6 == 0 or (self.numMatches % 6 == 3 and self.args.debug):
+            # European Cup.
+            if self.europeanCup != None:
+                if self.europeanCup.isIn:
+                    self.activeCup = self.europeanCup
+                    self.status = 200
+                    self.subStatus = -1
+
+        if self.activeCup != None:
+
+            while True:
+                while True:
+                    ansi.doCls()
+                    self.playCupMatch()
+                    keyPress = self.getKeyboardCharacter(['c', '\t'])
+                    if keyPress == '\t':
+                        break;
+                    # Pick the player.
+                    self.pickPlayers()
+
+                if self.isHomeMatch:
+                    self.playMatch(self.teams[self.teamIndex], self.cupTeam, 0.5, 0)
+                else:
+                    self.playMatch(self.cupTeam, self.teams[self.teamIndex], 0.5, 0)
+                self.playerEngergy()
+                self.playerInjured()
+
+                self.reportCupMatch()
+                self.wait()
+                if self.homeScore != self.awayScore:
+                    break;
 
         # Choose an opponent for the league match.
         self.findLeagueOpponent()
@@ -774,10 +820,11 @@ class Game:
         # Let the player select the players for the team.
         while True:
             ansi.doCls()
+            print('Division {}'.format(self.division))
             if self.isHomeMatch:
-                self.displayMatch(False, self.teams[self.teamIndex], self.teams[self.opponentIndex])
+                self.displayMatch(True, self.teams[self.teamIndex], self.teams[self.opponentIndex])
             else:
-                self.displayMatch(False, self.teams[self.opponentIndex], self.teams[self.teamIndex])
+                self.displayMatch(True, self.teams[self.opponentIndex], self.teams[self.teamIndex])
             keyPress = self.getKeyboardCharacter(['c', '\t'])
             if keyPress == '\t':
                 break;
@@ -791,10 +838,10 @@ class Game:
         # Play the match.
         if self.isHomeMatch:
             playerGoals, opponentGoals = self.playMatch(self.teams[self.teamIndex], self.teams[self.opponentIndex], 0.5, 0)
-            self.applyPoints(self.teamIndex, self.opponentIndex, playerGoals, opponentGoals)
+            self.applyPoints(self.teams[self.teamIndex], self.teams[self.opponentIndex], playerGoals, opponentGoals)
         else:
             opponentGoals, playerGoals = self.playMatch(self.teams[self.opponentIndex], self.teams[self.teamIndex], 0.5, 0)
-            self.applyPoints(self.opponentIndex, self.teamIndex, opponentGoals, playerGoals)
+            self.applyPoints(self.teams[self.opponentIndex], self.teams[self.teamIndex], opponentGoals, playerGoals)
 
         # Calculate the gate money.
         if self.isHomeMatch:
@@ -1590,6 +1637,8 @@ class Game:
                 break
             if selectedNumber == 1:
                 self.teamName = input('Enter Team name ')
+                if self.teamName == '':
+                    self.teamName = 'Morley Town'
                 self.teamColour = ansi.CYAN
                 break
             division = 1 + (division & 3)
@@ -1955,7 +2004,7 @@ class Game:
                     ansi.doCursorUp(1)
                     print('{}{:>17}{} {} - {} {}'.format(homeTeam.colour, homeTeam.name, ansi.RESET_ALL, self.homeScore, self.awayScore, awayTeam.getColouredName()))
                     totalScore = self.homeScore + self.awayScore
-                    if homeTeam == self.teamIndex:
+                    if homeTeam.name == self.teamName:
                         ansi.doCursorDown(totalScore)
                         goalScorer = random.randint(0, len(self.goalScorers)-1)
                         print('{} {}'.format(goalTime, self.goalScorers[goalScorer].name), end = '\r')
@@ -1971,7 +2020,7 @@ class Game:
                     ansi.doCursorUp(1)
                     print('{}{:>17}{} {} - {} {}'.format(homeTeam.colour, homeTeam.name, ansi.RESET_ALL, self.homeScore, self.awayScore, awayTeam.getColouredName()))
                     totalScore = self.homeScore + self.awayScore
-                    if awayTeam == self.teamIndex:
+                    if awayTeam.name == self.teamName:
                         ansi.doCursorDown(totalScore)
                         goalScorer = random.randint(0, len(self.goalScorers)-1)
                         print('{}{} {}'.format(' ' * 22, goalTime, self.goalScorers[goalScorer].name), end = '\r')
@@ -1981,7 +2030,6 @@ class Game:
                         ansi.doCursorDown(totalScore)
                         print('{}{} Goal'.format(' ' * 22, goalTime), end = '\r')
                         ansi.doCursorUp(totalScore)
-
 
                 print('{}Time {}   '.format(' ' * 17, goalTime), end = '\r')
                 sys.stdout.flush()
@@ -2202,25 +2250,31 @@ class Game:
         division = self.cupTeam.pos
         print('division = {}'.format(division))
         self.activeCup.addResult(self.isHomeMatch, self.cupTeam, self.homeScore, self.awayScore)
+        print(self.activeCup.name)
         self.html = '<h1>{}</h1>'.format(self.activeCup.name)
         self.html += self.activeCup.displayResults()
 
         if self.homeScore == self.awayScore:
+            print('Replay')
             self.html += '<p>Replay</p>'
         else:
             cupBonus = 55000 - division * 5000 + random.randint(1, 1000) - random.randint(1, 1000)
             if self.activeCup.round == 6:
                 cupBonus += 50000
+            print('You made £{:,.0f}'.format(cupBonus))
             self.html += '<p>You made £{:,.0f}</p>'.format(cupBonus)
             self.money += cupBonus
             self.moneyMessage += self.financialLine(self.activeCup.name, cupBonus, 0) + "\n";
 
             if self.activeCup.isIn:
                 if self.activeCup.round == 6:
+                    print('You have won the {}'.format(self.activeCup.name))
                     self.html += '<p>You have won the {}</p>'.format(self.activeCup.name)
                 else:
+                    print('You qualify for the {} of the {}'.format(self.activeCup.getRoundName(), self.activeCup.name))
                     self.html += '<p>You qualify for the {} of the {}</p>'.format(self.activeCup.getRoundName(), self.activeCup.name)
             else:
+                print('You are out of the {}'.format(self.activeCup.name))
                 self.html += '<p>You are out of the {}</p>'.format(self.activeCup.name)
 
         self.wait(True)

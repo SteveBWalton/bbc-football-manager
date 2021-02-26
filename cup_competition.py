@@ -169,7 +169,9 @@ class CupResult:
         ''' Display this result. '''
         html = '<tr>'
         if self.isHomeMatch:
+            print('{:>5} {:>20}{:>2} {:<2}{:<20}'.format(self.stage, teamName, self.homeGoals, self.awayGoals, self.opponent))
             html += '<td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>'.format(self.stage, teamName, self.homeGoals, self.awayGoals, self.opponent)
         else:
+            print('{:>5} {:>20}{:>2} {:<2}{:<20}'.format(self.stage, self.opponent, self.homeGoals, self.awayGoals, teamName))
             html += '<td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>'.format(self.stage, self.opponent, self.homeGoals, self.awayGoals, teamName)
         return html
