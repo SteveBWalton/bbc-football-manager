@@ -510,7 +510,6 @@ class Game:
                         # Replay
                         self.status = 200
                         self.subStatus = 0
-                        self.isHomeMatch = not self.isHomeMatch
                     else:
                         # Next step, league match.
                         self.status = 300
@@ -2238,6 +2237,7 @@ class Game:
 
         self.html = '<h1 style="display: inline">{} </h1><p style="display: inline">{}</p>'.format(self.activeCup.name, self.activeCup.getRoundName())
         self.html += self.activeCup.displayResults()
+        print('{} {}'.format(self.activeCup.name, self.activeCup.getRoundName()))
 
         if self.isHomeMatch:
             self.displayMatch(False, self.teams[self.teamIndex], self.cupTeam)
@@ -2257,6 +2257,7 @@ class Game:
         if self.homeScore == self.awayScore:
             print('Replay')
             self.html += '<p>Replay</p>'
+            self.isHomeMatch = not self.isHomeMatch
         else:
             cupBonus = 55000 - division * 5000 + random.randint(1, 1000) - random.randint(1, 1000)
             if self.activeCup.round == 6:
@@ -2273,8 +2274,10 @@ class Game:
                 else:
                     print('You qualify for the {} of the {}'.format(self.activeCup.getRoundName(), self.activeCup.name))
                     self.html += '<p>You qualify for the {} of the {}</p>'.format(self.activeCup.getRoundName(), self.activeCup.name)
+                home.moral = min(20, self.teams[self.teamIndex].moral + 3 + self.activeCup.round)
             else:
                 print('You are out of the {}'.format(self.activeCup.name))
                 self.html += '<p>You are out of the {}</p>'.format(self.activeCup.name)
+                home.moral = max(1, self.teams[self.teamIndex].moral - 3)
 
         self.wait(True)
