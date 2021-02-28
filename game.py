@@ -114,12 +114,11 @@ class Game:
         else:
             print('No')
             self.newGame()
+            self.newSeason()
 
         # Play the game.
         nYear = 0
         while True:
-            self.newSeason()
-
             # Play a season.
             while self.numMatches < self.MATCHES_PER_SEASON:
                 ansi.doCls()
@@ -167,6 +166,8 @@ class Game:
             # Season has finished.
             self.endSeason()
 
+            # New Season begins.
+            self.newSeason()
 
 
     def endSeason(self, isGraphical=False):
@@ -366,7 +367,6 @@ class Game:
                         self.load()
                         self.sortDivision()
                         self.status = 100
-                        self.newSeason()
         elif self.status == 1:
             # Select team.
             if 'team' in parameters:
@@ -1752,6 +1752,8 @@ class Game:
         outputFile.write('\n')
         json.dump(self.awayAgainst, outputFile)
         outputFile.write('\n')
+        json.dump(self.titles, outputFile)
+        outputFile.write('\n')
 
         # Save the weeks.
         json.dump(self.weeks, outputFile)
@@ -1764,6 +1766,15 @@ class Game:
         # Save the teams.
         for team in self.teams:
             team.dump(outputFile)
+
+        # Save the cups.
+        self.faCup.dump(outputFile)
+        self.leagueCup.dump(outputFile)
+        if self.europeanCup == None:
+            outputFile.write('No\n')
+        else:
+            outputFile.write('Yes\n')
+            self.europeanCup.dump(outputFile)
 
         outputFile.close()
 
@@ -1817,6 +1828,8 @@ class Game:
         self.awayFor = json.loads(line)
         line = inputFile.readline()
         self.awayAgainst = json.loads(line)
+        line = inputFile.readline()
+        self.titles = json.loads(line)
 
         # Load the weeks.
         line = inputFile.readline()
@@ -1836,7 +1849,24 @@ class Game:
             team.load(inputFile)
             self.teams.append(team)
 
+        # Load the cups.
+        self.faCup = CupCompetition(self, 'FA Cup', 16, ~16)
+        self.faCup.load(inputFile)
+        self.leagueCup = CupCompetition(self, 'League Cup', 8, ~8)
+        self.leagueCup.load(inputFile)
+        line = inputFile.readline()
+        if line[0] == 'N':
+            self.europeanCup = None
+        elif line[0] == 'Y':
+            self.europeanCup = CupCompetition(self, 'European Cup', 32, ~(32|64|128))
+            self.europeanCup.load(inputFile)
+        else:
+            print("Error reading after league cup!  '{}'".format(line))
+
         inputFile.close()
+
+        self.moneyStart = self.money - self.debt
+        self.moneyMessage = ''
 
 
 
@@ -2274,10 +2304,10 @@ class Game:
                 else:
                     print('You qualify for the {} of the {}'.format(self.activeCup.getRoundName(), self.activeCup.name))
                     self.html += '<p>You qualify for the {} of the {}</p>'.format(self.activeCup.getRoundName(), self.activeCup.name)
-                home.moral = min(20, self.teams[self.teamIndex].moral + 3 + self.activeCup.round)
+                self.teams[self.teamIndex].moral = min(20, self.teams[self.teamIndex].moral + 3 + self.activeCup.round)
             else:
                 print('You are out of the {}'.format(self.activeCup.name))
                 self.html += '<p>You are out of the {}</p>'.format(self.activeCup.name)
-                home.moral = max(1, self.teams[self.teamIndex].moral - 3)
+                self.teams[self.teamIndex].moral = max(1, self.teams[self.teamIndex].moral - 3)
 
         self.wait(True)

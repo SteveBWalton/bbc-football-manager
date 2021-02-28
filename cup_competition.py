@@ -129,24 +129,44 @@ class CupCompetition:
 
 
     def dump(self, outputFile):
-        ''' Write the player into the specified file. '''
+        ''' Write the cup competition into the specified file. '''
         json.dump(self.name, outputFile)
         outputFile.write('\n')
         json.dump(self.isIn, outputFile)
         outputFile.write('\n')
-        json.dump(self.isEntered, outputFile)
+        json.dump(self.round, outputFile)
         outputFile.write('\n')
+        json.dump(self.mask, outputFile)
+        outputFile.write('\n')
+        json.dump(self.notMask, outputFile)
+        outputFile.write('\n')
+        json.dump(len(self.results), outputFile)
+        outputFile.write('\n')
+        for result in self.results:
+            result.dump(outputFile)
 
 
 
     def load(self, inputFile):
-        ''' Read the player from the specified file. '''
+        ''' Read the cup competition from the specified file. '''
         line = inputFile.readline()
         self.name = json.loads(line)
         line = inputFile.readline()
         self.isIn = json.loads(line)
         line = inputFile.readline()
-        self.isEntered = json.loads(line)
+        self.round = json.loads(line)
+        print(self.round)
+        line = inputFile.readline()
+        self.mask = json.loads(line)
+        line = inputFile.readline()
+        self.notMask = json.loads(line)
+        line = inputFile.readline()
+        numResults = json.loads(line)
+        self.results = []
+        for i in range(0, numResults):
+            cupResult = CupResult('', True, '', 0, 0)
+            cupResult.load(inputFile)
+            self.results.append(cupResult)
 
 
 
@@ -162,6 +182,34 @@ class CupResult:
         self.opponent = opponent
         self.homeGoals = homeGoals
         self.awayGoals = awayGoals
+
+
+
+    def dump(self, outputFile):
+        json.dump(self.stage, outputFile)
+        outputFile.write('\n')
+        json.dump(self.isHomeMatch, outputFile)
+        outputFile.write('\n')
+        json.dump(self.opponent, outputFile)
+        outputFile.write('\n')
+        json.dump(self.homeGoals, outputFile)
+        outputFile.write('\n')
+        json.dump(self.awayGoals, outputFile)
+        outputFile.write('\n')
+
+
+
+    def load(self, inputFile):
+        line = inputFile.readline()
+        self.stage = json.loads(line)
+        line = inputFile.readline()
+        self.isHomeMatch = json.loads(line)
+        line = inputFile.readline()
+        self.opponent = json.loads(line)
+        line = inputFile.readline()
+        self.homeGoals = json.loads(line)
+        line = inputFile.readline()
+        self.awayGoals = json.loads(line)
 
 
 
