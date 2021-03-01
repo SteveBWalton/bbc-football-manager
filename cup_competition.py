@@ -155,7 +155,6 @@ class CupCompetition:
         self.isIn = json.loads(line)
         line = inputFile.readline()
         self.round = json.loads(line)
-        print(self.round)
         line = inputFile.readline()
         self.mask = json.loads(line)
         line = inputFile.readline()

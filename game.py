@@ -2192,6 +2192,33 @@ class Game:
                 bar = '{}{:>2}'.format(bar, 1 + week & 63)
                 print('{} {} {}{}'.format(homeAway, result, bar, ansi.RESET_ALL))
 
+        # Show league progress on the html.
+        size = 20
+        width = 30 * size
+        height = 16 * size
+        self.html += '<svg width="{}" height="{}" style="vertical-align:top;" xmlns="http://www.w3.org/2000/svg" version="1.1">'.format(width, height)
+        self.html += '<rect x="0" y="0" width="{}" height="{}" stroke="white" fill="none" />'.format(width-1, height-1)
+        self.html += '<line x1="0" y1="{}" x2="{}" y2="{}" stroke="white" stroke-dasharray="5,5" />'.format(size*3, width, size*3)
+        count = -1
+        for week in self.weeks:
+            count += 1
+            position = 0 + (week & 63)
+
+            x = count * size
+            y = position * size
+            if week & 192 == 0:
+                # Lost.
+                colour = 'red'
+            elif week & 192 == 128:
+                # Win.
+                colour = 'green'
+            else:
+                # Draw.
+                colour = 'yellow'
+
+            self.html += '<rect x="{}" y="{}" width="{}" height="{}" stroke="white" fill="{}" />'.format(x, y, size, size, colour)
+        self.html += '</svg>'
+
 
 
     def displayTitles(self):
