@@ -1134,6 +1134,8 @@ class Game:
         self.numSquad -= 1
         self.dropPlayer(playerNumber)
         self.players[playerNumber].inSquad = False
+        if self.players[playerNumber].injured:
+            self.numInjured -= 1
         self.money += price
         self.moneyMessage += self.financialLine(self.players[playerNumber].name + ' sold', price, 0) + "\n";
 
@@ -1153,12 +1155,7 @@ class Game:
             # Skill Boost.  This made the game too easy.
             if random.randint(1, 5) == 1:
                 self.players[player].skill = max(self.players[player].skill, random.randint(1, 5) + (1 if self.division <= 2 else 0))
-            if self.players[player].position == Player.DEFENSE:
-                print('Defence')
-            elif self.players[player].position == Player.MIDFIELD:
-                print('Mid-field')
-            else:
-                print('Attack')
+            print(self.players[player].getPosition())
             self.players[player].writeRow(5000 * (5 - self.division))
             print('You have £{:,.2f}'.format(self.money))
             bid = self.enterNumber('Enter your bid: ')
@@ -1194,12 +1191,7 @@ class Game:
             # Skill Boost.  This made the game too easy.
             if random.randint(1, 5) == 1:
                 self.players[player].skill = max(self.players[player].skill, random.randint(1, 5) + (1 if self.division <= 2 else 0))
-            if self.players[player].position == Player.DEFENSE:
-                self.html = '<p>Defence</p>'
-            elif self.players[player].position == Player.MIDFIELD:
-                self.html = '<p>Mid-field</p>'
-            else:
-                self.html = '<p>Attack</p>'
+            self.html = '<p>{}</p>'.format(self.players[player].getPosition())
             self.html += '<table>'
             self.html += self.players[player].htmlRow(5000 * (5 - self.division))
             self.html += '</table>'
@@ -2199,6 +2191,8 @@ class Game:
         self.html += '<svg width="{}" height="{}" style="vertical-align:top;" xmlns="http://www.w3.org/2000/svg" version="1.1">'.format(width, height)
         self.html += '<rect x="0" y="0" width="{}" height="{}" stroke="white" fill="none" />'.format(width-1, height-1)
         self.html += '<line x1="0" y1="{}" x2="{}" y2="{}" stroke="white" stroke-dasharray="5,5" />'.format(size*3, width, size*3)
+        self.html += '<line x1="0" y1="{}" x2="{}" y2="{}" stroke="white" stroke-dasharray="5,5" />'.format(size*8, width, size*8)
+        self.html += '<line x1="0" y1="{}" x2="{}" y2="{}" stroke="white" stroke-dasharray="5,5" />'.format(size*13, width, size*13)
         count = -1
         for week in self.weeks:
             count += 1
@@ -2279,12 +2273,14 @@ class Game:
     def playCupMatch(self):
         ''' Play a cup match in the self.activeCup competition. '''
         if self.subStatus == -1:
-            division = 5 - self.activeCup.round
-            if division < 1:
+            if self.activeCup.mask >= 32:
                 division = 1
-            elif division > 1:
-                division = random.randint(1, division)
-
+            else:
+                division = 5 - self.activeCup.round
+                if division < 1:
+                    division = 1
+                elif division > 1:
+                    division = random.randint(1, division)
             self.cupTeam = self.activeCup.getTeam(division)
             self.cupTeam.pos = division
             self.isHomeMatch = random.randint(1, 2) == 1

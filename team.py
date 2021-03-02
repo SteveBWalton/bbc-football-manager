@@ -269,7 +269,7 @@ class Team:
                 self.colour = ansi.RED
             else:
                 self.getTeam(division+1, index-16)
-        else:
+        elif division == 4:
             if index == 1:
                 self.name = 'Scunthorpe'
                 self.colour = ansi.RED
@@ -320,7 +320,57 @@ class Team:
                 self.colour = ansi.RED
             else:
                 self.getTeam(division-1, index-16)
-
+        else:
+            if index == 1:
+                self.name = 'Glasgow Rangers'
+                self.colour = ansi.BLUE
+            elif index == 2:
+                self.name = 'Glasgow Celtic'
+                self.colour = ansi.GREEN
+            elif index == 3:
+                self.name = 'Juventus'
+                self.colour = ansi.WHITE
+            elif index == 4:
+                self.name = 'AC Milan'
+                self.colour = ansi.RED
+            elif index == 5:
+                self.name = 'Inter Milan'
+                self.colour = ansi.BLUE
+            elif index == 6:
+                self.name = 'Roma'
+                self.colour = ansi.RED
+            elif index == 7:
+                self.name = 'Real Madrid'
+                self.colour = ansi.WHITE
+            elif index == 8:
+                self.name = 'Barcelona'
+                self.colour = ansi.BLUE
+            elif index == 9:
+                self.name = 'Bayern Munich'
+                self.colour = ansi.RED
+            elif index == 10:
+                self.name = 'Borussia Dortmund'
+                self.colour = ansi.RED
+            elif index == 11:
+                self.name = 'Hamburg'
+                self.colour = ansi.RED
+            elif index == 12:
+                self.name = 'Ajax'
+                self.colour = ansi.GREEN
+            elif index == 13:
+                self.name = 'PSV Eindhoven'
+                self.colour = ansi.BLUE
+            elif index == 14:
+                self.name = 'Paris SG'
+                self.colour = ansi.BLUE
+            elif index == 15:
+                self.name = 'Monaco'
+                self.colour = ansi.RED
+            elif index == 16:
+                self.name = 'Benfica'
+                self.colour = ansi.RED
+            else:
+                self.getTeam(1, index-16)
 
 
     def multiRandomInt(self, rndRange, rndNumber):

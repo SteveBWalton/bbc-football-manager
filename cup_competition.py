@@ -65,6 +65,19 @@ class CupCompetition:
         Only return a team from the current league.
         This should be a weak team and keep the game easy to debug.
         '''
+        if self.mask >= 32:
+            # European
+            team = Team()
+            teamIndex = random.randint(0, len(self.game.teams) - 1)
+            team.getTeam(5, teamIndex)
+            # Check not already played this team.
+            while self.isPlayedBefore(self.game.teams[teamIndex]):
+                teamIndex = random.randint(0, len(self.game.teams) - 1)
+                team.getTeam(5, teamIndex)
+            # Return the team.
+            team.initialise(1)
+            return team
+
         if division == self.game.division:
             # Team in same division as team.
             teamIndex = random.randint(0, len(self.game.teams) - 1)
