@@ -16,9 +16,11 @@ or (Windows)
 ```bash
 python football.py -g
 ```
+The **-g** switch is optional now, graphical mode is now the default.
+
 To run the program in the console.  
 ```bash
-./football.py
+./football.py -t
 ```
 This only works in Linux.
 

@@ -26,6 +26,12 @@ from game import Game
 
 def run(args):
     ''' Main entry point for the program. '''
+    # Default to graphical mode now.
+    if args.text:
+        args.graphical = False
+    else:
+        args.graphical = True
+
     # Create a game object.
     game = Game(args)
     game.run()
@@ -38,6 +44,7 @@ if __name__ == '__main__':
     argParse = argparse.ArgumentParser(prog='football_manager', description='Convertion of the BBC Basic Football Manager program.')
     argParse.add_argument('-d', '--debug', help='Run the program in debug mode.', action='store_true')
     argParse.add_argument('-g', '--graphical', help='Run the program in a graphical wx window.', action='store_true')
+    argParse.add_argument('-t', '--text', help='Run the program at the command line.', action='store_true')
     args = argParse.parse_args()
 
     # Welcome message.
