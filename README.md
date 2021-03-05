@@ -24,5 +24,3 @@ To run the program in the console.
 ```
 This only works in Linux.
 
-Might switch the wx version to be the default and require a command line switch for the console version.
-
