@@ -1463,7 +1463,7 @@ class Game:
     def wait(self, isGraphical=False):
         ''' Replacement for PROCWAIT in the BBC Basic version. '''
         if isGraphical:
-            self.html += '<p><a href="app:?response=c">Click to continue</a></p>'
+            self.html += '<p style="color: yellow; background-color: blue;"><a href="app:?response=c">Click to continue</a></p>'
         else:
             print('{}{}{} Press SPACE to continue {}{}'.format(ansi.BACKGROUND_BLUE, ansi.YELLOW, '━' * 7, '━' * 8, ansi.RESET_ALL))
             self.getKeyboardCharacter([' '])
