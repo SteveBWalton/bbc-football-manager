@@ -66,13 +66,13 @@ class CupCompetition:
         This should be a weak team and keep the game easy to debug.
         '''
         if self.mask >= 32:
-            # European
+            # European team.
             team = Team()
-            teamIndex = random.randint(0, len(self.game.teams) - 1)
+            teamIndex = random.randint(1, 16)
             team.getTeam(5, teamIndex)
             # Check not already played this team.
             while self.isPlayedBefore(self.game.teams[teamIndex]):
-                teamIndex = random.randint(0, len(self.game.teams) - 1)
+                teamIndex = random.randint(1, 16)
                 team.getTeam(5, teamIndex)
             # Return the team.
             team.initialise(1)
@@ -89,11 +89,11 @@ class CupCompetition:
 
         # Create a new team for the division.
         team = Team()
-        teamIndex = random.randint(0, len(self.game.teams) - 1)
+        teamIndex = random.randint(1, 16)
         team.getTeam(division, teamIndex)
         # Check not already played this team.
         while self.isPlayedBefore(self.game.teams[teamIndex]):
-            teamIndex = random.randint(0, len(self.game.teams) - 1)
+            teamIndex = random.randint(1, 16)
             team.getTeam(division, teamIndex)
         # Return the team.
         team.initialise(division)

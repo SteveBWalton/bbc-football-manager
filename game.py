@@ -1455,8 +1455,8 @@ class Game:
         self.html += '<tr><td style="text-align: center;">Attack</td><td style="text-align: center;">{}</td><td style="text-align: center;">{}</td></tr>'.format(homeTeam.attack, awayTeam.attack)
         self.html += '</table>'
         self.html += '<p>{} Picked, {} Squad, {} Injured.</p>'.format(self.numTeam, self.numSquad, self.numInjured)
-        self.html += '<p><a href="app:?response=c">Press C to change team.</a></p>'
-        self.html += '<p><a href="app:?response=t">Press TAB to play match.</a></p>'
+        self.html += '<p style="color: yellow; background-color: green;"><a href="app:?response=c">Press C to change team.</a></p>'
+        self.html += '<p style="color: yellow; background-color: green;"><a href="app:?response=t">Press TAB to play match.</a></p>'
 
 
 
