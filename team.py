@@ -320,7 +320,7 @@ class Team:
                 self.colour = ansi.RED
             elif index > 16:
                 self.getTeam(division - 1, index - 16)
-        else:
+        elif division > 4:
             if index == 1:
                 self.name = 'Glasgow Rangers'
                 self.colour = ansi.BLUE
@@ -371,8 +371,10 @@ class Team:
                 self.colour = ansi.RED
             elif index > 16:
                 self.getTeam(1, index - 16)
-        self.name = 'D{}T{}'.format(division, index)
-        self.colour = ansi.WHITE
+        else:
+            # Don't really expect this.
+            self.name = 'D{}T{}'.format(division, index)
+            self.colour = ansi.WHITE
 
 
 
