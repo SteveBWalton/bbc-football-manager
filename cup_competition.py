@@ -89,11 +89,11 @@ class CupCompetition:
 
         # Create a new team for the division.
         team = Team()
-        teamIndex = random.randint(1, 16)
+        teamIndex = random.randint(0, 15)
         team.getTeam(division, teamIndex)
         # Check not already played this team.
         while self.isPlayedBefore(self.game.teams[teamIndex]):
-            teamIndex = random.randint(1, 16)
+            teamIndex = random.randint(0, 15)
             team.getTeam(division, teamIndex)
         # Return the team.
         team.initialise(division)
