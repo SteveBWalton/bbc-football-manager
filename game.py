@@ -13,6 +13,7 @@ import time
 import sys
 from typing import Dict     # This is for type hinting only.
 import codecs
+import os
 
 # Application Libraries.
 import ansi
@@ -364,9 +365,9 @@ class Game:
                     self.level = parameters['level']
                 if 'load' in parameters:
                     if parameters['load'] == '2':
-                        self.load()
-                        self.sortDivision()
-                        self.status = 100
+                        if self.load():
+                            self.sortDivision()
+                            self.status = 100
         elif self.status == 1:
             # Select team.
             if 'team' in parameters:
@@ -1778,6 +1779,10 @@ class Game:
         ''' Implementation of DEFPROCLOAD (line 5530) from the BBC Basic version. '''
         self.MATCHES_PER_SEASON = 30
 
+        # Check that the load file exists.
+        if not os.path.exists('save.game'):
+            return False
+
         inputFile = open('save.game', 'r')
 
         line = inputFile.readline()
@@ -1859,6 +1864,7 @@ class Game:
 
         self.moneyStart = self.money - self.debt
         self.moneyMessage = ''
+        return True
 
 
 
