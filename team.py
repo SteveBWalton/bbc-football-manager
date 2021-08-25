@@ -97,7 +97,7 @@ class Team:
 
 
 
-    def htmlTableRow(self,isDebug):
+    def htmlTableRow(self, isDebug):
         ''' Write this team into the league table. '''
         if isDebug:
             name = '{}({})'.format(self.name, self.numHomeGames)
