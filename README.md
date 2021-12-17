@@ -11,17 +11,17 @@ In 2021, I started to add support for a version that runs in a wx window.  This 
 ## How to Run
 To run the program in a wx window.  Clone project and cd into the top level folder.
 ```bash
-./football.py -g
+./football_manager.py -g
 ```
 or (Windows)
 ```bash
-python football.py -g
+python football_manager.py -g
 ```
 The **-g** switch is optional now, graphical mode is now the default.
 
 To run the program in the console.  
 ```bash
-./football.py -t
+./football_manager.py -t
 ```
 This only works in Linux.
 
