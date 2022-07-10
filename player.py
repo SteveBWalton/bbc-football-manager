@@ -112,9 +112,9 @@ class Player:
         else:
             print(ansi.BACKGROUND_WHITE, end = '')
             print(ansi.BLUE, end = '')
-        print('{:2} {:<20}{:>2}{:>3} '.format(self.index, self.name, self.skill, self.energy), end = '')
+        print(f'{self.index:2} {self.name:<20}{self.skill:>2}{self.energy:>3} ', end = '')
         if exchangeRate != 0:
-            print('{:>11s}'.format('£{:,.0f}'.format(self.skill * exchangeRate)), end = '')
+            print(f'{f"£{self.skill * exchangeRate:,.0f}":>11s}', end = '')
         if self.inTeam:
             print(ansi.BACKGROUND_GREEN, end = '')
             print(ansi.LIGHT_YELLOW, end = '')
@@ -138,13 +138,13 @@ class Player:
         else:
             html = '<tr style="background-color: white; color: blue;">'
             style = 'color: blue;'
-        html += '<td style="text-align: center;"><a style="{}" href="app:?player={}">{}</a></td><td><a style="{}" href="app:?player={}">{}</a></td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td>'.format(style, self.index, self.index, style, self.index, self.name, self.skill, self.energy)
+        html += f'<td style="text-align: center;"><a style="{style}" href="app:?player={self.index}">{self.index}</a></td><td><a style="{style}" href="app:?player={self.index}">{self.name}</a></td><td style="text-align: right;">{self.skill}</td><td style="text-align: right;">{self.energy}</td>'
         if exchangeRate != 0:
-            html += '<td style="text-align: right;">£{:,.0f}</td>'.format(self.skill * exchangeRate)
+            html += f'<td style="text-align: right;">£{self.skill * exchangeRate:,.0f}</td>'
         if self.inTeam:
-            html += '<td style="background-color: green; color: yellow; text-align: center; width: 50px;">P</td>';
+            html += '<td style="background-color: green; color: yellow; text-align: center; width: 50px;">P</td>'
         if self.injured:
-            html += '<td style="background-color: red; color: yellow; text-align: center; width: 50px;">I</td>';
+            html += '<td style="background-color: red; color: yellow; text-align: center; width: 50px;">I</td>'
         html += '</tr>'
         return html
 
