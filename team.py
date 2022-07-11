@@ -49,12 +49,12 @@ class Team:
         numAttack = 11 - numMidfield - numDefence
         bonus = 1 + (1 if division < 4 else 0) + (1 if division == 1 else 0)
         skill = 4 - (division & 1)
-        self.energy = self.multiRandomInt(20, 11)
+        self.energy = multiRandomInt(20, 11)
         self.moral = 9 + random.randint(1, 11)
-        self.defence = numDefence * bonus + self.multiRandomInt(skill, numDefence)
-        self.midfield = numMidfield * bonus + self.multiRandomInt(skill, numMidfield)
-        self.attack = numAttack * bonus + self.multiRandomInt(skill, numAttack)
-        self.formation = '{}-{}-{}'.format(numDefence-1, numMidfield, numAttack)
+        self.defence = numDefence * bonus + multiRandomInt(skill, numDefence)
+        self.midfield = numMidfield * bonus + multiRandomInt(skill, numMidfield)
+        self.attack = numAttack * bonus + multiRandomInt(skill, numAttack)
+        self.formation = f'{numDefence-1}-{numMidfield}-{numAttack}'
 
         self.pts = 0
         self.difference = 0
@@ -90,27 +90,27 @@ class Team:
     def writeTableRow(self, isDebug):
         ''' Write this team into the league table. '''
         if isDebug:
-            name = '{}({})'.format(self.name, self.numHomeGames)
+            name = f'{self.name}({self.numHomeGames})'
         else:
             name = self.name
-        print('{:>2} {}{:<15}{:>3}{:>3}{:>3}{:>4}{:>4}{}'.format(self.position, self.colour, name, self.win, self.draw, self.lost, self.pts, self.difference, ansi.RESET_ALL))
+        print(f'{self.position:>2} {self.colour}{name:<15}{self.win:>3}{self.draw:>3}{self.lost:>3}{self.pts:>4}{self.difference:>4}{ansi.RESET_ALL}'
 
 
 
     def htmlTableRow(self, isDebug):
         ''' Write this team into the league table. '''
         if isDebug:
-            name = '{}({})'.format(self.name, self.numHomeGames)
+            name = f'{self.name}({self.numHomeGames})'
         else:
             name = self.name
-        html = '<tr><td style="text-align: right;">{}</td><td>{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{}</td><td style="text-align: right;">{:+d}</td></tr>'.format(self.position, name, self.win, self.draw, self.lost, self.pts, self.difference)
+        html = f'<tr><td style="text-align: right;">{self.position}</td><td>{name}</td><td style="text-align: right;">{self.win}</td><td style="text-align: right;">{self.draw}</td><td style="text-align: right;">{self.lost}</td><td style="text-align: right;">{self.pts}</td><td style="text-align: right;">{self.difference:+d}</td></tr>'
         return html
 
 
 
     def getColouredName(self):
         ''' Returns the team name wrapped in the colour code. '''
-        return '{}{}{}'.format(self.colour, self.name, ansi.RESET_ALL)
+        return f'{self.colour}{self.name}{ansi.RESET_ALL}'
 
 
 
@@ -373,17 +373,11 @@ class Team:
                 self.getTeam(1, index - 16)
         else:
             # Don't really expect this.
-            self.name = 'D{}T{}'.format(division, index)
+            self.name = f'D{division}T{index}'
             self.colour = ansi.WHITE
 
 
 
-    def multiRandomInt(self, rndRange, rndNumber):
-        ''' Replacement for FNRND() (Line 6640) in the BBC Basic version. '''
-        numTotal = 0
-        for count in range(rndNumber):
-            numTotal += random.randint(1, rndRange)
-        return numTotal
 
 
 
@@ -462,3 +456,12 @@ class Team:
         self.draw = json.loads(line)
         line = inputFile.readline()
         self.lost = json.loads(line)
+
+
+
+def multiRandomInt(rndRange, rndNumber):
+    ''' Replacement for FNRND() (Line 6640) in the BBC Basic version. '''
+    numTotal = 0
+    for _ in range(rndNumber):
+        numTotal += random.randint(1, rndRange)
+    return numTotal
