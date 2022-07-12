@@ -93,7 +93,7 @@ class Team:
             name = f'{self.name}({self.numHomeGames})'
         else:
             name = self.name
-        print(f'{self.position:>2} {self.colour}{name:<15}{self.win:>3}{self.draw:>3}{self.lost:>3}{self.pts:>4}{self.difference:>4}{ansi.RESET_ALL}'
+        print(f'{self.position:>2} {self.colour}{name:<15}{self.win:>3}{self.draw:>3}{self.lost:>3}{self.pts:>4}{self.difference:>4}{ansi.RESET_ALL}')
 
 
 
