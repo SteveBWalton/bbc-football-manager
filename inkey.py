@@ -33,6 +33,7 @@ except ImportError:
     import tty
     import termios
     def getwch():
+        ''' This is for linux only.  Imported under Windows. '''
         try:
             # This does not work !
             # print('SetRaw')
@@ -104,7 +105,7 @@ class InKey:
 
     def inKey(self, isContinue=True):
         ''' Return the last (current) keypress or None for no keypress. '''
-        if self.lastKey == None:
+        if self.lastKey is None:
             result = None
             # print('No Key pressed.')
         else:
@@ -129,16 +130,16 @@ class InKey:
 
 
 def main():
+    ''' Function to execute for testing. '''
     inKey = InKey()
     inKey.start()
     wait = 10000
     while wait > 0:
         character = inKey.inKey()
-        if character == None:
-            pass
+        if character is None:
             print('No Key pressed.')
         else:
-            print('"{}" key pressed.'.format(character))
+            print(f'"{character}" key pressed.')
             if character == 'q' or character == '\x1b':  # x1b is ESC
                 break
                 wait = 10
