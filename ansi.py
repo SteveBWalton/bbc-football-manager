@@ -66,19 +66,19 @@ ERASE_LINE = '\033[2K'
 
 def getCursorDown(lines):
     ''' Return the code to move the cursor down the specified number of lines. '''
-    return '\033[{}B'.format(lines)
+    return f'\033[{lines}B'
 
 
 
 def getCursorUp(lines):
     ''' Return the code to move the cursor up the specified number of lines. '''
-    return '\033[{}A'.format(lines)
+    return f'\033[{lines}A'
 
 
 
 def getCursorTo(row, column):
     ''' Return the code to move the cursor to the specified row and column. '''
-    return '\033[{};{}f'.format(row, column)
+    return f'\033[{row};{column}f'
 
 
 
