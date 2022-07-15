@@ -10,7 +10,7 @@ import random
 import json
 
 # Application Libraries.
-import ansi
+# import ansi
 from team import Team
 
 
@@ -45,17 +45,17 @@ class CupCompetition:
         ''' Return the string description of the round. '''
         if self.round == 1:
             return '1st Round'
-        elif self.round == 2:
+        if self.round == 2:
             return '2nd Round'
-        elif self.round == 3:
+        if self.round == 3:
             return 'Quarter Final'
-        elif self.round == 4:
+        if self.round == 4:
             return 'Semi Final'
-        elif self.round == 5:
+        if self.round == 5:
             return 'Final'
-        elif self.round == 6:
+        if self.round == 6:
             return 'Winner'
-        return 'Error {}'.format(self.round)
+        return f'Error {self.round}'
 
 
 
@@ -175,7 +175,7 @@ class CupCompetition:
         line = inputFile.readline()
         numResults = json.loads(line)
         self.results = []
-        for i in range(0, numResults):
+        for _dummy in range(0, numResults):
             cupResult = CupResult('', True, '', 0, 0)
             cupResult.load(inputFile)
             self.results.append(cupResult)
@@ -198,6 +198,7 @@ class CupResult:
 
 
     def dump(self, outputFile):
+        ''' Write these cup settings to the specified output file. '''
         json.dump(self.stage, outputFile)
         outputFile.write('\n')
         json.dump(self.isHomeMatch, outputFile)
@@ -212,6 +213,7 @@ class CupResult:
 
 
     def load(self, inputFile):
+        ''' Load the cup settings from the specified input file. '''
         line = inputFile.readline()
         self.stage = json.loads(line)
         line = inputFile.readline()
@@ -229,9 +231,9 @@ class CupResult:
         ''' Display this result. '''
         html = '<tr>'
         if self.isHomeMatch:
-            print('{:>5} {:>20}{:>2} {:<2}{:<20}'.format(self.stage, teamName, self.homeGoals, self.awayGoals, self.opponent))
-            html += '<td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>'.format(self.stage, teamName, self.homeGoals, self.awayGoals, self.opponent)
+            print(f'{self.stage:>5} {teamName:>20}{self.homeGoals:>2} {self.awayGoals:<2}{self.opponent:<20}')
+            html += f'<td>{self.stage}</td><td>{teamName}</td><td>{self.homeGoals}</td><td>{self.awayGoals}</td><td>{self.opponent}</td></tr>'
         else:
-            print('{:>5} {:>20}{:>2} {:<2}{:<20}'.format(self.stage, self.opponent, self.homeGoals, self.awayGoals, teamName))
-            html += '<td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>'.format(self.stage, self.opponent, self.homeGoals, self.awayGoals, teamName)
+            print(f'{self.stage:>5} {self.opponent:>20}{self.homeGoals:>2} {self.awayGoals:<2}{teamName:<20}')
+            html += f'<td>{self.stage}</td><td>{self.opponent}</td><td>{self.homeGoals}</td><td>{self.awayGoals}</td><td>{teamName}</td></tr>'
         return html
