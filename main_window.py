@@ -7,12 +7,12 @@ This module implements the :py:class:`WxApp` and :py:class:`WxMainWindow` classe
 '''
 
 # System libraries for the initial phase.
-import sys
+# import sys
 import os
-import platform
+# import platform
 import subprocess
-import shutil
-import datetime
+# import shutil
+# import datetime
 import wx           # Try package python3-wxpython4 or python -m pip install wxPython
 import wx.html2     # Try package python3-wxpython4-webview
 
@@ -136,15 +136,15 @@ class WxMainWindow(wx.Frame):
 
 
 
-    def _FilePrint(self, widget):
+    def _FilePrint(self, _widget):
         ''' Signal handler for the 'File' → 'Print Preview' menu item. '''
         # Save the html to a file.
         fileName = '{}/print.html'.format(self.application.configuration.DIRECTORY)
-        outFile = open(fileName, 'w')
-        outFile.write(self.application.render.html.toHtml())
-        outFile.close()
+        with open(fileName, 'w') as outFile:
+            outFile.write(self.application.render.html.toHtml())
+        #outFile.close()
         if self.application.database.debug:
-            print('Created \'{}\'.'.format(fileName))
+            print(f'Created \'{fileName}\'.')
 
         # Launch the html with the default viewer.
         subprocess.Popen(['xdg-open', fileName])
@@ -187,11 +187,10 @@ class WxMainWindow(wx.Frame):
             # Open the specified link with the default handler.  Previously this was fixed as firefox.
             event.Veto()
             subprocess.Popen(['xdg-open', uri])
-        return
 
 
 
-    def _onTimer(self, event):
+    def _onTimer(self, _event):
         ''' Signal handler for the timer. '''
         self.timer.Stop()
         self.displayNextPage('')
@@ -211,7 +210,7 @@ class WxMainWindow(wx.Frame):
 
         # Get ready to catch the response.
         if responses[:6] == 'delay:':
-            if self.timer == None:
+            if self.timer is None:
                 self.timer = wx.Timer(self)
                 self.Bind(wx.EVT_TIMER, self._onTimer, self.timer)
             delay = int(responses[7:])
@@ -235,7 +234,7 @@ class WxMainWindow(wx.Frame):
         fontSize = 20;
 
         # Display the html content on the wx.html2.WebView control.
-        html = '<html><head><style type="text/css" media="screen">body {{ font-family: Arial, Helvetica, sans-serif; font-size: {}px; }} a {{ text-decoration: none; color: inherit; }} a:hover {{ text-decoration: underline; color: inherit; }} a:visited {{ color: inherit; }} h1 {{ padding: 0px 5px 0px 5px; }} p {{ padding: 0px 5px 0px 5px; }} table {{ border-spacing: 0px; border-collapse: collapse; }} td {{ font-family: Arial, Helvetica, sans-serif; font-size: {}px; padding: 1px 5px 1px 5px; }} </style></head><body style="background: black; color: white;">{}</body></html>'.format(fontSize, fontSize, self.game.html)
+        html = f'<html><head><style type="text/css" media="screen">body {{ font-family: Arial, Helvetica, sans-serif; font-size: {fontSize}px; }} a {{ text-decoration: none; color: inherit; }} a:hover {{ text-decoration: underline; color: inherit; }} a:visited {{ color: inherit; }} h1 {{ padding: 0px 5px 0px 5px; }} p {{ padding: 0px 5px 0px 5px; }} table {{ border-spacing: 0px; border-collapse: collapse; }} td {{ font-family: Arial, Helvetica, sans-serif; font-size: {fontSize}px; padding: 1px 5px 1px 5px; }} </style></head><body style="background: black; color: white;">{self.game.html}</body></html>'
         self.browser.SetPage(html, 'file:///')
 
         # Remove the wait cursor.
