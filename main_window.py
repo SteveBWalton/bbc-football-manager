@@ -88,15 +88,15 @@ class WxMainWindow(wx.Frame):
         dialogSelectFile = gtk.FileChooserDialog('Select File', None, gtk.FILE_CHOOSER_ACTION_OPEN, (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OPEN, gtk.RESPONSE_OK))
         dialogSelectFile.set_default_response(gtk.RESPONSE_OK)
 
-        oFilter = gtk.FileFilter()
-        oFilter.set_name('All files')
-        oFilter.add_pattern('*')
-        dialogSelectFile.add_filter(oFilter)
+        fileFilter = gtk.FileFilter()
+        fileFilter.set_name('All files')
+        fileFilter.add_pattern('*')
+        dialogSelectFile.add_filter(fileFilter)
 
-        oFilter = gtk.FileFilter()
-        oFilter.set_name('html files')
-        oFilter.add_pattern('*.html')
-        dialogSelectFile.add_filter(oFilter)
+        fileFilter = gtk.FileFilter()
+        fileFilter.set_name('html files')
+        fileFilter.add_pattern('*.html')
+        dialogSelectFile.add_filter(fileFilter)
 
         response = dialogSelectFile.run()
         if response == gtk.RESPONSE_OK:
@@ -113,23 +113,22 @@ class WxMainWindow(wx.Frame):
 
 
 
-    def _FileSaveAs(self, widget):
+    def _FileSaveAs(self, _widget):
         ''' Signal handler for the 'File' → 'Save As' menu item. '''
-        dialogSelectFile = gtk.FileChooserDialog('Select File', None, gtk.FILE_CHOOSER_ACTION_SAVE, (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_SAVE, gtk.RESPONSE_OK))
-        dialogSelectFile.set_default_response(gtk.RESPONSE_OK)
+        dialogSelectFile = Gtk.FileChooserDialog('Select File', self.window, Gtk.FileChooserAction.SAVE, (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_SAVE, Gtk.ResponseType.OK))
 
-        oFilter = gtk.FileFilter()
-        oFilter.set_name('All files')
-        oFilter.add_pattern('*')
-        dialogSelectFile.add_filter(oFilter)
+        fileFilter = Gtk.FileFilter()
+        fileFilter.set_name('All files')
+        fileFilter.add_pattern('*')
+        dialogSelectFile.add_filter(fileFilter)
 
-        oFilter = gtk.FileFilter()
-        oFilter.set_name('html files')
-        oFilter.add_pattern('*.html')
-        dialogSelectFile.add_filter(oFilter)
+        fileFilter = Gtk.FileFilter()
+        fileFilter.set_name('html files')
+        fileFilter.add_pattern('*.html')
+        dialogSelectFile.add_filter(fileFilter)
 
         response = dialogSelectFile.run()
-        if response == gtk.RESPONSE_OK:
+        if response == Gtk.ResponseType.OK:
             self.saveDocument(dialogSelectFile.get_filename())
 
         dialogSelectFile.destroy()
@@ -139,8 +138,8 @@ class WxMainWindow(wx.Frame):
     def _FilePrint(self, _widget):
         ''' Signal handler for the 'File' → 'Print Preview' menu item. '''
         # Save the html to a file.
-        fileName = '{}/print.html'.format(self.application.configuration.DIRECTORY)
-        with open(fileName, 'w') as outFile:
+        fileName = f'{self.application.configuration.DIRECTORY}/print.html'
+        with open(fileName, 'w', encoding='utf-8') as outFile:
             outFile.write(self.application.render.html.toHtml())
         #outFile.close()
         if self.application.database.debug:
@@ -231,7 +230,7 @@ class WxMainWindow(wx.Frame):
         # No events / signals until this finishes.
         self.noEvents += 1
 
-        fontSize = 20;
+        fontSize = 20
 
         # Display the html content on the wx.html2.WebView control.
         html = f'<html><head><style type="text/css" media="screen">body {{ font-family: Arial, Helvetica, sans-serif; font-size: {fontSize}px; }} a {{ text-decoration: none; color: inherit; }} a:hover {{ text-decoration: underline; color: inherit; }} a:visited {{ color: inherit; }} h1 {{ padding: 0px 5px 0px 5px; }} p {{ padding: 0px 5px 0px 5px; }} table {{ border-spacing: 0px; border-collapse: collapse; }} td {{ font-family: Arial, Helvetica, sans-serif; font-size: {fontSize}px; padding: 1px 5px 1px 5px; }} </style></head><body style="background: black; color: white;">{self.game.html}</body></html>'
