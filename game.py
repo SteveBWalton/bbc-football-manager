@@ -2292,7 +2292,7 @@ class Game:
             self.isHomeMatch = random.randint(1, 2) == 1
             self.subStatus = 0
         division = self.cupTeam.pos
-        print('division = {}'.format(division))
+        print('Cup match aginst team from division {}'.format(division))
 
         self.html = '<h1 style="display: inline">{} </h1><p style="display: inline">{}</p>'.format(self.activeCup.name, self.activeCup.getRoundName())
         self.html += self.activeCup.displayResults()

@@ -7,12 +7,8 @@ This module implements the :py:class:`WxApp` and :py:class:`WxMainWindow` classe
 '''
 
 # System libraries for the initial phase.
-# import sys
 import os
-# import platform
 import subprocess
-# import shutil
-# import datetime
 import wx           # Try package python3-wxpython4 or python -m pip install wxPython
 import wx.html2     # Try package python3-wxpython4-webview
 
