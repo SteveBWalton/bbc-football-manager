@@ -39,7 +39,7 @@ class WxMainWindow(wx.Frame):
 
         # Report the version number.
         versionNumber = wx.version().replace('.', '·')
-        print('wxPython {}.'.format(versionNumber))
+        print(f'wxPython {versionNumber}.')
 
         # Save the parameters.
         self.game = game
@@ -72,14 +72,14 @@ class WxMainWindow(wx.Frame):
 
 
 
-    def _fileQuit(self, widget):
+    def _fileQuit(self, _widget):
         ''' Signal handler for the 'File' → 'Quit' menu point. '''
         # Close the main window and hence exit the wxPython loop.
         self.Close()
 
 
 
-    def _FileOpen(self, widget):
+    def _FileOpen(self, _widget):
         ''' Signal handler for the 'File' → 'Open' menu point. '''
         dialogSelectFile = gtk.FileChooserDialog('Select File', None, gtk.FILE_CHOOSER_ACTION_OPEN, (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OPEN, gtk.RESPONSE_OK))
         dialogSelectFile.set_default_response(gtk.RESPONSE_OK)
@@ -103,7 +103,7 @@ class WxMainWindow(wx.Frame):
 
 
 
-    def _FileSave(self, widget):
+    def _FileSave(self, _widget):
         ''' Signal handler for the 'File' → 'Save' menu item. '''
         self.saveDocument('formulaone.html')
 
@@ -282,5 +282,3 @@ class WxApp(wx.App):
     #    print('CWxApp.OnInit()')
     #    print('CWxApp.OnInit() Finished.')
     #    return True
-
-
