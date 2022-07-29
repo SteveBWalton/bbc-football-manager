@@ -751,11 +751,11 @@ class Game:
             if self.isHomeMatch:
                 if self.teams[self.opponentIndex].isPlayedHome == False:
                     self.teams[self.opponentIndex].isPlayedHome = True
-                    break;
+                    break
             else:
                 if self.teams[self.opponentIndex].isPlayedAway == False:
                     self.teams[self.opponentIndex].isPlayedAway = True
-                    break;
+                    break
         # Debugging only.
         if self.isHomeMatch:
             print('Home match against {}'.format(self.teams[self.opponentIndex].name))
@@ -798,7 +798,7 @@ class Game:
                     self.playCupMatch()
                     keyPress = self.getKeyboardCharacter(['c', '\t'])
                     if keyPress == '\t':
-                        break;
+                        break
                     # Pick the player.
                     self.pickPlayers()
 
@@ -812,7 +812,7 @@ class Game:
                 self.reportCupMatch()
                 self.wait()
                 if self.homeScore != self.awayScore:
-                    break;
+                    break
 
         # Choose an opponent for the league match.
         self.findLeagueOpponent()
@@ -827,7 +827,7 @@ class Game:
                 self.displayMatch(True, self.teams[self.opponentIndex], self.teams[self.teamIndex])
             keyPress = self.getKeyboardCharacter(['c', '\t'])
             if keyPress == '\t':
-                break;
+                break
             # Pick the player.
             self.pickPlayers()
 
@@ -1030,7 +1030,7 @@ class Game:
                 if self.numTeam <= 11:
                     number = self.enterNumber('>')
                     if number == 0:
-                        break;
+                        break
                     if number >= 1 and number <= 26:
                         number -= 1
                         if self.players[number].inSquad:
@@ -1103,7 +1103,7 @@ class Game:
                     self.dropPlayer(playerNumber)
                     self.players[playerNumber].inSquad = False
                     self.money += price
-                    self.moneyMessage += self.financialLine(self.players[playerNumber].name + ' sold', price, 0) + "\n";
+                    self.moneyMessage += self.financialLine(self.players[playerNumber].name + ' sold', price, 0) + "\n"
             else:
                 print('On range')
             self.wait()
@@ -1138,7 +1138,7 @@ class Game:
         if self.players[playerNumber].injured:
             self.numInjured -= 1
         self.money += price
-        self.moneyMessage += self.financialLine(self.players[playerNumber].name + ' sold', price, 0) + "\n";
+        self.moneyMessage += self.financialLine(self.players[playerNumber].name + ' sold', price, 0) + "\n"
 
 
 
@@ -1151,7 +1151,7 @@ class Game:
             while True:
                 player = random.randint(0, 25)
                 if self.players[player].inSquad == False:
-                    break;
+                    break
             # ansi.doCls()
             # Skill Boost.  This made the game too easy.
             if random.randint(1, 5) == 1:
@@ -1170,7 +1170,7 @@ class Game:
                 self.numSquad += 1
                 self.players[player].inSquad = True
                 self.money -= bid
-                self.moneyMessage += self.financialLine(self.players[player].name + ' bought', 0, bid) + "\n";
+                self.moneyMessage += self.financialLine(self.players[player].name + ' bought', 0, bid) + "\n"
                 if self.players[player].injured:
                     self.numInjured += 1
             else:
@@ -1188,7 +1188,7 @@ class Game:
             while True:
                 player = random.randint(0, 25)
                 if self.players[player].inSquad == False:
-                    break;
+                    break
             # Skill Boost.  This made the game too easy.
             if random.randint(1, 5) == 1:
                 self.players[player].skill = max(self.players[player].skill, random.randint(1, 5) + (1 if self.division <= 2 else 0))
@@ -1220,7 +1220,7 @@ class Game:
             self.numSquad += 1
             self.players[player].inSquad = True
             self.money -= bid
-            self.moneyMessage += self.financialLine(self.players[player].name + ' bought', 0, bid) + "\n";
+            self.moneyMessage += self.financialLine(self.players[player].name + ' bought', 0, bid) + "\n"
             if self.players[player].injured:
                 self.numInjured += 1
         else:
@@ -1271,8 +1271,8 @@ class Game:
         self.html += '<tr><td colspan="2"><hr /><td></tr>'
 
         if self.money < 0:
-             self.debt -= self.money
-             self.money = 0
+            self.debt -= self.money
+            self.money = 0
         print(self.financialLine('Cash', self.money, 0))
         print(self.financialLine('Debt', 0, self.debt))
         self.html += '<tr style="color: green;"><td>Cash</td><td style="text-align: right;">£{:,.0f}</td><tr>'.format(self.money)
@@ -1323,8 +1323,8 @@ class Game:
             self.money -= self.debt - MAX_DEBT
             self.debt = MAX_DEBT
         if self.money < 0:
-             self.debt -= self.money
-             self.money = 0
+            self.debt -= self.money
+            self.money = 0
         print('You have £{:,.2f}'.format(self.money))
         if self.debt > 0:
             print('You owe £{:,.2f}'.format(self.debt))
@@ -1359,8 +1359,8 @@ class Game:
             self.money -= self.debt - MAX_DEBT
             self.debt = MAX_DEBT
         if self.money < 0:
-             self.debt -= self.money
-             self.money = 0
+            self.debt -= self.money
+            self.money = 0
         self.html += '<p>You have £{:,.2f}</p>'.format(self.money)
         if self.debt > 0:
             self.html += '<p>You owe £{:,.2f}</p>'.format(self.debt)
@@ -2307,10 +2307,10 @@ class Game:
 
     def reportCupMatch(self):
         division = self.cupTeam.pos
-        print('division = {}'.format(division))
+        print(f'division = {division}')
         self.activeCup.addResult(self.isHomeMatch, self.cupTeam, self.homeScore, self.awayScore)
         print(self.activeCup.name)
-        self.html = '<h1>{}</h1>'.format(self.activeCup.name)
+        self.html = f'<h1>{self.activeCup.name}</h1>'
         self.html += self.activeCup.displayResults()
 
         if self.homeScore == self.awayScore:
@@ -2321,22 +2321,22 @@ class Game:
             cupBonus = 55000 - division * 5000 + random.randint(1, 1000) - random.randint(1, 1000)
             if self.activeCup.round == 6:
                 cupBonus += 50000
-            print('You made £{:,.0f}'.format(cupBonus))
-            self.html += '<p>You made £{:,.0f}</p>'.format(cupBonus)
+            print(f'You made £{cupBonus:,.0f}')
+            self.html += f'<p>You made £{cupBonus:,.0f}</p>'
             self.money += cupBonus
             self.moneyMessage += self.financialLine(self.activeCup.name, cupBonus, 0) + "\n";
 
             if self.activeCup.isIn:
                 if self.activeCup.round == 6:
-                    print('You have won the {}'.format(self.activeCup.name))
-                    self.html += '<p>You have won the {}</p>'.format(self.activeCup.name)
+                    print(f'You have won the {self.activeCup.name}')
+                    self.html += f'<p>You have won the {self.activeCup.name}</p>'
                 else:
-                    print('You qualify for the {} of the {}'.format(self.activeCup.getRoundName(), self.activeCup.name))
-                    self.html += '<p>You qualify for the {} of the {}</p>'.format(self.activeCup.getRoundName(), self.activeCup.name)
+                    print(f'You qualify for the {self.activeCup.getRoundName()} of the {self.activeCup.name}')
+                    self.html += f'<p>You qualify for the {self.activeCup.getRoundName()} of the {self.activeCup.name}</p>'
                 self.teams[self.teamIndex].moral = min(20, self.teams[self.teamIndex].moral + 3 + self.activeCup.round)
             else:
-                print('You are out of the {}'.format(self.activeCup.name))
-                self.html += '<p>You are out of the {}</p>'.format(self.activeCup.name)
+                print(f'You are out of the {self.activeCup.name}')
+                self.html += f'<p>You are out of the {self.activeCup.name}</p>'
                 self.teams[self.teamIndex].moral = max(1, self.teams[self.teamIndex].moral - 3)
 
         self.wait(True)
