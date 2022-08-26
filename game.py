@@ -68,7 +68,7 @@ class Game:
     def run(self):
         ''' Execute the football manager game. '''
         if sys.stdout.encoding.lower() != 'utf-8':
-            print('sys.stdout.encoding = {}'.format(sys.stdout.encoding))
+            print(f'sys.stdout.encoding = {sys.stdout.encoding}')
             print('Switch stdout to utf-8')
             sys.stdout.reconfigure(encoding='utf-8')
 
@@ -104,7 +104,7 @@ class Game:
         # Select the level.
         print('Enter level [1-4]')
         self.level = int(self.getKeyboardCharacter(['1', '2', '3', '4']))
-        print('Level {} was selected'.format(self.level))
+        print(f'Level {self.level} was selected')
 
         # Load a game.
         print('Do you want to load a game?')
@@ -123,8 +123,8 @@ class Game:
             # Play a season.
             while self.numMatches < self.MATCHES_PER_SEASON:
                 ansi.doCls()
-                print('{} MANAGER: {}'.format(self.team.getColouredName(), self.playerName))
-                print('LEVEL: {}'.format(self.level))
+                print(f'{self.team.getColouredName()} MANAGER: {self.playerName}')
+                print(f'LEVEL: {self.level}')
                 print()
                 self.displayCupStatus()
                 self.displayTitles()
@@ -172,18 +172,19 @@ class Game:
 
 
     def endSeason(self, isGraphical=False):
+        ''' End the season and initialise for the next season. '''
         ansi.doCls()
         print('Season has finished.')
         self.html = '<h1>Season has finished</h1>'
         self.displayLeague()
-        if isGraphical == False:
+        if not isGraphical:
             self.wait()
 
         europeanCup = 0
         self.titles = self.titles & ~7
         if self.teamIndex == 0:
-            print('{} are division {} champions'.format(self.teamName, self.division))
-            self.html += '<p>{} are division {} champions</p>'.format(self.teamName, self.division)
+            print(f'{self.teamName} are division {self.division} champions')
+            self.html += f'<p>{self.teamName} are division {self.division} champions</p>'
             self.titles += self.division
             if self.division == 1:
                 europeanCup = 3
@@ -198,14 +199,14 @@ class Game:
             self.html += '<h2>Promotion</h2><p>'
         for index in range(0, 3):
             print(self.teams[index].getColouredName())
-            self.html += '{}<br />'.format(self.teams[index].name)
+            self.html += f'{self.teams[index].name}<br />'
         self.html += '</p>'
         if self.division != 4:
             print('Relegation')
             self.html += '<h2>Relegation</h2><p>'
             for index in range(13, 16):
                 print(self.teams[index].getColouredName())
-                self.html += '{}<br />'.format(self.teams[index].name)
+                self.html += f'{self.teams[index].name}<br />'
             self.html += '</p>'
 
         if self.titles & 8 == 8:
@@ -1665,7 +1666,7 @@ class Game:
         # No Repeat Until in Python.
         # character = modInkey.getwch()
         character = self.keyboard.getKey()
-        while not (character in allowed):
+        while not character in allowed:
             # character = modInkey.getwch()
             character = self.keyboard.getKey()
         self.keyboard.stop()
@@ -1879,12 +1880,12 @@ class Game:
             while True:
                 home = random.randint(0, 15)
                 if self.teams[home].fixture == 0:
-                    break;
+                    break
             self.teams[home].fixture = match * 2 - 1
             while True:
                 away = random.randint(0, 15)
                 if self.teams[away].fixture == 0:
-                    break;
+                    break
             self.teams[away].fixture = match * 2
 
             # Swap if the away team has fewer home matches.
@@ -2100,7 +2101,7 @@ class Game:
             pdf *= mean / answer
             cdf += pdf
             if probability < cdf:
-                break;
+                break
         return answer
 
 
@@ -2324,7 +2325,7 @@ class Game:
             print(f'You made £{cupBonus:,.0f}')
             self.html += f'<p>You made £{cupBonus:,.0f}</p>'
             self.money += cupBonus
-            self.moneyMessage += self.financialLine(self.activeCup.name, cupBonus, 0) + "\n";
+            self.moneyMessage += self.financialLine(self.activeCup.name, cupBonus, 0) + "\n"
 
             if self.activeCup.isIn:
                 if self.activeCup.round == 6:
