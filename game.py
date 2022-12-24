@@ -225,16 +225,16 @@ class Game:
                 europeanCup = 1
 
         if europeanCup == 3:
-            print('{} qualify for the European Cup.'.format(self.teamName))
-            self.html += '{} qualify for the European Cup.'.format(self.teamName)
+            print(f'{self.teamName} qualify for the European Cup.')
+            self.html += f'{self.teamName} qualify for the European Cup.'
             self.europeanCup = CupCompetition(self, 'European Cup', 32, ~(32|64|128))
         elif europeanCup == 2:
-            print('{} qualify for the European Cup Winners Cup.'.format(self.teamName))
-            self.html += '{} qualify for the European Cup Winners Cup.'.format(self.teamName)
+            print(f'{self.teamName} qualify for the European Cup Winners Cup.')
+            self.html += f'{self.teamName} qualify for the European Cup Winners Cup.'
             self.europeanCup = CupCompetition(self, 'European Cup Winners Cup', 64, ~(32|64|128))
         elif europeanCup == 1:
-            print('{} qualify for the UEFA Cup.'.format(self.teamName))
-            self.html += '{} qualify for the UEFA Cup.'.format(self.teamName)
+            print(f'{self.teamName} qualify for the UEFA Cup.')
+            self.html += f'{self.teamName} qualify for the UEFA Cup.'
             self.europeanCup = CupCompetition(self, 'UEFA Cup', 128, ~(32|64|128))
         else:
             self.europeanCup = None
@@ -244,23 +244,23 @@ class Game:
         if self.division != 1 and self.teamIndex <= 2:
             # Promotion.
             self.division -= 1
-            print('{} are promoted to division {}'.format(self.teams[self.teamIndex].getColouredName(), self.division))
-            self.html += '<p>{} are promoted to division {}</p>'.format(self.teams[self.teamIndex].name, self.division)
+            print(f'{self.teams[self.teamIndex].getColouredName()} are promoted to division {self.division}')
+            self.html += f'<p>{self.teams[self.teamIndex].name} are promoted to division {self.division}</p>'
             for index in range(3, 13):
                 exclued.append(self.teams[index].name)
                 self.teams[index].name = ''
         elif self.division != 4 and self.teamIndex >= 13:
             # Relegation.
             self.division += 1
-            print('{} are relegated to division {}'.format(self.teams[self.teamIndex].getColouredName(), self.division))
-            self.html += '<p>{} are relegated to division {}</p>'.format(self.teams[self.teamIndex].name, self.division)
+            print(f'{self.teams[self.teamIndex].getColouredName()} are relegated to division {self.division}')
+            self.html += f'<p>{self.teams[self.teamIndex].name} are relegated to division {self.division}</p>'
             for index in range(0, 13):
                 exclued.append(self.teams[index].name)
                 self.teams[index].name = ''
         else:
             # Same division.
-            print('{} stay in division {}'.format(self.teams[self.teamIndex].getColouredName(), self.division))
-            self.html += '<p>{} stay in division {}</p>'.format(self.teams[self.teamIndex].name, self.division)
+            print(f'{self.teams[self.teamIndex].getColouredName()} stay in division {self.division}')
+            self.html += f'<p>{self.teams[self.teamIndex].name} stay in division {self.division}</p>'
             if self.division != 1:
                 for index in range(0, 3):
                     exclued.append(self.teams[index].name)
