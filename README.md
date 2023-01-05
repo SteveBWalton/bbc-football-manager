@@ -23,5 +23,4 @@ To run the program in the console.
 ```bash
 ./football_manager.py -t
 ```
-This only works in Linux.
-
+The console mode now only works in Linux.
