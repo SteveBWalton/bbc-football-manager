@@ -342,8 +342,6 @@ class Game:
     def getNextPage(self, response):
         ''' Advance the game to the next user response. '''
         # Deal with the response.
-        #if response != '':
-        #    print(response)
         if response == '':
             parameters = []
         elif response[0] == '?':
@@ -734,9 +732,6 @@ class Game:
         else:
             self.html = '<p>Error Help.</p><p>status = {}</p>'.format(self.status)
 
-
-
-
         return responseOptions
 
 
@@ -758,10 +753,10 @@ class Game:
                     self.teams[self.opponentIndex].isPlayedAway = True
                     break
         # Debugging only.
-        if self.isHomeMatch:
-            print('Home match against {}'.format(self.teams[self.opponentIndex].name))
-        else:
-            print('Away match against {}'.format(self.teams[self.opponentIndex].name))
+        #if self.isHomeMatch:
+        #    print('Home match against {}'.format(self.teams[self.opponentIndex].name))
+        #else:
+        #    print('Away match against {}'.format(self.teams[self.opponentIndex].name))
 
 
 
@@ -792,7 +787,6 @@ class Game:
                     self.subStatus = -1
 
         if self.activeCup != None:
-
             while True:
                 while True:
                     ansi.doCls()
