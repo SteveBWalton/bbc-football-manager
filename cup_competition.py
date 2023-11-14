@@ -60,9 +60,9 @@ class CupCompetition:
 
 
     def getTeam(self, division):
-        ''' Return the team to play against for the next match.
-        This is not working currently.
-        Only return a team from the current league.
+        '''
+        Return the team to play against for the next match.
+        Previously was only returning a team from the current league.
         This should be a weak team and keep the game easy to debug.
         '''
         if self.mask >= 32:
@@ -129,6 +129,7 @@ class CupCompetition:
             self.game.titles = self.game.titles | self.mask
         if not self.isIn:
             self.game.titles = self.game.titles & self.notMask
+
 
 
     def displayResults(self):
