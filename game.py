@@ -730,7 +730,7 @@ class Game:
         elif self.status == 1000:
             self.endSeason(True)
         else:
-            self.html = '<p>Error Help.</p><p>status = {}</p>'.format(self.status)
+            self.html = f'<p>Error Help.</p><p>status = {self.status}</p>'
 
         return responseOptions
 
